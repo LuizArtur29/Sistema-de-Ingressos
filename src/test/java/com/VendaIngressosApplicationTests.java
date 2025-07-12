@@ -1,4 +1,4 @@
-package com.vendaingressos.venda_ingressos;
+package com;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

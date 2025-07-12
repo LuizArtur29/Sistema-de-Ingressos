@@ -1,4 +1,4 @@
-package com.vendaingressos.venda_ingressos;
+package com.vendaingressos;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
