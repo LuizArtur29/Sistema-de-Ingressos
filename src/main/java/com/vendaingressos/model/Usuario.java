@@ -12,22 +12,22 @@ import lombok.Setter;
 import java.util.UUID;
 
 @Entity
-@Table(name = "evento")
+@Table(name = "usuario")
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Evento {
+public class Usuario {
     @Id
     @GeneratedValue
-    private UUID idEvento;
+    private UUID idUsuario;
 
     private String nome;
-    private String descricao;
-    private String data;
-    private String local;
-    private String categoria;
-    private double precoIngresso;
-    private int classificacaoEtaria;
+    private int CPF;
+    private String dataNascimento;
+    private String email;
+    private String senha;
+
+    //Adicionar abaixo métoddos personalizados
 
 }

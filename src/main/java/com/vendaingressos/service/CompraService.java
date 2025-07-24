@@ -1,4 +1,4 @@
 package com.vendaingressos.service;
 
-public class EventoService {
+public class CompraService {
 }
