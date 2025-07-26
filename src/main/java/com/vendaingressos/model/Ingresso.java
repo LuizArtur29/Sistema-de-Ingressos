@@ -1,17 +1,13 @@
 package com.vendaingressos.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "ingresso")
-@Setter
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Ingresso {
@@ -22,5 +18,11 @@ public class Ingresso {
     @ManyToOne
     @JoinColumn(name = "id_evento")
     private Evento evento;
+
+    @Column(nullable = false)
+    private double preco;
+
+    @Column(nullable = false)
+    private String tipoIngresso;
 
 }
