@@ -12,8 +12,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Ingresso {
     @Id
-    @GeneratedValue
-    private UUID idIngresso;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idIngresso;
 
     @ManyToOne
     @JoinColumn(name = "id_evento")
@@ -24,5 +24,7 @@ public class Ingresso {
 
     @Column(nullable = false)
     private String tipoIngresso;
+
+    private boolean ingressoDisponivel = true;
 
 }

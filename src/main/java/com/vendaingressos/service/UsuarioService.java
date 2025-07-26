@@ -36,7 +36,7 @@ public class UsuarioService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Usuario> buscarUsuarioPorId(UUID id){
+    public Optional<Usuario> buscarUsuarioPorId(Long id){
         return usuarioRepository.findById(id);
     }
 
@@ -46,7 +46,7 @@ public class UsuarioService {
     }
 
     @Transactional
-    public Usuario atualizarUsuario(UUID id, Usuario usuarioAtualizado) {
+    public Usuario atualizarUsuario(Long id, Usuario usuarioAtualizado) {
         return usuarioRepository.findById(id).map(usuario -> {
             usuario.setNome(usuarioAtualizado.getNome());
             usuario.setCPF(usuarioAtualizado.getCPF());
@@ -59,7 +59,7 @@ public class UsuarioService {
         }).orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: \" + id"));
     }
 
-    public void deletarUsuario(UUID id){
+    public void deletarUsuario(Long id){
         usuarioRepository.deleteById(id);
     }
 }

@@ -5,8 +5,10 @@ import com.vendaingressos.repository.EventoRepository;
 import com.vendaingressos.repository.IngressoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class IngressoService {
@@ -21,20 +23,38 @@ public class IngressoService {
         this.eventoRepository = eventoRepository;
     }
 
-    public Ingresso criarIngressoParaEvento() {}
+    @Transactional
+    public Ingresso criarIngressoParaEvento(Ingresso ingresso) {
+        return ingressoRepository.save(ingresso);
+    }
 
-    public Ingresso buscarIngressoPorId() {}
+    @Transactional(readOnly = true)
+    public Optional<Ingresso> buscarIngressoPorId(Long id) {
+        return ingressoRepository.findById(id);
+    }
 
-    public boolean temIngressosDisponiveis() {}
+    /*@Transactional(readOnly = true)
+    public boolean temIngressosDisponiveis() {} (Parte do EventoService?) */
 
-    public List<Ingresso>listarIngressosPorUsuario() {}
+    /*@Transactional(readOnly = true)
+    public List<Ingresso>listarIngressosPorUsuario() {} (Parte do UsuarioService) */
 
-    public boolean isIngressoValido(String codigo) {}
+    @Transactional(readOnly = true)
+    public boolean isIngressoValido(Long id) {
+        Ingresso ingresso = ingressoRepository.findById(id).orElseThrow(() -> new RuntimeException("Ingresso não encontrado"));
+        return ingresso.isIngressoDisponivel();
 
-    public void registrarEntrada(String codigoIngresso{}
+    }
 
-    public long contarIngressosVendidos(Long eventoId) {}
+    @Transactional(readOnly = true)
+    public void registrarEntrada(Long id) {
+        Ingresso ingresso = ingressoRepository.findById(id).orElseThrow(() -> new RuntimeException("Ingresso não encontrado"));
+        ingresso.setIngressoDisponivel(false);
 
+    }
+
+    /*@Transactional(readOnly = true)
+    public long contarIngressosVendidos(Long eventoId) {} (Parte de compras)*/
 
 
 }

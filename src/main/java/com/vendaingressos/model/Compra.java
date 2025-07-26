@@ -13,8 +13,8 @@ import java.util.UUID;
 @Data
 public class Compra {
     @Id
-    @GeneratedValue
-    private UUID idCompra;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idCompra;
 
     private LocalDate dataCompra;
     private int quantidadeIngressos;

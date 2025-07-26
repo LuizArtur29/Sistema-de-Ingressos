@@ -31,7 +31,7 @@ public class CompraService {
     }
 
     @Transactional
-    public Compra realizarCompra(UUID usuarioId, UUID ingressoId, int quantidadeIngressos, String metodoPagamento, boolean isMeiaEntrada ) {
+    public Compra realizarCompra(Long usuarioId, Long ingressoId, int quantidadeIngressos, String metodoPagamento, boolean isMeiaEntrada ) {
         Optional<Usuario> usuarioOptional = usuarioRepository.findById(usuarioId);
         Optional<Ingresso> ingressoOptional = ingressoRepository.findById(ingressoId);
 
@@ -72,7 +72,7 @@ public class CompraService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Compra> buscarCompraPorId(UUID id) {
+    public Optional<Compra> buscarCompraPorId(Long id) {
         return compraRepository.findById(id);
     }
 
@@ -82,7 +82,7 @@ public class CompraService {
     }
 
     @Transactional
-    public Compra atualizarStatusCompra(UUID id, String novoStatus) {
+    public Compra atualizarStatusCompra(Long id, String novoStatus) {
         return compraRepository.findById(id).map(compra ->{
             compra.setStatus(novoStatus);
             return compraRepository.save(compra);
@@ -90,7 +90,7 @@ public class CompraService {
     }
 
     @Transactional
-    public void deletarCompra(UUID id) {
+    public void deletarCompra(Long id) {
         compraRepository.deleteById(id);
     }
 }
