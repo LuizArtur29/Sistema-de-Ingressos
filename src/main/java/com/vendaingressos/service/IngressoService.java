@@ -1,5 +1,6 @@
 package com.vendaingressos.service;
 
+import com.vendaingressos.model.Evento;
 import com.vendaingressos.model.Ingresso;
 import com.vendaingressos.repository.EventoRepository;
 import com.vendaingressos.repository.IngressoRepository;
@@ -24,13 +25,26 @@ public class IngressoService {
     }
 
     @Transactional
-    public Ingresso criarIngressoParaEvento(Ingresso ingresso) {
+    public Ingresso criarIngressoParaEvento(Long eventoId, Ingresso ingresso) {
+        Evento evento = eventoRepository.findById(eventoId).orElseThrow(() -> new RuntimeException("Evento não encontrado"));
+
+        ingresso.setEvento(evento);
+
+        evento.getListaIngressos().add(ingresso);
+
         return ingressoRepository.save(ingresso);
     }
 
     @Transactional(readOnly = true)
-    public Optional<Ingresso> buscarIngressoPorId(Long id) {
-        return ingressoRepository.findById(id);
+    public List<Ingresso> listarIngressosPorEvento(Long eventoId) {
+        Evento evento = eventoRepository.findById(eventoId).orElseThrow(() -> new RuntimeException("Evento não encontrado"));
+
+        return evento.getListaIngressos();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Ingresso> buscarIngressoPorId(Long ingressoId) {
+        return ingressoRepository.findById(ingressoId);
     }
 
     /*@Transactional(readOnly = true)
@@ -39,16 +53,16 @@ public class IngressoService {
     /*@Transactional(readOnly = true)
     public List<Ingresso>listarIngressosPorUsuario() {} (Parte do UsuarioService) */
 
-    @Transactional(readOnly = true)
-    public boolean isIngressoValido(Long id) {
-        Ingresso ingresso = ingressoRepository.findById(id).orElseThrow(() -> new RuntimeException("Ingresso não encontrado"));
+    @Transactional
+    public boolean isIngressoValido(Long ingressoId) {
+        Ingresso ingresso = ingressoRepository.findById(ingressoId).orElseThrow(() -> new RuntimeException("Ingresso não encontrado"));
         return ingresso.isIngressoDisponivel();
 
     }
 
     @Transactional(readOnly = true)
-    public void registrarEntrada(Long id) {
-        Ingresso ingresso = ingressoRepository.findById(id).orElseThrow(() -> new RuntimeException("Ingresso não encontrado"));
+    public void registrarEntrada(Long ingressoId) {
+        Ingresso ingresso = ingressoRepository.findById(ingressoId).orElseThrow(() -> new RuntimeException("Ingresso não encontrado"));
         ingresso.setIngressoDisponivel(false);
 
     }

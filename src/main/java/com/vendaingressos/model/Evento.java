@@ -1,8 +1,11 @@
 package com.vendaingressos.model; // Certifique-se de que o pacote está correto
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*; // Importa as anotações JPA
 import lombok.Data; // Importa a anotação @Data do Lombok
 import java.time.LocalDateTime; // Para lidar com data e hora
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity // Indica que esta classe é uma entidade JPA e será mapeada para uma tabela no BD
 @Table(name = "eventos") // Define o nome da tabela no banco de dados (opcional, mas boa prática)
@@ -30,6 +33,9 @@ public class Evento {
 
     @Column(nullable = false)
     private String status; // Ex: "ATIVO", "CANCELADO", "FINALIZADO"
+
+    @Transient
+    private List<Ingresso> listaIngressos = new ArrayList<>();
 
     // Construtor padrão (necessário para JPA, Lombok @Data geralmente cria um)
     public Evento() {
