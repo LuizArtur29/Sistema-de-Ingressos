@@ -7,14 +7,12 @@ import com.vendaingressos.repository.CompraRepository;
 import com.vendaingressos.repository.IngressoRepository;
 import com.vendaingressos.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class CompraService {
@@ -77,7 +75,7 @@ public class CompraService {
     }
 
     @Transactional(readOnly = true)
-    public List<Compra> buscarComprasPorUsuario(UUID usuarioId) {
+    public List<Compra> buscarComprasPorUsuario(Long usuarioId) {
         return compraRepository.findByUsuarioIdUsuario(usuarioId);
     }
 
