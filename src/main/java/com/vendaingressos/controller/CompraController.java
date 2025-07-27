@@ -1,9 +1,6 @@
 package com.vendaingressos.controller;
 
-<<<<<<< Updated upstream
-public class CompraController {
-}
-=======
+
 import com.vendaingressos.dto.CompraRequest;
 import com.vendaingressos.dto.StatusUpdateRequest;
 import com.vendaingressos.model.Compra;
@@ -14,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/compras")
@@ -82,4 +78,3 @@ public class CompraController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
->>>>>>> Stashed changes
