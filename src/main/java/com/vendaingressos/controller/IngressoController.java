@@ -28,7 +28,7 @@ public class IngressoController {
     }
 
     @GetMapping("listarIngressos/{eventoId}")
-    public ResponseEntity<List<Ingresso>> listarPorEvento(Long eventoId) {
+    public ResponseEntity<List<Ingresso>> listarPorEvento(@PathVariable Long eventoId) {
         List<Ingresso> ingressos = ingressoService.listarIngressosPorEvento(eventoId);
         return new ResponseEntity<>(ingressos, HttpStatus.OK);
     }

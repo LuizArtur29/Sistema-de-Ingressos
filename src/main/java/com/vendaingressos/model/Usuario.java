@@ -20,6 +20,8 @@ public class Usuario {
     private String dataNascimento;
     private String email;
     private String senha;
+    private String endereco;
+    private String telefone;
 
     //Adicionar abaixo métoddos personalizados
 

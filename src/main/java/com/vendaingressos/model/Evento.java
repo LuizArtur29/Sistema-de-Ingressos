@@ -34,6 +34,12 @@ public class Evento {
     @Column(nullable = false)
     private String status; // Ex: "ATIVO", "CANCELADO", "FINALIZADO"
 
+    @Column(nullable = false, length = 100)
+    private String categoria;
+
+    @Column(nullable = false, length = 50)
+    private String classificacaoEtaria;
+
     @Transient
     private List<Ingresso> listaIngressos = new ArrayList<>();
 
@@ -42,12 +48,14 @@ public class Evento {
     }
 
     // Construtor com todos os campos (útil para criar objetos mais facilmente)
-    public Evento(String nome, String descricao, LocalDateTime dataHora, String local, Integer capacidadeTotal, String status) {
+    public Evento(String nome, String descricao, LocalDateTime dataHora, String local, Integer capacidadeTotal, String status, String categoria, String classificacaoEtaria) {
         this.nome = nome;
         this.descricao = descricao;
         this.dataHora = dataHora;
         this.local = local;
         this.capacidadeTotal = capacidadeTotal;
         this.status = status;
+        this.categoria = categoria;
+        this.classificacaoEtaria = classificacaoEtaria;
     }
 }
