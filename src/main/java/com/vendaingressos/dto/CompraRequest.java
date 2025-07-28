@@ -7,8 +7,8 @@ import java.util.UUID;
 @Data
 public class CompraRequest {
 
-    Long usuarioID;
-    Long ingressoID;
+    public Long usuarioID;
+    public Long ingressoID;
     public int quantidadeIngressos;
     public String metodoPagamento;
     public boolean isMeiaEntrada;
