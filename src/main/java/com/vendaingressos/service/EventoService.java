@@ -13,11 +13,13 @@ import java.util.Optional;
 public class EventoService {
 
     private final EventoRepository eventoRepository; // Injeta o repositório
+    private final CompraService compraService;
 
     // Construtor para injeção de dependência do EventoRepository
     @Autowired // Opcional a partir do Spring 4.3 para injeção via construtor
-    public EventoService(EventoRepository eventoRepository) {
+    public EventoService(EventoRepository eventoRepository, CompraService compraService) {
         this.eventoRepository = eventoRepository;
+        this.compraService = compraService;
     }
 
     // Método para salvar um novo evento ou atualizar um existente
@@ -63,5 +65,16 @@ public class EventoService {
             return eventoRepository.save(evento);
         }).orElseThrow(() -> new RuntimeException("Evento não encontrado com ID: " + id));
         // Em uma aplicação real, você usaria uma exceção mais específica, como ResourceNotFoundException
+    }
+
+    @Transactional(readOnly = true)
+    public boolean temIngressosDisponiveis(Long eventoId) { // Novo método
+        Optional<Evento> eventoOptional = eventoRepository.findById(eventoId);
+        if (eventoOptional.isEmpty()) {
+            throw new RuntimeException("Evento não encontrado com ID: " + eventoId);
+        }
+        Evento evento = eventoOptional.get();
+        long ingressosVendidos = compraService.contarIngressosVendidos(eventoId); // Usa o método do CompraService
+        return evento.getCapacidadeTotal() > ingressosVendidos; //
     }
 }

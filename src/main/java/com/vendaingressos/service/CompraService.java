@@ -91,4 +91,14 @@ public class CompraService {
     public void deletarCompra(Long id) {
         compraRepository.deleteById(id);
     }
+
+    @Transactional(readOnly = true)
+    public long contarIngressosVendidos(Long eventoId) { // Novo método
+        List<Compra> comprasDoEvento = compraRepository.findByIngressoEventoId(eventoId);
+        long totalIngressos = 0;
+        for (Compra compra : comprasDoEvento) {
+            totalIngressos += compra.getQuantidadeIngressos();
+        }
+        return totalIngressos;
+    }
 }
