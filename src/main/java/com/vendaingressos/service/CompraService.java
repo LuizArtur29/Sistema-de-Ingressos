@@ -44,6 +44,17 @@ public class CompraService {
             throw new BadRequestException("A quantidade de ingressos deve ser maior que zero.");
         }
 
+        // Adicionar uma verificação mais robusta de disponibilidade baseada na capacidade da sessão
+        // e nos ingressos já vendidos para aquela sessão.
+        // A capacidade é do Evento pai, mas a contagem de vendidos é por SessaoEvento.
+        Integer capacidadeTotalEventoPorDia = ingresso.getSessaoEvento().getEventoPai().getCapacidadeTotal();
+        long ingressosVendidosNestaSessao = contarIngressosVendidosPorSessao(ingresso.getSessaoEvento().getIdSessao());
+
+        if ((ingressosVendidosNestaSessao + quantidadeIngressos) > capacidadeTotalEventoPorDia) {
+            throw new BadRequestException("Não há ingressos suficientes disponíveis para esta sessão do evento.");
+        }
+
+
         double precoUnitarioBase = ingresso.getPreco();
 
         double precoFinalUnitario = precoUnitarioBase;
@@ -99,11 +110,12 @@ public class CompraService {
         compraRepository.deleteById(id);
     }
 
+    // Novo método para contar ingressos vendidos por Sessão de Evento
     @Transactional(readOnly = true)
-    public long contarIngressosVendidos(Long eventoId) { // Novo método
-        List<Compra> comprasDoEvento = compraRepository.findByIngressoEventoId(eventoId);
+    public long contarIngressosVendidosPorSessao(Long sessaoEventoId) {
+        List<Compra> comprasDaSessao = compraRepository.findByIngressoSessaoEventoIdSessao(sessaoEventoId);
         long totalIngressos = 0;
-        for (Compra compra : comprasDoEvento) {
+        for (Compra compra : comprasDaSessao) {
             totalIngressos += compra.getQuantidadeIngressos();
         }
         return totalIngressos;

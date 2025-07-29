@@ -22,15 +22,17 @@ public class IngressoController {
         this.ingressoService = ingressoService;
     }
 
-    @PostMapping("/criar/{eventoId}")
-    public ResponseEntity<Ingresso> criarIngresso(@PathVariable Long eventoId, @Valid @RequestBody Ingresso ingresso) {
-        Ingresso novoIngresso = ingressoService.criarIngressoParaEvento(eventoId, ingresso);
+    // Alterado para criar ingresso para uma SessaoEvento específica
+    @PostMapping("/criar/{sessaoEventoId}")
+    public ResponseEntity<Ingresso> criarIngresso(@PathVariable Long sessaoEventoId, @Valid @RequestBody Ingresso ingresso) {
+        Ingresso novoIngresso = ingressoService.criarIngressoParaSessaoEvento(sessaoEventoId, ingresso);
         return new ResponseEntity<>(novoIngresso, HttpStatus.CREATED);
     }
 
-    @GetMapping("listarIngressos/{eventoId}")
-    public ResponseEntity<List<Ingresso>> listarPorEvento(@PathVariable Long eventoId) {
-        List<Ingresso> ingressos = ingressoService.listarIngressosPorEvento(eventoId);
+    // Alterado para listar ingressos por SessaoEvento
+    @GetMapping("listarIngressosPorSessao/{sessaoEventoId}")
+    public ResponseEntity<List<Ingresso>> listarPorSessao(@PathVariable Long sessaoEventoId) {
+        List<Ingresso> ingressos = ingressoService.listarIngressosPorSessaoEvento(sessaoEventoId);
         return new ResponseEntity<>(ingressos, HttpStatus.OK);
     }
 

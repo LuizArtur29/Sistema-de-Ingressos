@@ -6,8 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "ingresso")
 @Data
@@ -18,10 +16,11 @@ public class Ingresso {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idIngresso;
 
-    @ManyToOne
-    @JoinColumn(name = "id_evento")
-    @NotNull(message = "O ingresso deve estar associado a um evento")
-    private Evento evento;
+    // Alterado de Evento para SessaoEvento
+    @ManyToOne(fetch = FetchType.LAZY) // Many tickets to one session
+    @JoinColumn(name = "id_sessao_evento", nullable = false) // Foreign key to SessaoEvento
+    @NotNull(message = "O ingresso deve estar associado a uma sessão de evento")
+    private SessaoEvento sessaoEvento;
 
     @NotNull(message = "O preço do ingresso não pode ser nulo")
     @Min(value = 0, message = "O preço deve ser maior ou igual a zero")
@@ -33,5 +32,4 @@ public class Ingresso {
     private String tipoIngresso;
 
     private boolean ingressoDisponivel = true;
-
 }

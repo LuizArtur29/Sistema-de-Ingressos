@@ -8,6 +8,7 @@ import java.util.List;
 public interface CompraRepository extends JpaRepository<Compra, Long> {
 
     List<Compra> findByUsuarioIdUsuario(Long usuarioId);
-    List<Compra> findByIngressoEventoId(Long eventoId);
+    // Alterado para buscar por ID da SessaoEvento, não mais por Evento
+    List<Compra> findByIngressoSessaoEventoIdSessao(Long sessaoEventoId);
 
 }
