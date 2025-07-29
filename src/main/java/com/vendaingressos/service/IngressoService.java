@@ -1,5 +1,7 @@
 package com.vendaingressos.service;
 
+import com.vendaingressos.exception.BadRequestException;
+import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Evento;
 import com.vendaingressos.model.Ingresso;
 import com.vendaingressos.repository.EventoRepository;
@@ -26,7 +28,12 @@ public class IngressoService {
 
     @Transactional
     public Ingresso criarIngressoParaEvento(Long eventoId, Ingresso ingresso) {
-        Evento evento = eventoRepository.findById(eventoId).orElseThrow(() -> new RuntimeException("Evento não encontrado"));
+        Evento evento = eventoRepository.findById(eventoId).orElseThrow(() -> new ResourceNotFoundException("Evento não encontrado com ID:" + eventoId));
+
+        if (evento.getCapacidadeTotal() <= evento.getListaIngressos().size()) {
+            throw new BadRequestException("O evento atingiu sua capacidade máxima de ingressos.");
+
+        }
 
         ingresso.setEvento(evento);
 
@@ -37,7 +44,7 @@ public class IngressoService {
 
     @Transactional(readOnly = true)
     public List<Ingresso> listarIngressosPorEvento(Long eventoId) {
-        Evento evento = eventoRepository.findById(eventoId).orElseThrow(() -> new RuntimeException("Evento não encontrado"));
+        Evento evento = eventoRepository.findById(eventoId).orElseThrow(() -> new ResourceNotFoundException("Evento não encontrado"));
 
         return evento.getListaIngressos();
     }
@@ -55,16 +62,21 @@ public class IngressoService {
 
     @Transactional
     public boolean isIngressoValido(Long ingressoId) {
-        Ingresso ingresso = ingressoRepository.findById(ingressoId).orElseThrow(() -> new RuntimeException("Ingresso não encontrado"));
+        Ingresso ingresso = ingressoRepository.findById(ingressoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Ingresso não encontrado"));
         return ingresso.isIngressoDisponivel();
-
     }
 
     @Transactional(readOnly = true)
     public void registrarEntrada(Long ingressoId) {
-        Ingresso ingresso = ingressoRepository.findById(ingressoId).orElseThrow(() -> new RuntimeException("Ingresso não encontrado"));
-        ingresso.setIngressoDisponivel(false);
+        Ingresso ingresso = ingressoRepository.findById(ingressoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Ingresso não encontrado"));
 
+        if (!ingresso.isIngressoDisponivel()) {
+            throw new BadRequestException("Ingresso já utilizado ou não disponível.");
+        }
+        ingresso.setIngressoDisponivel(false);
+        ingressoRepository.save(ingresso);
     }
 
     /*@Transactional(readOnly = true)

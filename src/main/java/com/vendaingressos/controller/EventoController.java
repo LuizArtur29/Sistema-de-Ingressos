@@ -1,7 +1,9 @@
 package com.vendaingressos.controller; // Certifique-se de que o pacote está correto
 
+import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Evento;     // Importa a entidade Evento
 import com.vendaingressos.service.EventoService; // Importa o serviço de Evento
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;             // Para códigos de status HTTP
 import org.springframework.http.ResponseEntity;         // Para retornar respostas HTTP completas
@@ -24,7 +26,7 @@ public class EventoController {
 
     // Endpoint para criar um novo evento (POST /api/eventos)
     @PostMapping
-    public ResponseEntity<Evento> criarEvento(@RequestBody Evento evento) {
+    public ResponseEntity<Evento> criarEvento(@Valid @RequestBody Evento evento) {
         Evento novoEvento = eventoService.salvarEvento(evento);
         return new ResponseEntity<>(novoEvento, HttpStatus.CREATED); // Retorna 201 Created
     }
@@ -41,12 +43,12 @@ public class EventoController {
     public ResponseEntity<Evento> buscarEventoPorId(@PathVariable Long id) {
         return eventoService.buscarEventoPorId(id)
                 .map(evento -> new ResponseEntity<>(evento, HttpStatus.OK)) // Retorna 200 OK se encontrado
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND)); // Retorna 404 Not Found se não encontrado
+                .orElseThrow(() -> new ResourceNotFoundException("Evento não encontrado com ID: " + id)); // Retorna 404 Not Found se não encontrado
     }
 
     // Endpoint para atualizar um evento (PUT /api/eventos/{id})
     @PutMapping("/{id}")
-    public ResponseEntity<Evento> atualizarEvento(@PathVariable Long id, @RequestBody Evento evento) {
+    public ResponseEntity<Evento> atualizarEvento(@PathVariable Long id, @Valid @RequestBody Evento evento) {
         try {
             Evento eventoAtualizado = eventoService.atualizarEvento(id, evento);
             return new ResponseEntity<>(eventoAtualizado, HttpStatus.OK); // Retorna 200 OK

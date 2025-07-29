@@ -33,8 +33,6 @@ public class Usuario {
 
     @NotBlank(message = "A senha não pode estar em branco")
     private String senha;
-    private String endereco;
-    private String telefone;
 
     @NotBlank(message = "O endereço não pode estar em branco")
     private String endereco;

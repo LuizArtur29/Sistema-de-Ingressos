@@ -1,5 +1,6 @@
 package com.vendaingressos.service; // Certifique-se de que o pacote está correto
 
+import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Evento; // Importa a entidade Evento
 import com.vendaingressos.repository.EventoRepository; // Importa o EventoRepository
 import org.springframework.beans.factory.annotation.Autowired; // Para injeção de dependência
@@ -48,6 +49,9 @@ public class EventoService {
     public void deletarEvento(Long id) {
         // Aqui você pode adicionar lógica de negócio antes de deletar,
         // como verificar se o evento tem ingressos vendidos, etc.
+        if (!eventoRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Evento não encontrado com ID: " + id);
+        }
         eventoRepository.deleteById(id);
     }
 
@@ -63,8 +67,7 @@ public class EventoService {
             evento.setStatus(eventoAtualizado.getStatus());
             // Adicione outros campos que podem ser atualizados
             return eventoRepository.save(evento);
-        }).orElseThrow(() -> new RuntimeException("Evento não encontrado com ID: " + id));
-        // Em uma aplicação real, você usaria uma exceção mais específica, como ResourceNotFoundException
+        }).orElseThrow(() -> new ResourceNotFoundException("Evento não encontrado com ID: " + id));
     }
 
     @Transactional(readOnly = true)

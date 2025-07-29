@@ -2,6 +2,7 @@ package com.vendaingressos.controller;
 
 import com.vendaingressos.model.Ingresso;
 import com.vendaingressos.service.IngressoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class IngressoController {
     }
 
     @PostMapping("/criar/{eventoId}")
-    public ResponseEntity<Ingresso> criarIngresso(@PathVariable Long eventoId, @RequestBody Ingresso ingresso) {
+    public ResponseEntity<Ingresso> criarIngresso(@PathVariable Long eventoId, @Valid @RequestBody Ingresso ingresso) {
         Ingresso novoIngresso = ingressoService.criarIngressoParaEvento(eventoId, ingresso);
         return new ResponseEntity<>(novoIngresso, HttpStatus.CREATED);
     }
@@ -35,7 +36,9 @@ public class IngressoController {
 
     @GetMapping("buscarIngresso/{ingressoId}")
     public ResponseEntity<Ingresso> buscarPorId(@PathVariable Long ingressoId) {
-        return ingressoService.buscarIngressoPorId(ingressoId).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return ingressoService.buscarIngressoPorId(ingressoId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /* Para ser usado dentro de outro método, para servir de verificação. O controller dessa lógica apenas para teste */
@@ -46,10 +49,8 @@ public class IngressoController {
     }
 
     @PutMapping("registrarEntrada/{ingressoId}")
-    public ResponseEntity<Void> registrarEntrada(Long ingressoId) {
+    public ResponseEntity<Void> registrarEntrada(@PathVariable Long ingressoId) {
         ingressoService.registrarEntrada(ingressoId);
         return new ResponseEntity<>(HttpStatus.OK);
-
     }
-
 }

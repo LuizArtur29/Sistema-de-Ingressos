@@ -1,5 +1,7 @@
 package com.vendaingressos.service;
 
+import com.vendaingressos.exception.BadRequestException;
+import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Compra;
 import com.vendaingressos.model.Ingresso;
 import com.vendaingressos.model.Usuario;
@@ -31,6 +33,9 @@ public class UsuarioService {
 
     @Transactional
     public Usuario cadastrarUsuario(Usuario usuario) {
+        if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
+            throw new BadRequestException("Já existe um usuário cadastrado com este e-mail.");
+        }
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         return usuarioRepository.save(usuario);
     }
@@ -57,16 +62,19 @@ public class UsuarioService {
             usuario.setCPF(usuarioAtualizado.getCPF());
             usuario.setDataNascimento(usuarioAtualizado.getDataNascimento());
             usuario.setEmail(usuarioAtualizado.getEmail());
+            usuario.setEndereco(usuarioAtualizado.getEndereco());
+            usuario.setTelefone(usuarioAtualizado.getTelefone());
             if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().isEmpty()) {
                 usuario.setSenha(passwordEncoder.encode(usuarioAtualizado.getSenha()));
             }
-            usuario.setEndereco(usuarioAtualizado.getEndereco());
-            usuario.setTelefone(usuarioAtualizado.getTelefone());
             return usuarioRepository.save(usuario);
-        }).orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: \" + id"));
+        }).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + id));
     }
 
-    public void deletarUsuario(Long id){
+    public void deletarUsuario(Long id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new RuntimeException("Usuário não encontrado com ID: " + id);
+        }
         usuarioRepository.deleteById(id);
     }
 
@@ -74,7 +82,7 @@ public class UsuarioService {
     public List<Ingresso> listarIngressosPorUsuario(Long usuarioId) {
         // Primeiro, verifica se o usuário existe
         if (!usuarioRepository.existsById(usuarioId)) {
-            throw new RuntimeException("Usuário não encontrado com ID: " + usuarioId);
+            throw new ResourceNotFoundException("Usuário não encontrado com ID: " + usuarioId);
         }
         // Busca todas as compras do usuário
         List<Compra> comprasDoUsuario = compraService.buscarComprasPorUsuario(usuarioId);

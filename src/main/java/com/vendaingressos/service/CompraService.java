@@ -1,5 +1,7 @@
 package com.vendaingressos.service;
 
+import com.vendaingressos.exception.BadRequestException;
+import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Compra;
 import com.vendaingressos.model.Ingresso;
 import com.vendaingressos.model.Usuario;
@@ -30,18 +32,17 @@ public class CompraService {
 
     @Transactional
     public Compra realizarCompra(Long usuarioId, Long ingressoId, int quantidadeIngressos, String metodoPagamento, boolean isMeiaEntrada ) {
-        Optional<Usuario> usuarioOptional = usuarioRepository.findById(usuarioId);
-        Optional<Ingresso> ingressoOptional = ingressoRepository.findById(ingressoId);
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + usuarioId));
+        Ingresso ingresso = ingressoRepository.findById(ingressoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Ingresso não encontrado com ID: " + ingressoId));
 
-        if (usuarioOptional.isEmpty()) {
-            throw new RuntimeException("Usuário não encontrado com ID: " + usuarioId);
+        if (!ingresso.isIngressoDisponivel()) {
+            throw new BadRequestException("Ingresso não está disponível para compra.");
         }
-        if (ingressoOptional.isEmpty()) {
-            throw new RuntimeException("Ingresso não encontrado com ID: " + ingressoId);
+        if (quantidadeIngressos <= 0) {
+            throw new BadRequestException("A quantidade de ingressos deve ser maior que zero.");
         }
-
-        Usuario usuario = usuarioOptional.get();
-        Ingresso ingresso = ingressoOptional.get();
 
         double precoUnitarioBase = ingresso.getPreco();
 
@@ -76,6 +77,9 @@ public class CompraService {
 
     @Transactional(readOnly = true)
     public List<Compra> buscarComprasPorUsuario(Long usuarioId) {
+        if (!usuarioRepository.existsById(usuarioId)) {
+            throw new ResourceNotFoundException("Usuário não encontrado com ID: " + usuarioId);
+        }
         return compraRepository.findByUsuarioIdUsuario(usuarioId);
     }
 
@@ -84,11 +88,14 @@ public class CompraService {
         return compraRepository.findById(id).map(compra ->{
             compra.setStatus(novoStatus);
             return compraRepository.save(compra);
-        }).orElseThrow(() -> new RuntimeException("Compra não encontrada com ID : " + id));
+        }).orElseThrow(() -> new ResourceNotFoundException("Compra não encontrada com ID : " + id));
     }
 
     @Transactional
     public void deletarCompra(Long id) {
+        if (!compraRepository.existsById(id)) {
+            throw new RuntimeException("Compra não encontrada com ID: " + id);
+        }
         compraRepository.deleteById(id);
     }
 

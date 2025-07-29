@@ -3,8 +3,10 @@ package com.vendaingressos.controller;
 
 import com.vendaingressos.dto.CompraRequest;
 import com.vendaingressos.dto.StatusUpdateRequest;
+import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Compra;
 import com.vendaingressos.service.CompraService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +27,7 @@ public class CompraController {
     }
 
     @PostMapping
-    public ResponseEntity<Compra> realizarCompra(@RequestBody CompraRequest request) {
-
-        try {
+    public ResponseEntity<Compra> realizarCompra(@Valid @RequestBody CompraRequest request) {
             Compra novaCompra = compraService.realizarCompra(
                     request.getUsuarioID(),
                     request.getIngressoID(),
@@ -36,9 +36,6 @@ public class CompraController {
                     request.isMeiaEntrada
                     );
             return new ResponseEntity<>(novaCompra, HttpStatus.CREATED);
-        }catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
     }
 
     @GetMapping
@@ -51,26 +48,19 @@ public class CompraController {
     public ResponseEntity<Compra> buscarCompraPorId(@PathVariable Long id) {
         return compraService.buscarCompraPorId(id)
                 .map(compra -> new ResponseEntity<>(compra, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException("Compra não encontrada com ID: " + id));
     }
 
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<Compra>> buscarComprasPorUsuario(@PathVariable Long usuarioId) {
         List<Compra> compras = compraService.buscarComprasPorUsuario(usuarioId);
-        if (compras.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity<>(compras, HttpStatus.OK);
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<Compra> atualizarStatusCompra(@PathVariable Long id, @RequestBody StatusUpdateRequest request) {
-        try {
+    public ResponseEntity<Compra> atualizarStatusCompra(@PathVariable Long id, @Valid @RequestBody StatusUpdateRequest request) {
             Compra compraAtualizada = compraService.atualizarStatusCompra(id, request.novoStatus);
             return new ResponseEntity<>(compraAtualizada, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
 
     @DeleteMapping("/{id}")
