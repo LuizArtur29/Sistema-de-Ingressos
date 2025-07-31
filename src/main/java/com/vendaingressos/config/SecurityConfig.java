@@ -23,7 +23,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(org.springframework.security.config.Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/**").permitAll() // Permite cadastro sem autenticação
                         .requestMatchers("/api/eventos/**").permitAll()
                         .requestMatchers("/api/usuarios/**").permitAll()
                         .anyRequest().authenticated()

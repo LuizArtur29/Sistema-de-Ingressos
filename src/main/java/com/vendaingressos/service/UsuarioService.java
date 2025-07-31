@@ -59,7 +59,7 @@ public class UsuarioService {
     public Usuario atualizarUsuario(Long id, Usuario usuarioAtualizado) {
         return usuarioRepository.findById(id).map(usuario -> {
             usuario.setNome(usuarioAtualizado.getNome());
-            usuario.setCPF(usuarioAtualizado.getCPF());
+            usuario.setCpf(usuarioAtualizado.getCpf());
             usuario.setDataNascimento(usuarioAtualizado.getDataNascimento());
             usuario.setEmail(usuarioAtualizado.getEmail());
             usuario.setEndereco(usuarioAtualizado.getEndereco());

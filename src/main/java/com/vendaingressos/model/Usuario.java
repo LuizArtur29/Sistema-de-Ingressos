@@ -1,5 +1,6 @@
 package com.vendaingressos.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -23,9 +24,10 @@ public class Usuario {
     @NotBlank(message = "O CPF não pode estar em branco")
     @Size(min = 11, max = 11, message = "O CPF deve conter 11 dígitos.")
     @Pattern(regexp = "\\d{11}", message = "O CPF deve conter apenas 11 dígitos numéricos.")
-    private String CPF;
+    @JsonProperty("CPF")
+    private String cpf;
 
-    @NotBlank(message = "A data de nascimento não pode ser nula")
+    @NotNull(message = "A data de nascimento não pode ser nula")
     private LocalDate dataNascimento;
 
     @NotBlank(message = "O email não pode estar em branco")
