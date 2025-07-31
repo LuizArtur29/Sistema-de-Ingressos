@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableWebSecurity
@@ -20,7 +21,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(org.springframework.security.config.Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
                         .requestMatchers("/api/eventos/**").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -28,7 +32,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Isso cria um usuário "admin" com uma senha criptografada
+    // Este bean cria um usuário "admin" com uma senha criptografada para testes.
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
         UserDetails admin = User.withUsername("admin")
@@ -38,7 +42,7 @@ public class SecurityConfig {
         return new InMemoryUserDetailsManager(admin);
     }
 
-    // Essencial para criptografar senhas
+    // Essencial para criptografar as senhas
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

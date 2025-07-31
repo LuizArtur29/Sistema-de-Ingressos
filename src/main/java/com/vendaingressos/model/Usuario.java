@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -24,8 +25,8 @@ public class Usuario {
     @Pattern(regexp = "\\d{11}", message = "O CPF deve conter apenas 11 dígitos numéricos.")
     private String CPF;
 
-    @NotBlank(message = "A data de nascimento não pode estar em branco")
-    private String dataNascimento;
+    @NotBlank(message = "A data de nascimento não pode ser nula")
+    private LocalDate dataNascimento;
 
     @NotBlank(message = "O email não pode estar em branco")
     @Email(message = "Formato de email inválido")

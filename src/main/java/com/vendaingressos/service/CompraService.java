@@ -5,6 +5,7 @@ import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Compra;
 import com.vendaingressos.model.Ingresso;
 import com.vendaingressos.model.Usuario;
+import com.vendaingressos.model.enums.MetodoPagamento;
 import com.vendaingressos.repository.CompraRepository;
 import com.vendaingressos.repository.IngressoRepository;
 import com.vendaingressos.repository.UsuarioRepository;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +33,7 @@ public class CompraService {
     }
 
     @Transactional
-    public Compra realizarCompra(Long usuarioId, Long ingressoId, int quantidadeIngressos, String metodoPagamento, boolean isMeiaEntrada ) {
+    public Compra realizarCompra(Long usuarioId, Long ingressoId, int quantidadeIngressos, MetodoPagamento metodoPagamento, boolean isMeiaEntrada ) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + usuarioId));
         Ingresso ingresso = ingressoRepository.findById(ingressoId)
@@ -54,11 +56,15 @@ public class CompraService {
             throw new BadRequestException("Não há ingressos suficientes disponíveis para esta sessão do evento.");
         }
 
-
         double precoUnitarioBase = ingresso.getPreco();
 
         double precoFinalUnitario = precoUnitarioBase;
         if (isMeiaEntrada) {
+            LocalDate hoje = LocalDate.now();
+            int idade = Period.between(usuario.getDataNascimento(), hoje).getYears();
+            if (idade >= 18) {
+                throw new BadRequestException("O usuário não tem direito a meia-entrada por idade.");
+            }
             precoFinalUnitario = precoUnitarioBase / 2.0;
         }
 
@@ -70,7 +76,7 @@ public class CompraService {
         novaCompra.setDataCompra(LocalDate.now());
         novaCompra.setQuantidadeIngressos(quantidadeIngressos);
         novaCompra.setValorTotal(valorTotal);
-        novaCompra.setMetodoPagamento(metodoPagamento);
+        novaCompra.setMetodoPagamento(metodoPagamento.name());
         novaCompra.setStatus("Concluida");
 
         return compraRepository.save(novaCompra);
@@ -113,11 +119,7 @@ public class CompraService {
     // Novo método para contar ingressos vendidos por Sessão de Evento
     @Transactional(readOnly = true)
     public long contarIngressosVendidosPorSessao(Long sessaoEventoId) {
-        List<Compra> comprasDaSessao = compraRepository.findByIngressoSessaoEventoIdSessao(sessaoEventoId);
-        long totalIngressos = 0;
-        for (Compra compra : comprasDaSessao) {
-            totalIngressos += compra.getQuantidadeIngressos();
-        }
-        return totalIngressos;
+        Long totalIngressos = compraRepository.sumQuantidadeIngressosByIngressoSessaoEventoIdSessao(sessaoEventoId);
+        return totalIngressos != null ? totalIngressos : 0;
     }
 }

@@ -26,12 +26,8 @@ public class EventoController {
 
     @PostMapping
     public ResponseEntity<Evento> criarEvento(@Valid @RequestBody Evento evento) {
-        try {
-            Evento novoEvento = eventoService.salvarEvento(evento);
-            return new ResponseEntity<>(novoEvento, HttpStatus.CREATED);
-        } catch (BadRequestException e) { // Capturar a nova exceção para validação de data
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        Evento novoEvento = eventoService.salvarEvento(evento);
+        return new ResponseEntity<>(novoEvento, HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -49,14 +45,8 @@ public class EventoController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Evento> atualizarEvento(@PathVariable Long id, @Valid @RequestBody Evento evento) {
-        try {
-            Evento eventoAtualizado = eventoService.atualizarEvento(id, evento);
-            return new ResponseEntity<>(eventoAtualizado, HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (BadRequestException e) { // Capturar a nova exceção para validação de data
-            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        Evento eventoAtualizado = eventoService.atualizarEvento(id, evento);
+        return new ResponseEntity<>(eventoAtualizado, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

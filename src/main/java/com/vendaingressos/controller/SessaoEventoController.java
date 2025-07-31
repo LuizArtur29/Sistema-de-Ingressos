@@ -55,12 +55,8 @@ public class SessaoEventoController {
     // Endpoint para atualizar uma sessão de evento (PUT /api/sessoes-evento/{id})
     @PutMapping("/{id}")
     public ResponseEntity<SessaoEvento> atualizarSessaoEvento(@PathVariable Long id, @Valid @RequestBody SessaoEvento sessaoEvento) {
-        try {
-            SessaoEvento sessaoAtualizada = sessaoEventoService.atualizarSessaoEvento(id, sessaoEvento);
-            return new ResponseEntity<>(sessaoAtualizada, HttpStatus.OK); // Retorna 200 OK
-        } catch (ResourceNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Retorna 404 Not Found
-        }
+        SessaoEvento sessaoAtualizada = sessaoEventoService.atualizarSessaoEvento(id, sessaoEvento);
+        return new ResponseEntity<>(sessaoAtualizada, HttpStatus.OK); // Retorna 200 OK
     }
 
     // Endpoint para deletar uma sessão de evento (DELETE /api/sessoes-evento/{id})

@@ -31,8 +31,8 @@ public class CompraController {
             Compra novaCompra = compraService.realizarCompra(
                     request.getUsuarioID(),
                     request.getIngressoID(),
-                    request.quantidadeIngressos,
-                    request.metodoPagamento,
+                    request.getQuantidadeIngressos(),
+                    request.getMetodoPagamento(),
                     request.isMeiaEntrada
                     );
             return new ResponseEntity<>(novaCompra, HttpStatus.CREATED);

@@ -73,7 +73,7 @@ public class UsuarioService {
 
     public void deletarUsuario(Long id) {
         if (!usuarioRepository.existsById(id)) {
-            throw new RuntimeException("Usuário não encontrado com ID: " + id);
+            throw new ResourceNotFoundException("Usuário não encontrado com ID: " + id);
         }
         usuarioRepository.deleteById(id);
     }

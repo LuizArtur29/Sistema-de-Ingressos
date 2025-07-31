@@ -37,9 +37,7 @@ public class IngressoService {
         Integer capacidadeTotalEvento = sessaoEvento.getEventoPai().getCapacidadeTotal();
 
         // Contar quantos ingressos já foram criados para esta sessão específica
-        long ingressosExistentesNestaSessao = ingressoRepository.findAll().stream()
-                .filter(i -> i.getSessaoEvento().getIdSessao().equals(sessaoEventoId))
-                .count();
+        long ingressosExistentesNestaSessao = ingressoRepository.countBySessaoEventoIdSessao(sessaoEventoId);
 
         if (ingressosExistentesNestaSessao >= capacidadeTotalEvento) {
             throw new BadRequestException("A sessão do evento atingiu sua capacidade máxima de ingressos.");

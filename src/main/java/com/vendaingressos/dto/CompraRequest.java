@@ -1,11 +1,10 @@
 package com.vendaingressos.dto;
 
+import com.vendaingressos.model.enums.MetodoPagamento;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-
-import java.util.UUID;
 
 @Data
 public class CompraRequest {
@@ -21,14 +20,14 @@ public class CompraRequest {
     @Min(value = 1, message = "A quantidade de ingressos deve ser no mínimo 1")
     public int quantidadeIngressos;
 
-    @NotBlank(message = "O método de pagamento não pode estar em branco")
-    public String metodoPagamento;
+    @NotNull(message = "O método de pagamento não pode ser nulo")
+    public MetodoPagamento metodoPagamento;
 
     public boolean isMeiaEntrada;
 
     public CompraRequest() {}
 
-    public CompraRequest(Long usuarioID, Long ingressoID, int quantidadeIngressos, String metodoPagamento, boolean isMeiaEntrada) {
+    public CompraRequest(Long usuarioID, Long ingressoID, int quantidadeIngressos, MetodoPagamento metodoPagamento, boolean isMeiaEntrada) {
         this.usuarioID = usuarioID;
         this.ingressoID = ingressoID;
         this.quantidadeIngressos = quantidadeIngressos;
