@@ -24,8 +24,8 @@ public class SecurityConfig {
                 .cors(org.springframework.security.config.Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
                         .requestMatchers("/api/eventos/**").permitAll()
+                        .requestMatchers("/api/usuarios/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(org.springframework.security.config.Customizer.withDefaults());
