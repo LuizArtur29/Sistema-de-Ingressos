@@ -1,5 +1,6 @@
 package com.vendaingressos.controller;
 
+import com.vendaingressos.dto.IngressoResponse;
 import com.vendaingressos.model.Ingresso;
 import com.vendaingressos.service.IngressoService;
 import jakarta.validation.Valid;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/ingressos")
@@ -24,22 +26,25 @@ public class IngressoController {
 
     // Alterado para criar ingresso para uma SessaoEvento específica
     @PostMapping("/criar/{sessaoEventoId}")
-    public ResponseEntity<Ingresso> criarIngresso(@PathVariable Long sessaoEventoId, @Valid @RequestBody Ingresso ingresso) {
+    public ResponseEntity<IngressoResponse> criarIngresso(@PathVariable Long sessaoEventoId, @Valid @RequestBody Ingresso ingresso) {
         Ingresso novoIngresso = ingressoService.criarIngressoParaSessaoEvento(sessaoEventoId, ingresso);
-        return new ResponseEntity<>(novoIngresso, HttpStatus.CREATED);
+        return new ResponseEntity<>(new IngressoResponse(novoIngresso), HttpStatus.CREATED);
     }
 
     // Alterado para listar ingressos por SessaoEvento
     @GetMapping("listarIngressosPorSessao/{sessaoEventoId}")
-    public ResponseEntity<List<Ingresso>> listarPorSessao(@PathVariable Long sessaoEventoId) {
+    public ResponseEntity<List<IngressoResponse>> listarPorSessao(@PathVariable Long sessaoEventoId) {
         List<Ingresso> ingressos = ingressoService.listarIngressosPorSessaoEvento(sessaoEventoId);
-        return new ResponseEntity<>(ingressos, HttpStatus.OK);
+        List<IngressoResponse> ingressosDTO = ingressos.stream()
+                .map(IngressoResponse::new)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(ingressosDTO, HttpStatus.OK);
     }
 
     @GetMapping("buscarIngresso/{ingressoId}")
-    public ResponseEntity<Ingresso> buscarPorId(@PathVariable Long ingressoId) {
+    public ResponseEntity<IngressoResponse> buscarPorId(@PathVariable Long ingressoId) {
         return ingressoService.buscarIngressoPorId(ingressoId)
-                .map(ResponseEntity::ok)
+                .map(ingresso -> ResponseEntity.ok(new IngressoResponse(ingresso)))
                 .orElse(ResponseEntity.notFound().build());
     }
 

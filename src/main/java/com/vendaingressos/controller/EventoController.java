@@ -1,5 +1,6 @@
 package com.vendaingressos.controller;
 
+import com.vendaingressos.dto.EventoResponse;
 import com.vendaingressos.exception.BadRequestException; // Adicionado para validação de data
 import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Evento;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/eventos")
@@ -25,28 +27,31 @@ public class EventoController {
     }
 
     @PostMapping
-    public ResponseEntity<Evento> criarEvento(@Valid @RequestBody Evento evento) {
+    public ResponseEntity<EventoResponse> criarEvento(@Valid @RequestBody Evento evento) {
         Evento novoEvento = eventoService.salvarEvento(evento);
-        return new ResponseEntity<>(novoEvento, HttpStatus.CREATED);
+        return new ResponseEntity<>(new EventoResponse(novoEvento), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<Evento>> listarTodosEventos() {
+    public ResponseEntity<List<EventoResponse>> listarTodosEventos() {
         List<Evento> eventos = eventoService.buscarTodosEventos();
-        return new ResponseEntity<>(eventos, HttpStatus.OK);
+        List<EventoResponse> eventosDTO = eventos.stream()
+                .map(EventoResponse::new)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(eventosDTO, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Evento> buscarEventoPorId(@PathVariable Long id) {
+    public ResponseEntity<EventoResponse> buscarEventoPorId(@PathVariable Long id) {
         return eventoService.buscarEventoPorId(id)
-                .map(evento -> new ResponseEntity<>(evento, HttpStatus.OK))
+                .map(evento -> new ResponseEntity<>(new EventoResponse(evento), HttpStatus.OK))
                 .orElseThrow(() -> new ResourceNotFoundException("Evento não encontrado com ID: " + id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Evento> atualizarEvento(@PathVariable Long id, @Valid @RequestBody Evento evento) {
+    public ResponseEntity<EventoResponse> atualizarEvento(@PathVariable Long id, @Valid @RequestBody Evento evento) {
         Evento eventoAtualizado = eventoService.atualizarEvento(id, evento);
-        return new ResponseEntity<>(eventoAtualizado, HttpStatus.OK);
+        return new ResponseEntity<>(new EventoResponse(eventoAtualizado), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
