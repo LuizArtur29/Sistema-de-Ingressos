@@ -17,12 +17,12 @@ public class UsuarioResponse {
     private String telefone;
 
     public UsuarioResponse(Usuario usuario) {
-        this.idUsuario = getIdUsuario();
-        this.nome = getNome();
-        this.cpf = getCpf();
-        this.dataNascimento = getDataNascimento();
-        this.email = getEmail();
-        this.endereco = getEndereco();
-        this.telefone = getTelefone();
+        this.idUsuario = usuario.getIdUsuario();
+        this.nome = usuario.getNome();
+        this.cpf = usuario.getCpf();
+        this.dataNascimento = usuario.getDataNascimento();
+        this.email = usuario.getEmail();
+        this.endereco = usuario.getEndereco();
+        this.telefone = usuario.getTelefone();
     }
 }

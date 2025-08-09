@@ -24,7 +24,6 @@ public class Usuario {
     @NotBlank(message = "O CPF não pode estar em branco")
     @Size(min = 11, max = 11, message = "O CPF deve conter 11 dígitos.")
     @Pattern(regexp = "\\d{11}", message = "O CPF deve conter apenas 11 dígitos numéricos.")
-    @JsonProperty("CPF")
     private String cpf;
 
     @NotNull(message = "A data de nascimento não pode ser nula")
