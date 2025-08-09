@@ -1,5 +1,6 @@
 package com.vendaingressos.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
@@ -37,6 +38,7 @@ public class SessaoEvento {
     @ManyToOne(fetch = FetchType.LAZY) // Many sessions to one Event
     @JoinColumn(name = "id_evento", nullable = false) // Foreign key to Evento
     @NotNull(message = "A sessão deve estar associada a um evento pai")
+    @JsonIgnore
     private Evento eventoPai;
 
     // Construtor com campos necessários para criação rápida (excluindo ID e Evento)
