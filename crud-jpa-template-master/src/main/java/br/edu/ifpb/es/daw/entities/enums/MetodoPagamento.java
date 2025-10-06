@@ -1,4 +1,4 @@
-package com.vendaingressos.model.enums;
+package br.edu.ifpb.es.daw.entities.enums;
 
 public enum MetodoPagamento {
     CARTAO_CREDITO,
