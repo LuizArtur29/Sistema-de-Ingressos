@@ -15,7 +15,7 @@ public class CompraRepositoryJDBCImpl implements CompraRepositoryJDBC {
 
     private Connection conexao;
 
-    public CompraRepositoryJDBCImpl() {
+    public CompraRepositoryJDBCImpl(Connection conexao) {
         this.conexao = conexao;
     }
 

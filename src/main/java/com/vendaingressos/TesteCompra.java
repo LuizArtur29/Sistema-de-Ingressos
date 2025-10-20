@@ -1,16 +1,20 @@
 package com.vendaingressos;
 
+import com.vendaingressos.config.DatabaseConfig;
 import com.vendaingressos.model.Compra;
 import com.vendaingressos.model.Ingresso;
 import com.vendaingressos.model.Usuario;
 import com.vendaingressos.repository.jdbc.CompraRepositoryJDBC;
 import com.vendaingressos.repository.jdbc.impl.CompraRepositoryJDBCImpl;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 
 public class TesteCompra {
-    public static void main(String[] args) {
-        CompraRepositoryJDBC compraRepo = new CompraRepositoryJDBCImpl();
+    public static void main(String[] args) throws SQLException {
+        Connection conn = DatabaseConfig.getConnection();
+        CompraRepositoryJDBC compraRepo = new CompraRepositoryJDBCImpl(conn);
 
         Compra compra = new Compra();
         compra.setDataCompra(LocalDate.now());
