@@ -11,9 +11,9 @@ import java.util.List;
 @Repository
 public class IngressoRepositoryJDBCImpl implements IngressoRepositoryJDBC {
 
-    private final Connection conexao;
+    private Connection conexao;
 
-    public IngressoRepositoryJDBCImpl(Connection conexao) {
+    public IngressoRepositoryJDBCImpl() {
         this.conexao = conexao;
     }
 
@@ -22,7 +22,7 @@ public class IngressoRepositoryJDBCImpl implements IngressoRepositoryJDBC {
         String sql = "INSERT INTO ingresso (preco, tipo, id_sessao) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setDouble(1, ingresso.getPreco());
-            stmt.setString(2, ingresso.getTipo());
+            stmt.setString(2, ingresso.getTipoIngresso());
             stmt.setLong(3, ingresso.getSessaoEvento().getIdSessao());
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -40,7 +40,7 @@ public class IngressoRepositoryJDBCImpl implements IngressoRepositoryJDBC {
                 Ingresso i = new Ingresso();
                 i.setIdIngresso(rs.getLong("id_ingresso"));
                 i.setPreco(rs.getDouble("preco"));
-                i.setTipo(rs.getString("tipo"));
+                i.setTipoIngresso(rs.getString("tipo"));
                 return i;
             }
         } catch (SQLException e) {
@@ -59,7 +59,7 @@ public class IngressoRepositoryJDBCImpl implements IngressoRepositoryJDBC {
                 Ingresso i = new Ingresso();
                 i.setIdIngresso(rs.getLong("id_ingresso"));
                 i.setPreco(rs.getDouble("preco"));
-                i.setTipo(rs.getString("tipo"));
+                i.setTipoIngresso(rs.getString("tipo"));
                 ingressos.add(i);
             }
         } catch (SQLException e) {
@@ -86,7 +86,7 @@ public class IngressoRepositoryJDBCImpl implements IngressoRepositoryJDBC {
         String sql = "UPDATE ingresso SET preco = ?, tipo = ? WHERE id_ingresso = ?";
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setDouble(1, ingresso.getPreco());
-            stmt.setString(2, ingresso.getTipo());
+            stmt.setString(2, ingresso.getTipoIngresso());
             stmt.setLong(3, ingresso.getIdIngresso());
             stmt.executeUpdate();
         } catch (SQLException e) {

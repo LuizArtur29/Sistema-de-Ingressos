@@ -12,9 +12,9 @@ import java.util.List;
 @Repository
 public class SessaoEventoRepositoryJDBCImpl implements SessaoEventoRepositoryJDBC {
 
-    private final Connection conexao;
+    private Connection conexao;
 
-    public SessaoEventoRepositoryJDBCImpl(Connection conexao) {
+    public SessaoEventoRepositoryJDBCImpl() {
         this.conexao = conexao;
     }
 
@@ -22,8 +22,8 @@ public class SessaoEventoRepositoryJDBCImpl implements SessaoEventoRepositoryJDB
     public void salvar(SessaoEvento sessaoEvento) {
         String sql = "INSERT INTO sessao_evento (data_hora, id_evento_pai) VALUES (?, ?)";
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
-            stmt.setTimestamp(1, Timestamp.valueOf(sessaoEvento.getDataHora()));
-            stmt.setLong(2, sessaoEvento.getEventoPai().getIdEvento());
+            stmt.setTimestamp(1, Timestamp.valueOf(sessaoEvento.getDataHoraSessao()));
+            stmt.setLong(2, sessaoEvento.getEventoPai().getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao salvar sessão via JDBC", e);
@@ -39,7 +39,7 @@ public class SessaoEventoRepositoryJDBCImpl implements SessaoEventoRepositoryJDB
             if (rs.next()) {
                 SessaoEvento s = new SessaoEvento();
                 s.setIdSessao(rs.getLong("id_sessao"));
-                s.setDataHora(rs.getTimestamp("data_hora").toLocalDateTime());
+                s.setDataHoraSessao(rs.getTimestamp("data_hora").toLocalDateTime());
                 return s;
             }
         } catch (SQLException e) {
@@ -57,7 +57,7 @@ public class SessaoEventoRepositoryJDBCImpl implements SessaoEventoRepositoryJDB
             while (rs.next()) {
                 SessaoEvento s = new SessaoEvento();
                 s.setIdSessao(rs.getLong("id_sessao"));
-                s.setDataHora(rs.getTimestamp("data_hora").toLocalDateTime());
+                s.setDataHoraSessao(rs.getTimestamp("data_hora").toLocalDateTime());
                 lista.add(s);
             }
         } catch (SQLException e) {
@@ -76,7 +76,7 @@ public class SessaoEventoRepositoryJDBCImpl implements SessaoEventoRepositoryJDB
             while (rs.next()) {
                 SessaoEvento s = new SessaoEvento();
                 s.setIdSessao(rs.getLong("id_sessao"));
-                s.setDataHora(rs.getTimestamp("data_hora").toLocalDateTime());
+                s.setDataHoraSessao(rs.getTimestamp("data_hora").toLocalDateTime());
                 lista.add(s);
             }
         } catch (SQLException e) {
@@ -89,7 +89,7 @@ public class SessaoEventoRepositoryJDBCImpl implements SessaoEventoRepositoryJDB
     public void atualizar(SessaoEvento sessaoEvento) {
         String sql = "UPDATE sessao_evento SET data_hora = ? WHERE id_sessao = ?";
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
-            stmt.setTimestamp(1, Timestamp.valueOf(sessaoEvento.getDataHora()));
+            stmt.setTimestamp(1, Timestamp.valueOf(sessaoEvento.getDataHoraSessao()));
             stmt.setLong(2, sessaoEvento.getIdSessao());
             stmt.executeUpdate();
         } catch (SQLException e) {

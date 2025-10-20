@@ -12,9 +12,9 @@ import java.util.Optional;
 @Repository
 public class UsuarioRepositoryJDBCImpl implements UsuarioRepositoryJDBC {
 
-    private final Connection conexao;
+    private Connection conexao;
 
-    public UsuarioRepositoryJDBCImpl(Connection conexao) {
+    public UsuarioRepositoryJDBCImpl() {
         this.conexao = conexao;
     }
 
