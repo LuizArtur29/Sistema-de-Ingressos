@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public class EventoRepositoryJDBCImpl implements EventoRepositoryJDBC {
 
-    private final Connection conexao;
+    private Connection conexao;
 
     public EventoRepositoryJDBCImpl() {
         this.conexao = conexao;
@@ -19,12 +19,15 @@ public class EventoRepositoryJDBCImpl implements EventoRepositoryJDBC {
 
     @Override
     public void salvar(Evento evento) {
-        String sql = "INSERT INTO evento (nome, descricao, data_evento, local) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO eventos (nome, descricao, data_inicio, data_fim, local, capacidade_total, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, evento.getNome());
             stmt.setString(2, evento.getDescricao());
-            stmt.setDate(3, Date.valueOf(evento.getDataEvento()));
-            stmt.setString(4, evento.getLocal());
+            stmt.setDate(3, Date.valueOf(evento.getDataInicio()));
+            stmt.setDate(4, Date.valueOf(evento.getDataFim()));
+            stmt.setString(5, evento.getLocal());
+            stmt.setInt(6, evento.getCapacidadeTotal());
+            stmt.setString(7, evento.getStatus());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao salvar evento via JDBC", e);
@@ -33,17 +36,20 @@ public class EventoRepositoryJDBCImpl implements EventoRepositoryJDBC {
 
     @Override
     public Evento buscarPorId(Long id) {
-        String sql = "SELECT * FROM evento WHERE id_evento = ?";
+        String sql = "SELECT * FROM eventos WHERE id = ?";
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setLong(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 Evento evento = new Evento();
-                evento.setIdEvento(rs.getLong("id_evento"));
+                evento.setId(rs.getLong("id"));
                 evento.setNome(rs.getString("nome"));
                 evento.setDescricao(rs.getString("descricao"));
-                evento.setDataEvento(rs.getDate("data_evento").toLocalDate());
+                evento.setDataInicio(rs.getDate("data_inicio").toLocalDate());
+                evento.setDataFim(rs.getDate("data_fim").toLocalDate());
                 evento.setLocal(rs.getString("local"));
+                evento.setCapacidadeTotal(rs.getInt("capacidade_total"));
+                evento.setStatus(rs.getString("status"));
                 return evento;
             }
         } catch (SQLException e) {
@@ -52,19 +58,23 @@ public class EventoRepositoryJDBCImpl implements EventoRepositoryJDBC {
         return null;
     }
 
+
     @Override
     public List<Evento> listarTodos() {
         List<Evento> eventos = new ArrayList<>();
-        String sql = "SELECT * FROM evento";
+        String sql = "SELECT * FROM eventos";
         try (Statement stmt = conexao.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 Evento evento = new Evento();
-                evento.setIdEvento(rs.getLong("id_evento"));
+                evento.setId(rs.getLong("id"));
                 evento.setNome(rs.getString("nome"));
                 evento.setDescricao(rs.getString("descricao"));
-                evento.setDataEvento(rs.getDate("data_evento").toLocalDate());
+                evento.setDataInicio(rs.getDate("data_inicio").toLocalDate());
+                evento.setDataFim(rs.getDate("data_fim").toLocalDate());
                 evento.setLocal(rs.getString("local"));
+                evento.setCapacidadeTotal(rs.getInt("capacidade_total"));
+                evento.setStatus(rs.getString("status"));
                 eventos.add(evento);
             }
         } catch (SQLException e) {
@@ -75,13 +85,16 @@ public class EventoRepositoryJDBCImpl implements EventoRepositoryJDBC {
 
     @Override
     public void atualizar(Evento evento) {
-        String sql = "UPDATE evento SET nome = ?, descricao = ?, data_evento = ?, local = ? WHERE id_evento = ?";
+        String sql = "UPDATE eventos SET nome = ?, descricao = ?, data_inicio = ?, data_fim = ?, local = ?, capacidade_total = ?, status = ? WHERE id = ?";
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, evento.getNome());
             stmt.setString(2, evento.getDescricao());
-            stmt.setDate(3, Date.valueOf(evento.getDataEvento()));
-            stmt.setString(4, evento.getLocal());
-            stmt.setLong(5, evento.getIdEvento());
+            stmt.setDate(3, Date.valueOf(evento.getDataInicio()));
+            stmt.setDate(4, Date.valueOf(evento.getDataFim()));
+            stmt.setString(5, evento.getLocal());
+            stmt.setInt(6, evento.getCapacidadeTotal());
+            stmt.setString(7, evento.getStatus());
+            stmt.setLong(8, evento.getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao atualizar evento via JDBC", e);
@@ -90,7 +103,7 @@ public class EventoRepositoryJDBCImpl implements EventoRepositoryJDBC {
 
     @Override
     public void deletar(Long id) {
-        String sql = "DELETE FROM evento WHERE id_evento = ?";
+        String sql = "DELETE FROM eventos WHERE id = ?";
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setLong(1, id);
             stmt.executeUpdate();
@@ -98,4 +111,5 @@ public class EventoRepositoryJDBCImpl implements EventoRepositoryJDBC {
             throw new RuntimeException("Erro ao deletar evento via JDBC", e);
         }
     }
+
 }

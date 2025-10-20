@@ -3,7 +3,6 @@ package com.vendaingressos;
 import com.vendaingressos.model.Compra;
 import com.vendaingressos.model.Ingresso;
 import com.vendaingressos.model.Usuario;
-import com.vendaingressos.repository.CompraRepository;
 import com.vendaingressos.repository.jdbc.CompraRepositoryJDBC;
 import com.vendaingressos.repository.jdbc.impl.CompraRepositoryJDBCImpl;
 
