@@ -14,6 +14,14 @@ public class Ingresso {
     @Column(name = "ingresso_disponivel")
     private boolean ingressoDisponivel = true;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tipo_ingresso_id")
+    private TipoIngresso tipo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "compra_id")  // quando vendido, aponta para a Compra
+    private Compra compra;
+
     public Ingresso() {}
     public Ingresso(boolean ingressoDisponivel) {
         this.ingressoDisponivel = ingressoDisponivel;
@@ -34,6 +42,12 @@ public class Ingresso {
     public void setIngressoDisponivel(boolean ingressoDisponivel) {
         this.ingressoDisponivel = ingressoDisponivel;
     }
+
+    public TipoIngresso getTipo() { return tipo; }
+    public void setTipo(TipoIngresso tipo) { this.tipo = tipo; }
+
+    public Compra getCompra() { return compra; }
+    public void setCompra(Compra compra) { this.compra = compra; }
 
     @Override
     public boolean equals(Object o) {

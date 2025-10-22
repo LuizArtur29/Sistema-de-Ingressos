@@ -5,6 +5,10 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import br.edu.ifpb.es.daw.entities.enums.MetodoPagamento;
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "compra")
 public class Compra {
@@ -20,6 +24,22 @@ public class Compra {
     @Column(name = "metodo_pagamento")
     private String metodoPagamento;
     private String status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id")
+    private Usuario comprador;
+
+    @OneToMany(
+            mappedBy = "compra",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<Ingresso> ingressos = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "metodo_pagamento")
+    private MetodoPagamento metodoPagamento;
 
     public Compra() {}
     public Compra(LocalDate dataCompra, int quantidadeIngressos, double valorTotal, String metodoPagamento, String status) {
@@ -77,6 +97,21 @@ public class Compra {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public Usuario getComprador() { return comprador; }
+    public void setComprador(Usuario comprador) { this.comprador = comprador; }
+
+    public List<Ingresso> getIngressos() { return ingressos; }
+    public void addIngresso(Ingresso i) {
+        ingressos.add(i);
+        i.setCompra(this);
+    }
+    public void removeIngresso(Ingresso i) {
+        ingressos.remove(i);
+        i.setCompra(null);
+    }
+    public MetodoPagamento getMetodoPagamento() { return metodoPagamento; }
+    public void setMetodoPagamento(MetodoPagamento m) { this.metodoPagamento = m; }
 
     @Override
     public boolean equals(Object o) {

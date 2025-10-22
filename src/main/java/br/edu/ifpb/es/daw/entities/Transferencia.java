@@ -15,6 +15,18 @@ public class Transferencia {
     @Column(name = "valor_revenda")
     private Double valorRevenda;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ingresso_id")
+    private Ingresso ingresso;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vendedor_id")
+    private Usuario vendedor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comprador_id")
+    private Usuario comprador;
+
     public Transferencia() {
     }
 
@@ -37,6 +49,15 @@ public class Transferencia {
     public void setValorRevenda(Double valorRevenda) {
         this.valorRevenda = valorRevenda;
     }
+
+    public Ingresso getIngresso() { return ingresso; }
+    public void setIngresso(Ingresso ingresso) { this.ingresso = ingresso; }
+
+    public Usuario getVendedor() { return vendedor; }
+    public void setVendedor(Usuario vendedor) { this.vendedor = vendedor; }
+
+    public Usuario getComprador() { return comprador; }
+    public void setComprador(Usuario comprador) { this.comprador = comprador; }
 
     @Override
     public boolean equals(Object o) {

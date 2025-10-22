@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "usuario")
 public class Usuario {
@@ -20,6 +23,15 @@ public class Usuario {
     private String endereco;
     private String telefone;
 
+    @OneToMany(mappedBy = "comprador", fetch = FetchType.LAZY)
+    private List<Compra> compras = new ArrayList<>();
+
+    @OneToMany(mappedBy = "vendedor", fetch = FetchType.LAZY)
+    private List<Transferencia> transferenciasVendidas = new ArrayList<>();
+
+    @OneToMany(mappedBy = "comprador", fetch = FetchType.LAZY)
+    private List<Transferencia> transferenciasCompradas = new ArrayList<>();
+
     public Usuario() {
     }
 
@@ -31,6 +43,16 @@ public class Usuario {
         this.senha = senha;
         this.endereco = endereco;
         this.telefone = telefone;
+    }
+
+    public void addCompra(Compra c) {
+        compras.add(c);
+        c.setComprador(this);
+    }
+
+    public void removeCompra(Compra c) {
+        compras.remove(c);
+        c.setComprador(null);
     }
 
     public Long getIdUsuario() {

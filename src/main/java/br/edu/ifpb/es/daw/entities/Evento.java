@@ -3,6 +3,9 @@ package br.edu.ifpb.es.daw.entities;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.Objects;
+import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "eventos")
@@ -23,6 +26,19 @@ public class Evento {
     private Integer capacidadeTotal;
     private String status;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id", referencedColumnName = "id_admin")
+    private Administrador administrador;
+
+    @OneToMany(
+            mappedBy = "evento",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<SessaoEvento> sessoes = new ArrayList<>();
+
+
     public Evento() {
 
     }
@@ -34,6 +50,16 @@ public class Evento {
         this.local = local;
         this.capacidadeTotal = capacidadeTotal;
         this.status = status;
+    }
+
+    public void addSessao(SessaoEvento s) {
+        sessoes.add(s);
+        s.setEvento(this);
+    }
+
+    public void removeSessao(SessaoEvento s) {
+        sessoes.remove(s);
+        s.setEvento(null);
     }
 
     public Long getId() {
@@ -98,6 +124,17 @@ public class Evento {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Administrador getAdministrador() { return administrador; }
+    public void setAdministrador(Administrador administrador) { this.administrador = administrador; }
+
+    public List<SessaoEvento> getSessoes() {
+        return sessoes;
+    }
+
+    public void setSessoes(List<SessaoEvento> sessoes) {
+        this.sessoes = sessoes;
     }
 
     @Override

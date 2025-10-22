@@ -5,6 +5,10 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
 @Entity
 @Table(name = "sessoes_evento")
 public class SessaoEvento {
@@ -18,6 +22,18 @@ public class SessaoEvento {
     @Column(name = "status_sessao")
     private String statusSessao;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "evento_id") // referencia PK de Evento (por padrão)
+    private Evento evento;
+
+    @OneToMany(
+            mappedBy = "sessao",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<TipoIngresso> tipos = new ArrayList<>();
+
     public SessaoEvento() {
     }
 
@@ -25,6 +41,16 @@ public class SessaoEvento {
         this.nomeSessao = nomeSessao;
         this.dataHoraSessao = dataHoraSessao;
         this.statusSessao = statusSessao;
+    }
+
+    public void addTipo(TipoIngresso t) {
+        tipos.add(t);
+        t.setSessao(this);
+    }
+
+    public void removeTipo(TipoIngresso t) {
+        tipos.remove(t);
+        t.setSessao(null);
     }
 
     public Long getIdSessao() {
@@ -58,6 +84,10 @@ public class SessaoEvento {
     public void setStatusSessao(String statusSessao) {
         this.statusSessao = statusSessao;
     }
+
+    public Evento getEvento() { return evento; }
+
+    public void setEvento(Evento evento) { this.evento = evento; }
 
     @Override
     public boolean equals(Object o) {

@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 
 import java.util.Objects;
 
+import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "administrador")
 public class Administrador {
@@ -16,6 +20,14 @@ public class Administrador {
     private String email;
     private String senha;
     private String telefone;
+
+    @OneToMany(
+            mappedBy = "administrador",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<Evento> eventos = new ArrayList<>();
 
     public Administrador() {}
 
@@ -64,6 +76,24 @@ public class Administrador {
 
     public void setTelefone(String telefone) {
         this.telefone = telefone;
+    }
+
+    public List<Evento> getEventos() {
+        return eventos;
+    }
+
+    public void setEventos(List<Evento> eventos) {
+        this.eventos = eventos;
+    }
+
+    public void addEvento(Evento e) {
+        eventos.add(e);
+        e.setAdministrador(this);
+    }
+
+    public void removeEvento(Evento e) {
+        eventos.remove(e);
+        e.setAdministrador(null);
     }
 
     @Override

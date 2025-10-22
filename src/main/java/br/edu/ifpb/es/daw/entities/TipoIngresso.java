@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 
 import java.util.Objects;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "tipo_ingresso")
 public class TipoIngresso {
@@ -21,6 +24,18 @@ public class TipoIngresso {
     private int quantidadeDisponivel;
     private int lote;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sessao_id")
+    private SessaoEvento sessao;
+
+    @OneToMany(
+            mappedBy = "tipo",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<Ingresso> ingressos = new ArrayList<>();
+
     public TipoIngresso() {}
 
     public TipoIngresso(String nomeSetor, double preco, int quantidadeTotal, int quantidadeDisponivel, int lote) {
@@ -29,6 +44,16 @@ public class TipoIngresso {
         this.quantidadeTotal = quantidadeTotal;
         this.quantidadeDisponivel = quantidadeDisponivel;
         this.lote = lote;
+    }
+
+    public void addIngresso(Ingresso i) {
+        ingressos.add(i);
+        i.setTipo(this);
+    }
+
+    public void removeIngresso(Ingresso i) {
+        ingressos.remove(i);
+        i.setTipo(null);
     }
 
     public Long getIdTipoIngresso() {
@@ -78,6 +103,10 @@ public class TipoIngresso {
     public void setLote(int lote) {
         this.lote = lote;
     }
+
+    public SessaoEvento getSessao() { return sessao; }
+
+    public void setSessao(SessaoEvento sessao) { this.sessao = sessao; }
 
     @Override
     public boolean equals(Object o) {
