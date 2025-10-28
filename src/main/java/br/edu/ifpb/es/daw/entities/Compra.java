@@ -1,32 +1,41 @@
 package br.edu.ifpb.es.daw.entities;
 
+import br.edu.ifpb.es.daw.entities.enums.Status;
 import jakarta.persistence.*;
-
-import java.time.LocalDate;
-import java.util.Objects;
-
-import br.edu.ifpb.es.daw.entities.enums.MetodoPagamento;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import br.edu.ifpb.es.daw.entities.enums.MetodoPagamento;
 
 @Entity
 @Table(name = "compra")
 public class Compra {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idCompra;
-    @Column(name = "data_compra")
-    private LocalDate dataCompra;
-    @Column(name = "quantidade_ingressos")
+
+    @Column(name = "data_compra", nullable = false)
+    private LocalDateTime dataCompra;
+
+    @Column(name = "quantidade_ingressos", nullable = false)
     private int quantidadeIngressos;
-    @Column(name = "valor_total")
-    private double valorTotal;
-    @Column(name = "metodo_pagamento")
-    private String metodoPagamento;
-    private String status;
+
+    @Column(name = "valor_total", nullable = false, precision = 19, scale = 2)
+    private BigDecimal valorTotal;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "metodo_pagamento", nullable = false, length = 30)
+    private MetodoPagamento metodoPagamento;
+
+    @Column(name = "status", length = 30, nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id")
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario comprador;
 
     @OneToMany(
@@ -37,12 +46,13 @@ public class Compra {
     )
     private List<Ingresso> ingressos = new ArrayList<>();
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "metodo_pagamento")
-    private MetodoPagamento metodoPagamento;
-
     public Compra() {}
-    public Compra(LocalDate dataCompra, int quantidadeIngressos, double valorTotal, String metodoPagamento, String status) {
+
+    public Compra(LocalDateTime dataCompra,
+                  int quantidadeIngressos,
+                  BigDecimal valorTotal,
+                  MetodoPagamento metodoPagamento,
+                  Status status) {
         this.dataCompra = dataCompra;
         this.quantidadeIngressos = quantidadeIngressos;
         this.valorTotal = valorTotal;
@@ -50,79 +60,60 @@ public class Compra {
         this.status = status;
     }
 
-    public Long getIdCompra() {
-        return idCompra;
+    @PrePersist
+    protected void onCreate() {
+        if (this.dataCompra == null) {
+            this.dataCompra = LocalDateTime.now();
+        }
     }
 
-    public void setIdCompra(Long idCompra) {
-        this.idCompra = idCompra;
-    }
+    public Long getIdCompra() { return idCompra; }
+    public void setIdCompra(Long idCompra) { this.idCompra = idCompra; }
 
-    public LocalDate getDataCompra() {
-        return dataCompra;
-    }
+    public LocalDateTime getDataCompra() { return dataCompra; }
+    public void setDataCompra(LocalDateTime dataCompra) { this.dataCompra = dataCompra; }
 
-    public void setDataCompra(LocalDate dataCompra) {
-        this.dataCompra = dataCompra;
-    }
+    public int getQuantidadeIngressos() { return quantidadeIngressos; }
+    public void setQuantidadeIngressos(int quantidadeIngressos) { this.quantidadeIngressos = quantidadeIngressos; }
 
-    public int getQuantidadeIngressos() {
-        return quantidadeIngressos;
-    }
+    public BigDecimal getValorTotal() { return valorTotal; }
+    public void setValorTotal(BigDecimal valorTotal) { this.valorTotal = valorTotal; }
 
-    public void setQuantidadeIngressos(int quantidadeIngressos) {
-        this.quantidadeIngressos = quantidadeIngressos;
-    }
+    public MetodoPagamento getMetodoPagamento() { return metodoPagamento; }
+    public void setMetodoPagamento(MetodoPagamento metodoPagamento) { this.metodoPagamento = metodoPagamento; }
 
-    public double getValorTotal() {
-        return valorTotal;
-    }
-
-    public void setValorTotal(double valorTotal) {
-        this.valorTotal = valorTotal;
-    }
-
-    public String getMetodoPagamento() {
-        return metodoPagamento;
-    }
-
-    public void setMetodoPagamento(String metodoPagamento) {
-        this.metodoPagamento = metodoPagamento;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
+    public Status getStatus() { return status; }
+    
     public Usuario getComprador() { return comprador; }
     public void setComprador(Usuario comprador) { this.comprador = comprador; }
 
     public List<Ingresso> getIngressos() { return ingressos; }
+
     public void addIngresso(Ingresso i) {
-        ingressos.add(i);
-        i.setCompra(this);
+        if (i != null && !ingressos.contains(i)) {
+            ingressos.add(i);
+            i.setCompra(this);
+        }
     }
+
     public void removeIngresso(Ingresso i) {
-        ingressos.remove(i);
-        i.setCompra(null);
+        if (i != null && ingressos.remove(i)) {
+            i.setCompra(null);
+        }
     }
-    public MetodoPagamento getMetodoPagamento() { return metodoPagamento; }
-    public void setMetodoPagamento(MetodoPagamento m) { this.metodoPagamento = m; }
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;                 // identidade
         if (o == null || getClass() != o.getClass()) return false;
-        Compra compra = (Compra) o;
-        return Objects.equals(idCompra, compra.idCompra);
+        Compra other = (Compra) o;
+        if (idCompra == null || other.idCompra == null) return false;  // entidades novas ≠
+        return idCompra.equals(other.idCompra);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(idCompra);
+        return (idCompra == null) ? 0 : idCompra.hashCode();
     }
 
     @Override
@@ -132,7 +123,7 @@ public class Compra {
                 ", dataCompra=" + dataCompra +
                 ", quantidadeIngressos=" + quantidadeIngressos +
                 ", valorTotal=" + valorTotal +
-                ", metodoPagamento='" + metodoPagamento + '\'' +
+                ", metodoPagamento=" + metodoPagamento +
                 ", status='" + status + '\'' +
                 '}';
     }

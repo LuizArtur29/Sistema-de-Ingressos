@@ -12,7 +12,7 @@ public class Ingresso {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idIngresso;
     @Column(name = "ingresso_disponivel")
-    private boolean ingressoDisponivel = true;
+    private Boolean ingressoDisponivel = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tipo_ingresso_id")

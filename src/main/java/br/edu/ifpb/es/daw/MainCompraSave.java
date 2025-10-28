@@ -3,18 +3,22 @@ package br.edu.ifpb.es.daw;
 import br.edu.ifpb.es.daw.dao.PersistenciaDawException;
 import br.edu.ifpb.es.daw.dao.impl.CompraDAOImpl;
 import br.edu.ifpb.es.daw.entities.Compra;
+import br.edu.ifpb.es.daw.entities.enums.MetodoPagamento;
+import br.edu.ifpb.es.daw.entities.enums.Status;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class MainCompraSave {
     public static void main(String[] args) {
         CompraDAOImpl dao = new CompraDAOImpl();
         Compra novaCompra = new Compra(
-                LocalDate.now(),
+                LocalDateTime.now(),
                 2,
-                300.00,
-                "CARTAO_CREDITO",
-                "APROVADA"
+                new BigDecimal(300.00),
+                MetodoPagamento.CARTAO_CREDITO,
+                Status.APROVADO
         );
 
         try {

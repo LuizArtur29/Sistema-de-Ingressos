@@ -17,12 +17,12 @@ public class TipoIngresso {
     private Long idTipoIngresso;
     @Column(name = "nome_setor")
     private String nomeSetor;
-    private double preco;
+    private Double preco;
     @Column(name = "quantidade_total")
-    private int quantidadeTotal;
+    private Integer quantidadeTotal;
     @Column(name = "quantidade_disponivel")
-    private int quantidadeDisponivel;
-    private int lote;
+    private Integer quantidadeDisponivel;
+    private Integer lote;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sessao_id")
