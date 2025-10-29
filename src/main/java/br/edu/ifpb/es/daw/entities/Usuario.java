@@ -47,12 +47,12 @@ public class Usuario {
 
     public void addCompra(Compra c) {
         compras.add(c);
-        c.setComprador(this);
+        c.setUsuario(this);
     }
 
     public void removeCompra(Compra c) {
         compras.remove(c);
-        c.setComprador(null);
+        c.setUsuario(null);
     }
 
     public Long getIdUsuario() {

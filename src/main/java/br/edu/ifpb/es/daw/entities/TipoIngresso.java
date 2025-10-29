@@ -22,38 +22,29 @@ public class TipoIngresso {
     private Integer quantidadeTotal;
     @Column(name = "quantidade_disponivel")
     private Integer quantidadeDisponivel;
+    @Column(nullable = false)
     private Integer lote;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sessao_id")
+    @JoinColumn(name = "sessao_id", nullable = false)
     private SessaoEvento sessao;
 
-    @OneToMany(
-            mappedBy = "tipo",
+    @OneToOne(
+            mappedBy = "tipoIngresso",
             cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY
+            fetch = FetchType.LAZY,
+            optional = true
     )
-    private List<Ingresso> ingressos = new ArrayList<>();
+    private Ingresso ingresso;
 
     public TipoIngresso() {}
 
-    public TipoIngresso(String nomeSetor, double preco, int quantidadeTotal, int quantidadeDisponivel, int lote) {
+    public TipoIngresso(String nomeSetor, Double preco, Integer quantidadeTotal, Integer quantidadeDisponivel, Integer lote) {
         this.nomeSetor = nomeSetor;
-        this.preco = this.preco;
+        this.preco = preco;
         this.quantidadeTotal = quantidadeTotal;
         this.quantidadeDisponivel = quantidadeDisponivel;
         this.lote = lote;
-    }
-
-    public void addIngresso(Ingresso i) {
-        ingressos.add(i);
-        i.setTipo(this);
-    }
-
-    public void removeIngresso(Ingresso i) {
-        ingressos.remove(i);
-        i.setTipo(null);
     }
 
     public Long getIdTipoIngresso() {
@@ -72,41 +63,45 @@ public class TipoIngresso {
         this.nomeSetor = nomeSetor;
     }
 
-    public double getPreco() {
+    public Double getPreco() {
         return preco;
     }
 
-    public void setPreco(double preco) {
+    public void setPreco(Double preco) {
         this.preco = preco;
     }
 
-    public int getQuantidadeTotal() {
+    public Integer getQuantidadeTotal() {
         return quantidadeTotal;
     }
 
-    public void setQuantidadeTotal(int quantidadeTotal) {
+    public void setQuantidadeTotal(Integer quantidadeTotal) {
         this.quantidadeTotal = quantidadeTotal;
     }
 
-    public int getQuantidadeDisponivel() {
+    public Integer getQuantidadeDisponivel() {
         return quantidadeDisponivel;
     }
 
-    public void setQuantidadeDisponivel(int quantidadeDisponivel) {
+    public void setQuantidadeDisponivel(Integer quantidadeDisponivel) {
         this.quantidadeDisponivel = quantidadeDisponivel;
     }
 
-    public int getLote() {
+    public Integer getLote() {
         return lote;
     }
 
-    public void setLote(int lote) {
+    public void setLote(Integer lote) {
         this.lote = lote;
     }
 
     public SessaoEvento getSessao() { return sessao; }
 
     public void setSessao(SessaoEvento sessao) { this.sessao = sessao; }
+
+    public Ingresso getIngresso() { return ingresso; }
+
+    public void setIngresso(Ingresso ingresso) { this.ingresso = ingresso; }
 
     @Override
     public boolean equals(Object o) {
@@ -127,6 +122,7 @@ public class TipoIngresso {
                 ", nomeSetor='" + nomeSetor + '\'' +
                 ", preco=" + preco +
                 ", lote=" + lote +
+                ", sessaoEventoId=" + (sessao != null ? sessao.getIdSessao() : "null") +
                 '}';
     }
 }

@@ -4,8 +4,8 @@ import br.edu.ifpb.es.daw.entities.enums.Status;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import br.edu.ifpb.es.daw.entities.enums.MetodoPagamento;
 
@@ -15,13 +15,14 @@ public class Compra {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_compra")
     private Long idCompra;
 
     @Column(name = "data_compra", nullable = false)
     private LocalDateTime dataCompra;
 
     @Column(name = "quantidade_ingressos", nullable = false)
-    private int quantidadeIngressos;
+    private Integer quantidadeIngressos;
 
     @Column(name = "valor_total", nullable = false, precision = 19, scale = 2)
     private BigDecimal valorTotal;
@@ -36,7 +37,7 @@ public class Compra {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario comprador;
+    private Usuario usuario;
 
     @OneToMany(
             mappedBy = "compra",
@@ -44,12 +45,12 @@ public class Compra {
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
-    private List<Ingresso> ingressos = new ArrayList<>();
+    private Set<Ingresso> ingressos = new HashSet<>();
 
     public Compra() {}
 
     public Compra(LocalDateTime dataCompra,
-                  int quantidadeIngressos,
+                  Integer quantidadeIngressos,
                   BigDecimal valorTotal,
                   MetodoPagamento metodoPagamento,
                   Status status) {
@@ -68,38 +69,32 @@ public class Compra {
     }
 
     public Long getIdCompra() { return idCompra; }
-    public void setIdCompra(Long idCompra) { this.idCompra = idCompra; }
 
+    public void setIdCompra(Long idCompra) { this.idCompra = idCompra; }
     public LocalDateTime getDataCompra() { return dataCompra; }
     public void setDataCompra(LocalDateTime dataCompra) { this.dataCompra = dataCompra; }
-
     public int getQuantidadeIngressos() { return quantidadeIngressos; }
-    public void setQuantidadeIngressos(int quantidadeIngressos) { this.quantidadeIngressos = quantidadeIngressos; }
-
     public BigDecimal getValorTotal() { return valorTotal; }
     public void setValorTotal(BigDecimal valorTotal) { this.valorTotal = valorTotal; }
-
     public MetodoPagamento getMetodoPagamento() { return metodoPagamento; }
-    public void setMetodoPagamento(MetodoPagamento metodoPagamento) { this.metodoPagamento = metodoPagamento; }
-
+    public void setMetodoPagamento(MetodoPagamento metodoPagamento) { this.metodoPagamento = metodoPagamento;}
     public Status getStatus() { return status; }
-
-    public Usuario getComprador() { return comprador; }
-    public void setComprador(Usuario comprador) { this.comprador = comprador; }
-
-    public List<Ingresso> getIngressos() { return ingressos; }
-
-    public void addIngresso(Ingresso i) {
-        if (i != null && !ingressos.contains(i)) {
-            ingressos.add(i);
-            i.setCompra(this);
-        }
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+    public Set<Ingresso> getIngressos() { return ingressos; }
+    public void setIngressos(Set<Ingresso> ingressos) {
+        this.ingressos = ingressos;
     }
-
-    public void removeIngresso(Ingresso i) {
-        if (i != null && ingressos.remove(i)) {
-            i.setCompra(null);
+    public void addIngresso(Ingresso ingresso) {
+        this.ingressos.add(ingresso);
+        ingresso.setCompra(this);
+        this.quantidadeIngressos = this.ingressos.size();
         }
+
+    public void removeIngresso(Ingresso ingresso) {
+        this.ingressos.remove(ingresso);
+        ingresso.setCompra(null);
+        this.quantidadeIngressos = this.ingressos.size();
     }
 
     @Override
@@ -121,10 +116,11 @@ public class Compra {
         return "Compra{" +
                 "idCompra=" + idCompra +
                 ", dataCompra=" + dataCompra +
-                ", quantidadeIngressos=" + quantidadeIngressos +
                 ", valorTotal=" + valorTotal +
                 ", metodoPagamento=" + metodoPagamento +
                 ", status='" + status + '\'' +
+                ", usuarioId=" + (usuario != null ? usuario.getIdUsuario() : "null") +
+                ", quantidadeIngressos=" + quantidadeIngressos +
                 '}';
     }
 }

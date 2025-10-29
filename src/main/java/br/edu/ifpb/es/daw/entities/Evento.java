@@ -9,20 +9,22 @@ import java.util.List;
 
 @Entity
 @Table(name = "eventos")
-
 public class Evento {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(length = 255, nullable = false)
     private String nome;
     @Column(columnDefinition = "TEXT")
     private String descricao;
-    @Column(name = "data_inicio")
+    @Column(name = "data_inicio", nullable = false)
     private LocalDate dataInicio;
-    @Column(name = "data_fim")
+    @Column(name = "data_fim", nullable = false)
     private LocalDate dataFim;
+    @Column(length = 255, nullable = false)
     private String local;
-    @Column(name = "capacidade_total")
+    @Column(name = "capacidade_total", nullable = false)
     private Integer capacidadeTotal;
     @Column(name = "status", length = 30, nullable = false)
     @Enumerated(EnumType.STRING)
@@ -33,7 +35,7 @@ public class Evento {
     private Administrador administrador;
 
     @OneToMany(
-            mappedBy = "evento",
+            mappedBy = "eventoPai",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
             fetch = FetchType.LAZY
@@ -42,9 +44,9 @@ public class Evento {
 
 
     public Evento() {
-
     }
-    public Evento( String nome, String descricao, LocalDate dataInicio, LocalDate dataFim, String local, Integer capacidadeTotal, Status status) {
+
+    public Evento(String nome, String descricao, LocalDate dataInicio, LocalDate dataFim, String local, Integer capacidadeTotal, Status status) {
         this.nome = nome;
         this.descricao = descricao;
         this.dataInicio = dataInicio;
@@ -52,16 +54,6 @@ public class Evento {
         this.local = local;
         this.capacidadeTotal = capacidadeTotal;
         this.status = status;
-    }
-
-    public void addSessao(SessaoEvento s) {
-        sessoes.add(s);
-        s.setEvento(this);
-    }
-
-    public void removeSessao(SessaoEvento s) {
-        sessoes.remove(s);
-        s.setEvento(null);
     }
 
     public Long getId() {
@@ -139,6 +131,16 @@ public class Evento {
         this.sessoes = sessoes;
     }
 
+    public void addSessao(SessaoEvento s) {
+        sessoes.add(s);
+        s.setEventoPai(this);
+    }
+
+    public void removeSessao(SessaoEvento s) {
+        sessoes.remove(s);
+        s.setEventoPai(null);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -160,8 +162,6 @@ public class Evento {
                 ", dataInicio=" + dataInicio +
                 ", dataFim=" + dataFim +
                 ", local='" + local + '\'' +
-                ", capacidadeTotal=" + capacidadeTotal +
-                ", status='" + status + '\'' +
                 '}';
     }
 }

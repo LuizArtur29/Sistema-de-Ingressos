@@ -23,8 +23,8 @@ public class SessaoEvento {
     private String statusSessao;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "evento_id") // referencia PK de Evento (por padrão)
-    private Evento evento;
+    @JoinColumn(name = "evento_id", nullable = false) // Coluna FK na tabela 'sessoes_evento'
+    private Evento eventoPai;
 
     @OneToMany(
             mappedBy = "sessao",
@@ -32,7 +32,7 @@ public class SessaoEvento {
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
-    private List<TipoIngresso> tipos = new ArrayList<>();
+    private List<TipoIngresso> tiposIngresso = new ArrayList<>();
 
     public SessaoEvento() {
     }
@@ -43,15 +43,6 @@ public class SessaoEvento {
         this.statusSessao = statusSessao;
     }
 
-    public void addTipo(TipoIngresso t) {
-        tipos.add(t);
-        t.setSessao(this);
-    }
-
-    public void removeTipo(TipoIngresso t) {
-        tipos.remove(t);
-        t.setSessao(null);
-    }
 
     public Long getIdSessao() {
         return idSessao;
@@ -85,9 +76,19 @@ public class SessaoEvento {
         this.statusSessao = statusSessao;
     }
 
-    public Evento getEvento() { return evento; }
+    public Evento getEventoPai() { return eventoPai; }
 
-    public void setEvento(Evento evento) { this.evento = evento; }
+    public void setEventoPai(Evento eventoPai) { this.eventoPai = eventoPai; }
+
+    public void addTipoIngresso(TipoIngresso tipo) {
+        tiposIngresso.add(tipo);
+        tipo.setSessao(this);
+    }
+
+    public void removeTipoIngresso(TipoIngresso tipo) {
+        tiposIngresso.remove(tipo);
+        tipo.setSessao(null);
+    }
 
     @Override
     public boolean equals(Object o) {
