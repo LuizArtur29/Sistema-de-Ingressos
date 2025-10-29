@@ -83,7 +83,7 @@ public class Compra {
     public void setMetodoPagamento(MetodoPagamento metodoPagamento) { this.metodoPagamento = metodoPagamento; }
 
     public Status getStatus() { return status; }
-    
+
     public Usuario getComprador() { return comprador; }
     public void setComprador(Usuario comprador) { this.comprador = comprador; }
 

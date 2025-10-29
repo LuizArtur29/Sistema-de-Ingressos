@@ -1,10 +1,9 @@
 package br.edu.ifpb.es.daw.entities;
 
+import br.edu.ifpb.es.daw.entities.enums.Status;
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Objects;
-import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +24,9 @@ public class Evento {
     private String local;
     @Column(name = "capacidade_total")
     private Integer capacidadeTotal;
-    private String status;
+    @Column(name = "status", length = 30, nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "admin_id", referencedColumnName = "id_admin")
@@ -43,7 +44,7 @@ public class Evento {
     public Evento() {
 
     }
-    public Evento( String nome, String descricao, LocalDate dataInicio, LocalDate dataFim, String local, Integer capacidadeTotal, String status) {
+    public Evento( String nome, String descricao, LocalDate dataInicio, LocalDate dataFim, String local, Integer capacidadeTotal, Status status) {
         this.nome = nome;
         this.descricao = descricao;
         this.dataInicio = dataInicio;
@@ -119,11 +120,11 @@ public class Evento {
         this.capacidadeTotal = capacidadeTotal;
     }
 
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
