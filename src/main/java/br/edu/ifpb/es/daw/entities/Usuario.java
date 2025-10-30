@@ -13,6 +13,7 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_usuario")
     private Long idUsuario;
     private String nome;
     private String cpf;
@@ -23,13 +24,13 @@ public class Usuario {
     private String endereco;
     private String telefone;
 
-    @OneToMany(mappedBy = "comprador", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Compra> compras = new ArrayList<>();
 
-    @OneToMany(mappedBy = "vendedor", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "vendedor", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Transferencia> transferenciasVendidas = new ArrayList<>();
 
-    @OneToMany(mappedBy = "comprador", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "comprador", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Transferencia> transferenciasCompradas = new ArrayList<>();
 
     public Usuario() {
@@ -43,16 +44,6 @@ public class Usuario {
         this.senha = senha;
         this.endereco = endereco;
         this.telefone = telefone;
-    }
-
-    public void addCompra(Compra c) {
-        compras.add(c);
-        c.setUsuario(this);
-    }
-
-    public void removeCompra(Compra c) {
-        compras.remove(c);
-        c.setUsuario(null);
     }
 
     public Long getIdUsuario() {
@@ -117,6 +108,51 @@ public class Usuario {
 
     public void setTelefone(String telefone) {
         this.telefone = telefone;
+    }
+
+    public List<Compra> getCompras() {
+        return compras;
+    }
+    public void setCompras(List<Compra> compras) {
+        this.compras = compras;
+    }
+    public void addCompra(Compra c) {
+        compras.add(c);
+        c.setUsuario(this);
+    }
+    public void removeCompra(Compra c) {
+        compras.remove(c);
+        c.setUsuario(null);
+    }
+
+    public List<Transferencia> getTransferenciasVendidas() {
+        return transferenciasVendidas;
+    }
+    public void setTransferenciasVendidas(List<Transferencia> transferenciasVendidas) {
+        this.transferenciasVendidas = transferenciasVendidas;
+    }
+    public void addTransferenciaVendida(Transferencia t) {
+        transferenciasVendidas.add(t);
+        t.setVendedor(this);
+    }
+    public void removeTransferenciaVendida(Transferencia t) {
+        transferenciasVendidas.remove(t);
+        t.setVendedor(null);
+    }
+    public List<Transferencia> getTransferenciasCompradas() {
+        return transferenciasCompradas;
+    }
+
+    public void setTransferenciasCompradas(List<Transferencia> transferenciasCompradas) {
+        this.transferenciasCompradas = transferenciasCompradas;
+    }
+    public void addTransferenciaComprada(Transferencia t) {
+        transferenciasCompradas.add(t);
+        t.setVendedor(this);
+    }
+    public void removeTransferenciaComprada(Transferencia t) {
+        transferenciasCompradas.remove(t);
+        t.setVendedor(null);
     }
 
     @Override

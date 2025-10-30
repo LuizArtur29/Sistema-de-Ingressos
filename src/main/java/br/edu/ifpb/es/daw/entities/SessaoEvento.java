@@ -1,12 +1,10 @@
 package br.edu.ifpb.es.daw.entities;
 
 
+import br.edu.ifpb.es.daw.entities.enums.Status;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Objects;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 @Entity
@@ -20,7 +18,7 @@ public class SessaoEvento {
     @Column(name = "data_hora_sessao")
     private LocalDateTime dataHoraSessao;
     @Column(name = "status_sessao")
-    private String statusSessao;
+    private Status statusSessao;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "evento_id", nullable = false) // Coluna FK na tabela 'sessoes_evento'
@@ -32,12 +30,12 @@ public class SessaoEvento {
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
-    private List<TipoIngresso> tiposIngresso = new ArrayList<>();
+    private Set<TipoIngresso> tiposIngresso = new HashSet<>();
 
     public SessaoEvento() {
     }
 
-    public SessaoEvento(String nomeSessao, LocalDateTime dataHoraSessao, String statusSessao) {
+    public SessaoEvento(String nomeSessao, LocalDateTime dataHoraSessao, Status statusSessao) {
         this.nomeSessao = nomeSessao;
         this.dataHoraSessao = dataHoraSessao;
         this.statusSessao = statusSessao;
@@ -68,11 +66,11 @@ public class SessaoEvento {
         this.dataHoraSessao = dataHoraSessao;
     }
 
-    public String getStatusSessao() {
+    public Status getStatusSessao() {
         return statusSessao;
     }
 
-    public void setStatusSessao(String statusSessao) {
+    public void setStatusSessao(Status statusSessao) {
         this.statusSessao = statusSessao;
     }
 
@@ -80,6 +78,10 @@ public class SessaoEvento {
 
     public void setEventoPai(Evento eventoPai) { this.eventoPai = eventoPai; }
 
+    public Set<TipoIngresso> getTiposIngresso() {
+        return tiposIngresso;
+    }
+    public void setTiposIngresso(Set<TipoIngresso> tiposIngresso) { this.tiposIngresso = tiposIngresso; }
     public void addTipoIngresso(TipoIngresso tipo) {
         tiposIngresso.add(tipo);
         tipo.setSessao(this);

@@ -17,19 +17,23 @@ public class Ingresso {
     @Column(name = "ingresso_disponivel")
     private Boolean ingressoDisponivel = true;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_tipo_ingresso", unique = true,  nullable = false)
+    @Column(name = "preco", nullable = false)
+    private Double preco;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tipo_ingresso")
     private TipoIngresso tipoIngresso;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_compra")  // quando vendido, aponta para a Compra
+    @JoinColumn(name = "id_compra")
     private Compra compra;
 
     @OneToMany(mappedBy = "ingressoTransferido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<Transferencia> transferencias = new HashSet<>();
 
     public Ingresso() {}
-    public Ingresso(Boolean ingressoDisponivel) {
+    public Ingresso(Double preco,Boolean ingressoDisponivel) {
+        this.preco = preco;
         this.ingressoDisponivel = ingressoDisponivel;
     }
 
@@ -39,6 +43,14 @@ public class Ingresso {
 
     public void setIdIngresso(Long idIngresso) {
         this.idIngresso = idIngresso;
+    }
+
+    public Double getPreco() {
+        return preco;
+    }
+
+    public void setPreco(Double preco) {
+        this.preco = preco;
     }
 
     public Boolean isIngressoDisponivel() {
@@ -61,11 +73,11 @@ public class Ingresso {
     }
     public void addTransferencia(Transferencia transferencia) {
         this.transferencias.add(transferencia);
-        transferencia.setIngresso(this);
+        transferencia.setIngressoTransferido(this);
     }
     public void removeTransferencia(Transferencia transferencia) {
         this.transferencias.remove(transferencia);
-        transferencia.setIngresso(null);
+        transferencia.setIngressoTransferido(null);
     }
 
 
@@ -86,9 +98,10 @@ public class Ingresso {
     public String toString() { /* ... */
         return "Ingresso{" +
                 "idIngresso=" + idIngresso +
+                ", preco=" + preco +
                 ", ingressoDisponivel=" + ingressoDisponivel +
                 ", tipoIngressoId=" + (tipoIngresso != null ? tipoIngresso.getIdTipoIngresso() : "null") +
-                ", compraId=" + (compra != null ? compra.getIdCompra() : "null") + // Adicionado ID da Compra
+                ", compraId=" + (compra != null ? compra.getIdCompra() : "null") +
                 '}';
     }
 }

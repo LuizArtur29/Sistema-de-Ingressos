@@ -20,12 +20,16 @@ public class Transferencia {
     private Ingresso ingresso;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vendedor_id")
+    @JoinColumn(name = "id_vendedor", nullable = false)
     private Usuario vendedor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "comprador_id")
+    @JoinColumn(name = "id_comprador", nullable = false)
     private Usuario comprador;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_ingresso",  nullable = false)
+    private Ingresso ingressoTransferido;
 
     public Transferencia() {
     }
@@ -41,23 +45,21 @@ public class Transferencia {
     public void setIdTransferencia(Long idTransferencia) {
         this.idTransferencia = idTransferencia;
     }
-
     public Double getValorRevenda() {
         return valorRevenda;
     }
-
     public void setValorRevenda(Double valorRevenda) {
         this.valorRevenda = valorRevenda;
     }
 
-    public Ingresso getIngresso() { return ingresso; }
-    public void setIngresso(Ingresso ingresso) { this.ingresso = ingresso; }
-
     public Usuario getVendedor() { return vendedor; }
     public void setVendedor(Usuario vendedor) { this.vendedor = vendedor; }
-
     public Usuario getComprador() { return comprador; }
     public void setComprador(Usuario comprador) { this.comprador = comprador; }
+    public Ingresso getIngressoTransferido() { return ingressoTransferido; }
+    public void setIngressoTransferido(Ingresso ingressoTransferido) {
+        this.ingressoTransferido = ingressoTransferido;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -77,6 +79,9 @@ public class Transferencia {
         return "Transferencia{" +
                 "idTransferencia=" + idTransferencia +
                 ", valorRevenda=" + valorRevenda +
+                ", vendedorId=" + (vendedor != null ? vendedor.getIdUsuario() : "null") +
+                ", compradorId=" + (comprador != null ? comprador.getIdUsuario() : "null") +
+                ", ingressoId=" + (ingressoTransferido != null ? ingressoTransferido.getIdIngresso() : "null") +
                 '}';
     }
 }

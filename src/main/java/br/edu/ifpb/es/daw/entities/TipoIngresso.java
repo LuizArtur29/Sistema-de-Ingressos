@@ -2,10 +2,9 @@ package br.edu.ifpb.es.daw.entities;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
 import java.util.Objects;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "tipo_ingresso")
@@ -17,6 +16,7 @@ public class TipoIngresso {
     private Long idTipoIngresso;
     @Column(name = "nome_setor")
     private String nomeSetor;
+    @Column(nullable = false)
     private Double preco;
     @Column(name = "quantidade_total")
     private Integer quantidadeTotal;
@@ -29,13 +29,13 @@ public class TipoIngresso {
     @JoinColumn(name = "sessao_id", nullable = false)
     private SessaoEvento sessao;
 
-    @OneToOne(
+    @OneToMany(
             mappedBy = "tipoIngresso",
             cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY,
-            optional = true
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
     )
-    private Ingresso ingresso;
+    private Set<Ingresso> ingressosGerados = new HashSet<>();
 
     public TipoIngresso() {}
 
@@ -99,9 +99,18 @@ public class TipoIngresso {
 
     public void setSessao(SessaoEvento sessao) { this.sessao = sessao; }
 
-    public Ingresso getIngresso() { return ingresso; }
+    public Set<Ingresso> getIngressosGerados() { return ingressosGerados; }
 
-    public void setIngresso(Ingresso ingresso) { this.ingresso = ingresso; }
+    public void setIngressosGerados(Set<Ingresso> ingressosGerados) { this.ingressosGerados = ingressosGerados; }
+
+    public void addIngressoGerado(Ingresso ingressoGerado) {
+        this.ingressosGerados.add(ingressoGerado);
+        ingressoGerado.setTipoIngresso(this);
+    }
+    public void removeIngressoGerado(Ingresso ingressoGerado) {
+        this.ingressosGerados.remove(ingressoGerado);
+        ingressoGerado.setTipoIngresso(null);
+    }
 
     @Override
     public boolean equals(Object o) {

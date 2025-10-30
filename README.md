@@ -1,9 +1,9 @@
 <img width="1234" height="535" alt="image" src="https://github.com/user-attachments/assets/e3be8659-c15a-4f62-910b-c78b75388d2e" />
 
 Minimundo
-O sistema foi projetado para gerenciar de forma robusta a venda e transferência de ingressos para eventos, com papéis de usuário bem definidos.
+O sistema foi projetado para gerenciar de forma robusta a venda e transferência de ingressos para eventosCriados, com papéis de usuário bem definidos.
 
-No topo da hierarquia está o Administrador, responsável por cadastrar e gerenciar os eventos na plataforma. Cada Evento, que representa um acontecimento principal como um festival, é criado por um administrador e contém informações gerais como nome, descrição, período de duração (data_inicio, data_fim), local e capacidade.
+No topo da hierarquia está o Administrador, responsável por cadastrar e gerenciar os eventosCriados na plataforma. Cada Evento, que representa um acontecimento principal como um festival, é criado por um administrador e contém informações gerais como nome, descrição, período de duração (data_inicio, data_fim), local e capacidade.
 
 Para oferecer maior flexibilidade, cada Evento se desdobra em uma ou várias SessaoEvento. Cada sessão representa uma data ou horário específico dentro do eventoPai principal, permitindo um controle granular sobre o acesso, com seu próprio nome, data e hora.
 

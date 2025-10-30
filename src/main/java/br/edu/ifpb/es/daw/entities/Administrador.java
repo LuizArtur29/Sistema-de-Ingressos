@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 
 import java.util.Objects;
 
-import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +26,7 @@ public class Administrador {
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
-    private List<Evento> eventos = new ArrayList<>();
+    private List<Evento> eventosCriados = new ArrayList<>();
 
     public Administrador() {}
 
@@ -45,54 +44,43 @@ public class Administrador {
     public void setIdAdmin(Long idAdmin) {
         this.idAdmin = idAdmin;
     }
-
     public String getNome() {
         return nome;
     }
-
     public void setNome(String nome) {
         this.nome = nome;
     }
-
     public String getEmail() {
         return email;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
-
     public String getSenha() {
         return senha;
     }
-
     public void setSenha(String senha) {
         this.senha = senha;
     }
-
     public String getTelefone() {
         return telefone;
     }
-
     public void setTelefone(String telefone) {
         this.telefone = telefone;
     }
 
-    public List<Evento> getEventos() {
-        return eventos;
+    public List<Evento> getEventosCriados() {
+        return eventosCriados;
     }
-
-    public void setEventos(List<Evento> eventos) {
-        this.eventos = eventos;
+    public void setEventosCriados(List<Evento> eventosCriados) {
+        this.eventosCriados = eventosCriados;
     }
-
-    public void addEvento(Evento e) {
-        eventos.add(e);
+    public void addEventoCriado(Evento e) {
+        eventosCriados.add(e);
         e.setAdministrador(this);
     }
-
-    public void removeEvento(Evento e) {
-        eventos.remove(e);
+    public void removeEventoCriado(Evento e) {
+        eventosCriados.remove(e);
         e.setAdministrador(null);
     }
 
