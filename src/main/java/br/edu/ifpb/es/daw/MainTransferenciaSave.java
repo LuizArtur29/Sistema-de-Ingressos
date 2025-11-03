@@ -13,7 +13,7 @@ public class MainTransferenciaSave {
         try {
             Usuario vendedor = usuarioDAO.getByID(1L);
             Usuario comprador = usuarioDAO.getByID(2L);
-            Ingresso ingressoParaTransferir = ingressoDAO.getByID(1L);
+            Ingresso ingressoParaTransferir = ingressoDAO.findByIdComTipoIngresso(1L);
 
             if (vendedor == null || comprador == null || ingressoParaTransferir == null) {
                 System.err.println("ERRO: Execute os Main Saves anteriores para criar Usuários com IDs 1 e 2, e um Ingresso com ID 1.");
@@ -45,6 +45,9 @@ public class MainTransferenciaSave {
 
         } catch (PersistenciaDawException e) {
             System.err.println("Erro ao salvar a transferência:");
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("Ocorreu um erro inesperado:");
             e.printStackTrace();
         }
     }

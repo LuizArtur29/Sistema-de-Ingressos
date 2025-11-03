@@ -16,10 +16,6 @@ public class Transferencia {
     private Double valorRevenda;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ingresso_id")
-    private Ingresso ingresso;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_vendedor", nullable = false)
     private Usuario vendedor;
 
