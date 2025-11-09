@@ -11,7 +11,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
-public class TesteCompra {
+/*public class TesteCompra {
     public static void main(String[] args) throws SQLException {
         Connection conn = DatabaseConfig.getConnection();
         CompraRepositoryJDBC compraRepo = new CompraRepositoryJDBCImpl(conn);
@@ -35,3 +35,4 @@ public class TesteCompra {
         compraRepo.salvar(compra);
     }
 }
+*/

@@ -4,8 +4,10 @@ import com.vendaingressos.model.Compra;
 import com.vendaingressos.model.Ingresso;
 import com.vendaingressos.model.Usuario;
 import com.vendaingressos.repository.jdbc.CompraRepositoryJDBC;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,17 +15,19 @@ import java.util.List;
 @Repository
 public class CompraRepositoryJDBCImpl implements CompraRepositoryJDBC {
 
-    private Connection conexao;
+    private final DataSource dataSource;
 
-    public CompraRepositoryJDBCImpl(Connection conexao) {
-        this.conexao = conexao;
+    @Autowired
+    public CompraRepositoryJDBCImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @Override
     public void salvar(Compra compra) {
         String sql = "INSERT INTO compra (data_compra, quantidade_ingressos, valor_total, metodo_pagamento, status, id_usuario, id_ingresso) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection();
+             PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setDate(1, Date.valueOf(compra.getDataCompra()));
             stmt.setInt(2, compra.getQuantidadeIngressos());
             stmt.setDouble(3, compra.getValorTotal());
@@ -40,7 +44,8 @@ public class CompraRepositoryJDBCImpl implements CompraRepositoryJDBC {
     @Override
     public Compra buscarPorId(Long id) {
         String sql = "SELECT * FROM compra WHERE id_compra = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection();
+             PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setLong(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -72,7 +77,8 @@ public class CompraRepositoryJDBCImpl implements CompraRepositoryJDBC {
     public List<Compra> listarTodos() {
         List<Compra> compras = new ArrayList<>();
         String sql = "SELECT * FROM compra";
-        try (Statement stmt = conexao.createStatement();
+        try (Connection conexao = dataSource.getConnection();
+             Statement stmt = conexao.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 Compra c = new Compra();
@@ -103,7 +109,8 @@ public class CompraRepositoryJDBCImpl implements CompraRepositoryJDBC {
     public List<Compra> buscarPorUsuario(Long usuarioId) {
         List<Compra> compras = new ArrayList<>();
         String sql = "SELECT * FROM compra WHERE id_usuario = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection();
+             PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setLong(1, usuarioId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -134,7 +141,8 @@ public class CompraRepositoryJDBCImpl implements CompraRepositoryJDBC {
     @Override
     public void atualizar(Compra compra) {
         String sql = "UPDATE compra SET data_compra = ?, quantidade_ingressos = ?, valor_total = ?, metodo_pagamento = ?, status = ?, id_usuario = ?, id_ingresso = ? WHERE id_compra = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection();
+             PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setDate(1, Date.valueOf(compra.getDataCompra()));
             stmt.setInt(2, compra.getQuantidadeIngressos());
             stmt.setDouble(3, compra.getValorTotal());
@@ -152,7 +160,8 @@ public class CompraRepositoryJDBCImpl implements CompraRepositoryJDBC {
     @Override
     public void deletar(Long id) {
         String sql = "DELETE FROM compra WHERE id_compra = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection();
+             PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setLong(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
