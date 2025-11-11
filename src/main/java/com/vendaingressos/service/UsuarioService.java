@@ -5,6 +5,7 @@ import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Compra;
 import com.vendaingressos.model.Ingresso;
 import com.vendaingressos.model.Usuario;
+import com.vendaingressos.redis.UsuarioRedisCache;
 import com.vendaingressos.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,12 +24,14 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final CompraService compraService;
+    private final UsuarioRedisCache usuarioRedisCache;
 
     @Autowired
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, CompraService compraService){
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, CompraService compraService, UsuarioRedisCache usuarioRedisCache){
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.compraService = compraService;
+        this.usuarioRedisCache = usuarioRedisCache;
     }
 
     @Transactional
@@ -37,6 +40,10 @@ public class UsuarioService {
             throw new BadRequestException("Já existe um usuário cadastrado com este e-mail.");
         }
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
+
+        Usuario novoUsuario = usuarioRepository.save(usuario);
+        usuarioRedisCache.cacheUsuario(novoUsuario);
+
         return usuarioRepository.save(usuario);
     }
 
@@ -47,7 +54,17 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public Optional<Usuario> buscarUsuarioPorId(Long id){
-        return usuarioRepository.findById(id);
+        Optional<Usuario> cachedUser = usuarioRedisCache.getCachedUsuario(id);
+        if(cachedUser.isPresent()) {
+            return cachedUser;
+        }
+
+        //Para caso não esteja no cache, será procurado no banco de dados e posteriormente salvo no cache antes de retornar
+        Optional<Usuario> dbUser = usuarioRepository.findById(id);
+        //Se dbUser existir, chame o método cacheUsuario passando o próprio dbUser como parâmetro.
+        dbUser.ifPresent(usuarioRedisCache::cacheUsuario);
+
+        return dbUser;
     }
 
     @Transactional(readOnly = true)
@@ -67,15 +84,23 @@ public class UsuarioService {
             if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().isEmpty()) {
                 usuario.setSenha(passwordEncoder.encode(usuarioAtualizado.getSenha()));
             }
-            return usuarioRepository.save(usuario);
+
+            Usuario usuarioSalvo = usuarioRepository.save(usuario);
+
+            usuarioRedisCache.invalidateCacheForUsuario(id);
+            usuarioRedisCache.cacheUsuario(usuarioSalvo);
+
+            return usuarioSalvo;
         }).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + id));
     }
 
+    @Transactional
     public void deletarUsuario(Long id) {
         if (!usuarioRepository.existsById(id)) {
             throw new ResourceNotFoundException("Usuário não encontrado com ID: " + id);
         }
         usuarioRepository.deleteById(id);
+        usuarioRedisCache.invalidateCacheForUsuario(id);
     }
 
     @Transactional(readOnly = true)

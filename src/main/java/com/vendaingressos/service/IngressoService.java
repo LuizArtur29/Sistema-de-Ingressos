@@ -5,6 +5,7 @@ import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Evento;
 import com.vendaingressos.model.Ingresso;
 import com.vendaingressos.model.SessaoEvento; // Importar a nova entidade
+import com.vendaingressos.redis.IngressoRedisCache;
 import com.vendaingressos.repository.EventoRepository;
 import com.vendaingressos.repository.IngressoRepository;
 import com.vendaingressos.repository.SessaoEventoRepository; // Importar o novo repositório
@@ -21,11 +22,13 @@ public class IngressoService {
 
     private final IngressoRepository ingressoRepository;
     private final SessaoEventoRepository sessaoEventoRepository; // Novo repositório injetado
+    private final IngressoRedisCache ingressoRedisCache;
 
     @Autowired
-    public IngressoService(IngressoRepository ingressoRepository, SessaoEventoRepository sessaoEventoRepository) {
+    public IngressoService(IngressoRepository ingressoRepository, SessaoEventoRepository sessaoEventoRepository, IngressoRedisCache ingressoRedisCache) {
         this.ingressoRepository = ingressoRepository;
         this.sessaoEventoRepository = sessaoEventoRepository;
+        this.ingressoRedisCache = ingressoRedisCache;
     }
 
     @Transactional
@@ -44,7 +47,11 @@ public class IngressoService {
         }
 
         ingresso.setSessaoEvento(sessaoEvento);
-        return ingressoRepository.save(ingresso);
+        Ingresso ingressoSalvo = ingressoRepository.save(ingresso);
+
+        ingressoRedisCache.cacheIngresso(ingressoSalvo);
+
+        return ingressoSalvo;
     }
 
     @Transactional(readOnly = true)
@@ -61,12 +68,25 @@ public class IngressoService {
 
     @Transactional(readOnly = true)
     public Optional<Ingresso> buscarIngressoPorId(Long ingressoId) {
-        return ingressoRepository.findById(ingressoId);
+        // 1. Tenta buscar no cache
+        Optional<Ingresso> cachedIngresso = ingressoRedisCache.getCachedIngresso(ingressoId);
+        if (cachedIngresso.isPresent()) {
+            return cachedIngresso;
+        }
+
+        // 2. Se não estiver no cache, busca no banco
+        Optional<Ingresso> dbIngresso = ingressoRepository.findById(ingressoId);
+
+        // 3. Se encontrado, armazena no cache antes de retornar
+        dbIngresso.ifPresent(ingressoRedisCache::cacheIngresso);
+
+        return dbIngresso;
     }
 
     @Transactional
     public boolean isIngressoValido(Long ingressoId) {
-        Ingresso ingresso = ingressoRepository.findById(ingressoId)
+        // Este método se beneficia indiretamente do cache no 'buscarIngressoPorId'
+        Ingresso ingresso = buscarIngressoPorId(ingressoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ingresso não encontrado"));
         return ingresso.isIngressoDisponivel();
     }
@@ -80,6 +100,10 @@ public class IngressoService {
             throw new BadRequestException("Ingresso já utilizado ou não disponível.");
         }
         ingresso.setIngressoDisponivel(false);
-        ingressoRepository.save(ingresso);
+        Ingresso ingressoSalvo = ingressoRepository.save(ingresso);
+
+        // Invalida e recria o cache para refletir o status atualizado
+        ingressoRedisCache.invalidateCacheForIngresso(ingressoId);
+        ingressoRedisCache.cacheIngresso(ingressoSalvo);
     }
 }
