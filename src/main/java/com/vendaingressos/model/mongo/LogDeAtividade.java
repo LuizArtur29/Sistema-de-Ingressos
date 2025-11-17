@@ -1,7 +1,6 @@
-package com.vendaingressos.model.log;
+package com.vendaingressos.model.mongo;
 
 import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 

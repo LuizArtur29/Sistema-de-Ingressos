@@ -1,6 +1,6 @@
-package com.vendaingressos.repository.log;
+package com.vendaingressos.repository.mongo;
 
-import com.vendaingressos.model.log.LogDeAtividade;
+import com.vendaingressos.model.mongo.LogDeAtividade;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

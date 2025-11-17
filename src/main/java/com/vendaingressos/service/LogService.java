@@ -1,7 +1,7 @@
 package com.vendaingressos.service;
 
-import com.vendaingressos.model.log.LogDeAtividade;
-import com.vendaingressos.repository.log.LogDeAtividadeRepository;
+import com.vendaingressos.model.mongo.LogDeAtividade;
+import com.vendaingressos.repository.mongo.LogDeAtividadeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

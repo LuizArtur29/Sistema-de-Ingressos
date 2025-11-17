@@ -17,8 +17,8 @@ import java.util.List;
 @Entity
 @Table(name = "eventos")
 @Data
-@NoArgsConstructor // Necessário para JPA
-@AllArgsConstructor // Construtor com todos os campos, útil
+@NoArgsConstructor
+@AllArgsConstructor
 public class Evento {
 
     @Id
@@ -54,6 +54,10 @@ public class Evento {
     @NotBlank(message = "O status do evento não pode estar em branco")
     @Column(nullable = false)
     private String status; // Ex: "ATIVO", "CANCELADO", "FINALIZADO"
+
+    @ManyToOne
+    @JoinColumn(name = "admin_id")
+    private Usuario administrador;
 
     // Relacionamento One-to-Many com SessaoEvento
     // CascadeType.ALL para operações em cascata (salvar, remover sessões junto com o evento)

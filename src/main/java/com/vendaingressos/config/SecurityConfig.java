@@ -43,7 +43,9 @@ public class SecurityConfig {
                         // Permite acesso público ao endpoint de login e cadastro de usuário
                         .requestMatchers("/api/auth/login", "/api/usuarios").permitAll()
                         // Permite GET em eventos para todos
-                        .requestMatchers(HttpMethod.GET, "/api/eventos/**").permitAll()
+                        .requestMatchers(/*HttpMethod.GET,*/ "/api/eventos/**").permitAll()
+                        // ---> Permite TUDO (GET, POST, etc) em avaliações para testar
+                        .requestMatchers("/api/avaliacoes/**").permitAll()
                         // Qualquer outra requisição precisa de autenticação
                         .anyRequest().authenticated()
                 )

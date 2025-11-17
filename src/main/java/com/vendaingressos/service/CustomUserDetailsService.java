@@ -30,7 +30,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
 
-        // A próxima evolução seria adicionar um campo 'role' no modelo de Usuario.
         return new User(usuario.getEmail(), usuario.getSenha(), authorities);
     }
 }
