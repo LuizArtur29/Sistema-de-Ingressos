@@ -3,6 +3,7 @@ package com.vendaingressos.service;
 import com.vendaingressos.exception.BadRequestException;
 import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Evento;
+import com.vendaingressos.redis.EventoRedisCache;
 import com.vendaingressos.repository.EventoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,13 +16,15 @@ import java.util.Optional;
 public class EventoService {
 
     private final EventoRepository eventoRepository;
+    private final EventoRedisCache eventoRedisCache;
     // O CompraService não precisa mais ser injetado aqui para o método temIngressosDisponiveis
     // pois a lógica de capacidade agora é por SessaoEvento.
     // private final CompraService compraService;
 
     @Autowired
-    public EventoService(EventoRepository eventoRepository /*, CompraService compraService*/) {
+    public EventoService(EventoRepository eventoRepository, EventoRedisCache eventoRedisCache /*, CompraService compraService*/) {
         this.eventoRepository = eventoRepository;
+        this.eventoRedisCache = eventoRedisCache;
         // this.compraService = compraService;
     }
 
@@ -31,7 +34,10 @@ public class EventoService {
         if (evento.getDataFim().isBefore(evento.getDataInicio())) {
             throw new BadRequestException("A data de fim do evento não pode ser anterior à data de início.");
         }
-        return eventoRepository.save(evento);
+        Evento eventoSalvo = eventoRepository.save(evento);
+        eventoRedisCache.cacheEvento(evento);
+
+        return eventoSalvo;
     }
 
     @Transactional(readOnly = true)
@@ -41,7 +47,15 @@ public class EventoService {
 
     @Transactional(readOnly = true)
     public Optional<Evento> buscarEventoPorId(Long id) {
-        return eventoRepository.findById(id);
+        Optional<Evento> cachedEvento = eventoRedisCache.getCachedEvento(id);
+        if (cachedEvento.isPresent()) {
+            return cachedEvento;
+        }
+        //Se não esiver no cache, busca no banco e se encontrado armazena no cache antes de ser retornado
+        Optional<Evento> dbEvento = eventoRepository.findById(id);
+        dbEvento.ifPresent(eventoRedisCache::cacheEvento);
+
+        return dbEvento;
     }
 
     @Transactional
@@ -50,6 +64,7 @@ public class EventoService {
             throw new ResourceNotFoundException("Evento não encontrado com ID: " + id);
         }
         eventoRepository.deleteById(id);
+        eventoRedisCache.invalidateCacheForEvento(id); // Invalida o cache
     }
 
     @Transactional
@@ -63,7 +78,13 @@ public class EventoService {
             evento.setCapacidadeTotal(eventoAtualizado.getCapacidadeTotal());
             evento.setStatus(eventoAtualizado.getStatus());
             // Não há mais listaIngressos diretamente no Evento
-            return eventoRepository.save(evento);
+
+            Evento eventoSalvo = eventoRepository.save(evento);
+
+            eventoRedisCache.invalidateCacheForEvento(id);
+            eventoRedisCache.cacheEvento(eventoSalvo);
+
+            return eventoSalvo;
         }).orElseThrow(() -> new ResourceNotFoundException("Evento não encontrado com ID: " + id));
     }
 
