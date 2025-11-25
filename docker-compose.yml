@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: minio-server
+    ports:
+      - "9000:9000"  # Porta da API (S3-compatible)
+      - "9001:9001"  # Porta do Console Web (Admin UI)
+    environment:
+      MINIO_ROOT_USER: minioadmin # Chave de acesso (Access Key)
+      MINIO_ROOT_PASSWORD: minioadmin123 # Chave secreta (Secret Key)
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+volumes:
+  minio_data:
