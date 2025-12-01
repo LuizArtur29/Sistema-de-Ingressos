@@ -1,6 +1,5 @@
 package com.vendaingressos.advice;
 
-import ch.qos.logback.core.model.processor.ModelHandlerException;
 import com.vendaingressos.exception.BadRequestException;
 import com.vendaingressos.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;

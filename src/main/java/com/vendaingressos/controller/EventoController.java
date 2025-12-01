@@ -1,15 +1,17 @@
 package com.vendaingressos.controller;
 
 import com.vendaingressos.dto.EventoResponse;
-import com.vendaingressos.exception.BadRequestException; // Adicionado para validação de data
 import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Evento;
+import com.vendaingressos.repository.EventoRepository;
 import com.vendaingressos.service.EventoService;
+import com.vendaingressos.service.MinioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +22,12 @@ import java.util.stream.Collectors;
 public class EventoController {
 
     private final EventoService eventoService;
+
+    @Autowired
+    private MinioService minioService;
+
+    @Autowired
+    private EventoRepository eventoRepository;
 
     @Autowired
     public EventoController(EventoService eventoService) {
@@ -59,4 +67,48 @@ public class EventoController {
         eventoService.deletarEvento(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PostMapping("/upload-banner")
+    public ResponseEntity<String> uploadBanner(@RequestParam("arquivo") MultipartFile arquivo) {
+        String nomeArquivo = minioService.uploadArquivo(arquivo);
+        return ResponseEntity.ok("Arquivo enviado! Nome salvo: " + nomeArquivo);
+    }
+
+    @GetMapping("/ver-banner/{nomeArquivo}")
+    public ResponseEntity<String> verBanner(@PathVariable String nomeArquivo) {
+        String url = minioService.getUrlArquivo(nomeArquivo);
+        return ResponseEntity.ok(url);
+    }
+
+    @PostMapping("/{id}/upload-banner")
+    public ResponseEntity<String> uploadBannerEvento(@PathVariable Long id,
+                                                     @RequestParam("arquivo") MultipartFile arquivo) {
+        try {
+            // 1. Verificar se o evento existe
+            Evento evento = eventoRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Evento não encontrado!"));
+
+            // 2. Enviar arquivo para o MinIO
+            String nomeArquivo = minioService.uploadArquivo(arquivo);
+
+            // 3. (Opcional) Se já tinha uma foto antes, deletar a antiga do MinIO para não acumular lixo
+            if (evento.getImagemNome() != null && !evento.getImagemNome().isEmpty()) {
+                try {
+                    minioService.deletarArquivo(evento.getImagemNome());
+                } catch (Exception e) {
+                    System.err.println("Aviso: Não foi possível apagar a imagem antiga.");
+                }
+            }
+
+            // 4. Atualizar o nome da imagem no banco
+            evento.setImagemNome(nomeArquivo);
+            eventoRepository.save(evento);
+
+            return ResponseEntity.ok("Banner atualizado com sucesso! Nome: " + nomeArquivo);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro ao salvar banner: " + e.getMessage());
+        }
+    }
+
 }
