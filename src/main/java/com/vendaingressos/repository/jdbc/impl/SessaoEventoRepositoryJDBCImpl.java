@@ -4,6 +4,7 @@ import com.vendaingressos.model.SessaoEvento;
 import com.vendaingressos.repository.jdbc.SessaoEventoRepositoryJDBC;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,16 +13,16 @@ import java.util.List;
 @Repository
 public class SessaoEventoRepositoryJDBCImpl implements SessaoEventoRepositoryJDBC {
 
-    private Connection conexao;
+    private final DataSource dataSource;
 
-    public SessaoEventoRepositoryJDBCImpl() {
-        this.conexao = conexao;
+    public SessaoEventoRepositoryJDBCImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @Override
     public void salvar(SessaoEvento sessaoEvento) {
         String sql = "INSERT INTO sessao_evento (data_hora, id_evento_pai) VALUES (?, ?)";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setTimestamp(1, Timestamp.valueOf(sessaoEvento.getDataHoraSessao()));
             stmt.setLong(2, sessaoEvento.getEventoPai().getId());
             stmt.executeUpdate();
@@ -33,7 +34,7 @@ public class SessaoEventoRepositoryJDBCImpl implements SessaoEventoRepositoryJDB
     @Override
     public SessaoEvento buscarPorId(Long id) {
         String sql = "SELECT * FROM sessao_evento WHERE id_sessao = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setLong(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -52,7 +53,7 @@ public class SessaoEventoRepositoryJDBCImpl implements SessaoEventoRepositoryJDB
     public List<SessaoEvento> listarTodos() {
         List<SessaoEvento> lista = new ArrayList<>();
         String sql = "SELECT * FROM sessao_evento";
-        try (Statement stmt = conexao.createStatement();
+        try (Connection conexao = dataSource.getConnection(); Statement stmt = conexao.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 SessaoEvento s = new SessaoEvento();
@@ -70,7 +71,7 @@ public class SessaoEventoRepositoryJDBCImpl implements SessaoEventoRepositoryJDB
     public List<SessaoEvento> buscarPorEventoPai(Long eventoPaiId) {
         String sql = "SELECT * FROM sessao_evento WHERE id_evento_pai = ?";
         List<SessaoEvento> lista = new ArrayList<>();
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setLong(1, eventoPaiId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -88,7 +89,7 @@ public class SessaoEventoRepositoryJDBCImpl implements SessaoEventoRepositoryJDB
     @Override
     public void atualizar(SessaoEvento sessaoEvento) {
         String sql = "UPDATE sessao_evento SET data_hora = ? WHERE id_sessao = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setTimestamp(1, Timestamp.valueOf(sessaoEvento.getDataHoraSessao()));
             stmt.setLong(2, sessaoEvento.getIdSessao());
             stmt.executeUpdate();
@@ -100,7 +101,7 @@ public class SessaoEventoRepositoryJDBCImpl implements SessaoEventoRepositoryJDB
     @Override
     public void deletar(Long id) {
         String sql = "DELETE FROM sessao_evento WHERE id_sessao = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setLong(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {

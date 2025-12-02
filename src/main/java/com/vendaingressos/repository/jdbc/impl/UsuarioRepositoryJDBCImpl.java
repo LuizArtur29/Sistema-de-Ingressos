@@ -4,6 +4,7 @@ import com.vendaingressos.model.Usuario;
 import com.vendaingressos.repository.jdbc.UsuarioRepositoryJDBC;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,16 +13,16 @@ import java.util.Optional;
 @Repository
 public class UsuarioRepositoryJDBCImpl implements UsuarioRepositoryJDBC {
 
-    private Connection conexao;
+    private final DataSource dataSource;
 
-    public UsuarioRepositoryJDBCImpl() {
-        this.conexao = conexao;
+    public UsuarioRepositoryJDBCImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @Override
     public void salvar(Usuario usuario) {
         String sql = "INSERT INTO usuario (nome, email, senha) VALUES (?, ?, ?)";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, usuario.getNome());
             stmt.setString(2, usuario.getEmail());
             stmt.setString(3, usuario.getSenha());
@@ -34,7 +35,7 @@ public class UsuarioRepositoryJDBCImpl implements UsuarioRepositoryJDBC {
     @Override
     public Optional<Usuario> buscarPorEmail(String email) {
         String sql = "SELECT * FROM usuario WHERE email = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -54,7 +55,7 @@ public class UsuarioRepositoryJDBCImpl implements UsuarioRepositoryJDBC {
     @Override
     public Usuario buscarPorId(Long id) {
         String sql = "SELECT * FROM usuario WHERE id_usuario = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setLong(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -75,7 +76,7 @@ public class UsuarioRepositoryJDBCImpl implements UsuarioRepositoryJDBC {
     public List<Usuario> listarTodos() {
         List<Usuario> usuarios = new ArrayList<>();
         String sql = "SELECT * FROM usuario";
-        try (Statement stmt = conexao.createStatement();
+        try (Connection conexao = dataSource.getConnection(); Statement stmt = conexao.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 Usuario u = new Usuario();
@@ -94,7 +95,7 @@ public class UsuarioRepositoryJDBCImpl implements UsuarioRepositoryJDBC {
     @Override
     public void atualizar(Usuario usuario) {
         String sql = "UPDATE usuario SET nome = ?, email = ?, senha = ? WHERE id_usuario = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, usuario.getNome());
             stmt.setString(2, usuario.getEmail());
             stmt.setString(3, usuario.getSenha());
@@ -108,7 +109,7 @@ public class UsuarioRepositoryJDBCImpl implements UsuarioRepositoryJDBC {
     @Override
     public void deletar(Long id) {
         String sql = "DELETE FROM usuario WHERE id_usuario = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setLong(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {

@@ -4,6 +4,7 @@ import com.vendaingressos.model.Ingresso;
 import com.vendaingressos.repository.jdbc.IngressoRepositoryJDBC;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,16 +12,16 @@ import java.util.List;
 @Repository
 public class IngressoRepositoryJDBCImpl implements IngressoRepositoryJDBC {
 
-    private Connection conexao;
+    private final DataSource dataSource;
 
-    public IngressoRepositoryJDBCImpl() {
-        this.conexao = conexao;
+    public IngressoRepositoryJDBCImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @Override
     public void salvar(Ingresso ingresso) {
         String sql = "INSERT INTO ingresso (preco, tipo, id_sessao) VALUES (?, ?, ?)";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setDouble(1, ingresso.getPreco());
             stmt.setString(2, ingresso.getTipoIngresso());
             stmt.setLong(3, ingresso.getSessaoEvento().getIdSessao());
@@ -33,7 +34,7 @@ public class IngressoRepositoryJDBCImpl implements IngressoRepositoryJDBC {
     @Override
     public Ingresso buscarPorId(Long id) {
         String sql = "SELECT * FROM ingresso WHERE id_ingresso = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setLong(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -53,7 +54,7 @@ public class IngressoRepositoryJDBCImpl implements IngressoRepositoryJDBC {
     public List<Ingresso> listarTodos() {
         List<Ingresso> ingressos = new ArrayList<>();
         String sql = "SELECT * FROM ingresso";
-        try (Statement stmt = conexao.createStatement();
+        try (Connection conexao = dataSource.getConnection(); Statement stmt = conexao.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 Ingresso i = new Ingresso();
@@ -71,7 +72,7 @@ public class IngressoRepositoryJDBCImpl implements IngressoRepositoryJDBC {
     @Override
     public Long contarPorSessaoEvento(Long sessaoEventoId) {
         String sql = "SELECT COUNT(*) AS total FROM ingresso WHERE id_sessao = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setLong(1, sessaoEventoId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) return rs.getLong("total");
@@ -84,7 +85,7 @@ public class IngressoRepositoryJDBCImpl implements IngressoRepositoryJDBC {
     @Override
     public void atualizar(Ingresso ingresso) {
         String sql = "UPDATE ingresso SET preco = ?, tipo = ? WHERE id_ingresso = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setDouble(1, ingresso.getPreco());
             stmt.setString(2, ingresso.getTipoIngresso());
             stmt.setLong(3, ingresso.getIdIngresso());
@@ -97,7 +98,7 @@ public class IngressoRepositoryJDBCImpl implements IngressoRepositoryJDBC {
     @Override
     public void deletar(Long id) {
         String sql = "DELETE FROM ingresso WHERE id_ingresso = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setLong(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {

@@ -4,6 +4,7 @@ import com.vendaingressos.model.Evento;
 import com.vendaingressos.repository.jdbc.EventoRepositoryJDBC;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,16 +12,17 @@ import java.util.List;
 @Repository
 public class EventoRepositoryJDBCImpl implements EventoRepositoryJDBC {
 
-    private Connection conexao;
+    private final DataSource dataSource;
 
-    public EventoRepositoryJDBCImpl() {
-        this.conexao = conexao;
+    public EventoRepositoryJDBCImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @Override
     public void salvar(Evento evento) {
         String sql = "INSERT INTO eventos (nome, descricao, data_inicio, data_fim, local, capacidade_total, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
+
             stmt.setString(1, evento.getNome());
             stmt.setString(2, evento.getDescricao());
             stmt.setDate(3, Date.valueOf(evento.getDataInicio()));
@@ -29,6 +31,7 @@ public class EventoRepositoryJDBCImpl implements EventoRepositoryJDBC {
             stmt.setInt(6, evento.getCapacidadeTotal());
             stmt.setString(7, evento.getStatus());
             stmt.executeUpdate();
+
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao salvar evento via JDBC", e);
         }
@@ -37,7 +40,8 @@ public class EventoRepositoryJDBCImpl implements EventoRepositoryJDBC {
     @Override
     public Evento buscarPorId(Long id) {
         String sql = "SELECT * FROM eventos WHERE id = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
+
             stmt.setLong(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -63,7 +67,7 @@ public class EventoRepositoryJDBCImpl implements EventoRepositoryJDBC {
     public List<Evento> listarTodos() {
         List<Evento> eventos = new ArrayList<>();
         String sql = "SELECT * FROM eventos";
-        try (Statement stmt = conexao.createStatement();
+        try (Connection conexao = dataSource.getConnection(); Statement stmt = conexao.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 Evento evento = new Evento();
@@ -86,7 +90,7 @@ public class EventoRepositoryJDBCImpl implements EventoRepositoryJDBC {
     @Override
     public void atualizar(Evento evento) {
         String sql = "UPDATE eventos SET nome = ?, descricao = ?, data_inicio = ?, data_fim = ?, local = ?, capacidade_total = ?, status = ? WHERE id = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, evento.getNome());
             stmt.setString(2, evento.getDescricao());
             stmt.setDate(3, Date.valueOf(evento.getDataInicio()));
@@ -104,7 +108,7 @@ public class EventoRepositoryJDBCImpl implements EventoRepositoryJDBC {
     @Override
     public void deletar(Long id) {
         String sql = "DELETE FROM eventos WHERE id = ?";
-        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setLong(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
