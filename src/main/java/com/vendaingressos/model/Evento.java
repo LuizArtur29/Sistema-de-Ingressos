@@ -59,24 +59,12 @@ public class Evento {
     @JoinColumn(name = "admin_id")
     private Usuario administrador;
 
+    @Column(name = "imagem_nome")
+    private String imagemNome;
+
     // Relacionamento One-to-Many com SessaoEvento
     // CascadeType.ALL para operações em cascata (salvar, remover sessões junto com o evento)
     // orphanRemoval = true para remover sessões órfãs
     @OneToMany(mappedBy = "eventoPai", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SessaoEvento> sessoes = new ArrayList<>();
-
-    // Construtor manual se Lombok não gerar o que você precisa exatamente
-    // Se usar @Data, @NoArgsConstructor e @AllArgsConstructor, geralmente não é necessário um construtor manual
-    // para todos os campos, mas pode ser útil para testes ou criação específica.
-    /*
-    public Evento(String nome, String descricao, LocalDate dataInicio, LocalDate dataFim, String local, Integer capacidadeTotal, String status) {
-        this.nome = nome;
-        this.descricao = descricao;
-        this.dataInicio = dataInicio;
-        this.dataFim = dataFim;
-        this.local = local;
-        this.capacidadeTotal = capacidadeTotal;
-        this.status = status;
-    }
-    */
 }

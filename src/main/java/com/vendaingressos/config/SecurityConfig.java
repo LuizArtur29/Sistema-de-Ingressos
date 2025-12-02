@@ -44,6 +44,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login", "/api/usuarios").permitAll()
                         // Permite GET em eventos para todos
                         .requestMatchers(/*HttpMethod.GET,*/ "/api/eventos/**").permitAll()
+                        // Libera TUDO que começar com /teste-minio
+                        .requestMatchers("/teste-minio/**").permitAll()
                         // ---> Permite TUDO (GET, POST, etc) em avaliações para testar
                         .requestMatchers("/api/avaliacoes/**").permitAll()
                         // Qualquer outra requisição precisa de autenticação
