@@ -1,12 +1,11 @@
 package com.vendaingressos.service;
 
-import com.vendaingressos.exception.BadRequestException; // Se precisar de validações
 import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Evento;
 import com.vendaingressos.model.SessaoEvento;
 import com.vendaingressos.redis.SessaoEventoRedisCache;
-import com.vendaingressos.repository.EventoRepository;
-import com.vendaingressos.repository.SessaoEventoRepository;
+import com.vendaingressos.repository.jdbc.EventoRepository;
+import com.vendaingressos.repository.jdbc.SessaoEventoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,11 +17,13 @@ import java.util.Optional;
 public class SessaoEventoService {
 
     private final SessaoEventoRepository sessaoEventoRepository;
-    private final EventoRepository eventoRepository; // Para buscar o evento pai
+    private final EventoRepository eventoRepository;
     private final SessaoEventoRedisCache sessaoEventoRedisCache;
 
     @Autowired
-    public SessaoEventoService(SessaoEventoRepository sessaoEventoRepository, EventoRepository eventoRepository, SessaoEventoRedisCache sessaoEventoRedisCache) {
+    public SessaoEventoService(SessaoEventoRepository sessaoEventoRepository,
+                               EventoRepository eventoRepository,
+                               SessaoEventoRedisCache sessaoEventoRedisCache) {
         this.sessaoEventoRepository = sessaoEventoRepository;
         this.eventoRepository = eventoRepository;
         this.sessaoEventoRedisCache = sessaoEventoRedisCache;
@@ -30,57 +31,67 @@ public class SessaoEventoService {
 
     @Transactional
     public SessaoEvento salvarSessaoEvento(SessaoEvento sessaoEvento) {
-        // Validação: garantir que o evento pai exista
-        Evento eventoPai = eventoRepository.findById(sessaoEvento.getEventoPai().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Evento pai não encontrado com ID: " + sessaoEvento.getEventoPai().getId()));
+        if (sessaoEvento.getEventoPai() == null || sessaoEvento.getEventoPai().getId() == null) {
+            throw new IllegalArgumentException("O Evento Pai é obrigatório para criar uma sessão.");
+        }
+
+        Evento eventoPai = eventoRepository.buscarPorId(sessaoEvento.getEventoPai().getId());
+        if (eventoPai == null) {
+            throw new ResourceNotFoundException("Evento pai não encontrado com ID: " + sessaoEvento.getEventoPai().getId());
+        }
 
         sessaoEvento.setEventoPai(eventoPai);
-        SessaoEvento sessaoSalva = sessaoEventoRepository.save(sessaoEvento);
 
-        sessaoEventoRedisCache.cacheSessaoEvento(sessaoSalva);
+        sessaoEventoRepository.salvar(sessaoEvento);
+
+        sessaoEventoRedisCache.cacheSessaoEvento(sessaoEvento);
         sessaoEventoRedisCache.invalidateCacheForSessoesPorEvento(eventoPai.getId());
 
-        return sessaoSalva;
+        return sessaoEvento;
     }
 
     @Transactional(readOnly = true)
     public List<SessaoEvento> buscarTodasSessoesEventos() {
-        return sessaoEventoRepository.findAll();
+        return sessaoEventoRepository.listarTodos();
     }
 
     @Transactional(readOnly = true)
     public Optional<SessaoEvento> buscarSessaoEventoPorId(Long id) {
-        // 1. Tenta buscar no cache
+        // 1. Cache
         Optional<SessaoEvento> cachedSessao = sessaoEventoRedisCache.getCachedSessaoEvento(id);
         if (cachedSessao.isPresent()) {
             return cachedSessao;
         }
 
-        // 2. Se não estiver no cache, busca no banco
-        Optional<SessaoEvento> dbSessao = sessaoEventoRepository.findById(id);
+        // 2. Banco JDBC
+        SessaoEvento sessao = sessaoEventoRepository.buscarPorId(id);
 
-        // 3. Se encontrado, armazena no cache antes de retornar
-        dbSessao.ifPresent(sessaoEventoRedisCache::cacheSessaoEvento);
+        // 3. Salvar no Cache se encontrou
+        if (sessao != null) {
+            sessaoEventoRedisCache.cacheSessaoEvento(sessao);
+            return Optional.of(sessao);
+        }
 
-        return dbSessao;
+        return Optional.empty();
     }
 
     @Transactional(readOnly = true)
     public List<SessaoEvento> buscarSessoesPorEventoPai(Long eventoPaiId) {
-        // Opcional: verificar se o EventoPai existe antes de buscar as sessões
-        // 1. Tenta buscar a lista no cache
+        // 1. Cache Lista
         Optional<List<SessaoEvento>> cachedList = sessaoEventoRedisCache.getCachedSessoesPorEvento(eventoPaiId);
         if (cachedList.isPresent()) {
             return cachedList.get();
         }
 
-        // 2. Verifica a existência do evento pai e busca no banco
-        if (!eventoRepository.existsById(eventoPaiId)) {
+        // 2. Validar se Evento Pai existe (JDBC retorna null se não existir)
+        if (eventoRepository.buscarPorId(eventoPaiId) == null) {
             throw new ResourceNotFoundException("Evento pai não encontrado com ID: " + eventoPaiId);
         }
-        List<SessaoEvento> sessoes = sessaoEventoRepository.findByEventoPaiId(eventoPaiId);
 
-        // 3. Se encontrado, armazena a lista no cache
+        // 3. Buscar no Banco
+        List<SessaoEvento> sessoes = sessaoEventoRepository.buscarPorEventoPai(eventoPaiId);
+
+        // 4. Cache
         if (!sessoes.isEmpty()) {
             sessaoEventoRedisCache.cacheSessoesPorEvento(eventoPaiId, sessoes);
         }
@@ -89,35 +100,41 @@ public class SessaoEventoService {
 
     @Transactional
     public SessaoEvento atualizarSessaoEvento(Long id, SessaoEvento sessaoEventoAtualizada) {
-        return sessaoEventoRepository.findById(id).map(sessao -> {
-            sessao.setNomeSessao(sessaoEventoAtualizada.getNomeSessao());
-            sessao.setDataHoraSessao(sessaoEventoAtualizada.getDataHoraSessao());
-            sessao.setStatusSessao(sessaoEventoAtualizada.getStatusSessao());
-            // Se o eventoPai puder ser atualizado, adicione lógica para buscar e setar o novo eventoPai
-            // Por simplicidade, assumimos que o eventoPai não muda após a criação.
+        // 1. Busca existente
+        SessaoEvento sessaoExistente = sessaoEventoRepository.buscarPorId(id);
 
-            Long eventoPaiId = sessao.getEventoPai().getId();
+        if (sessaoExistente == null) {
+            throw new ResourceNotFoundException("Sessão de Evento não encontrada com ID: " + id);
+        }
 
-            SessaoEvento sessaoSalva = sessaoEventoRepository.save(sessao);
+        // 2. Atualiza campos
+        sessaoExistente.setNomeSessao(sessaoEventoAtualizada.getNomeSessao());
+        sessaoExistente.setDataHoraSessao(sessaoEventoAtualizada.getDataHoraSessao());
+        sessaoExistente.setStatusSessao(sessaoEventoAtualizada.getStatusSessao());
 
-            // Invalida e recria o cache do item único, e invalida a lista
-            sessaoEventoRedisCache.invalidateCacheForSessaoEvento(id, eventoPaiId);
-            sessaoEventoRedisCache.cacheSessaoEvento(sessaoSalva);
+        // 3. Salva alteração
+        sessaoEventoRepository.atualizar(sessaoExistente);
 
-            return sessaoSalva;
-        }).orElseThrow(() -> new ResourceNotFoundException("Sessão de Evento não encontrada com ID: " + id));
+        Long eventoPaiId = sessaoExistente.getEventoPai().getId();
+
+        // 4. Invalida caches
+        sessaoEventoRedisCache.invalidateCacheForSessaoEvento(id, eventoPaiId);
+        sessaoEventoRedisCache.cacheSessaoEvento(sessaoExistente);
+
+        return sessaoExistente;
     }
 
     @Transactional
     public void deletarSessaoEvento(Long id) {
-        SessaoEvento sessao = sessaoEventoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Sessão de Evento não encontrada com ID: " + id));
+        SessaoEvento sessao = sessaoEventoRepository.buscarPorId(id);
+        if (sessao == null) {
+            throw new ResourceNotFoundException("Sessão de Evento não encontrada com ID: " + id);
+        }
 
         Long eventoPaiId = sessao.getEventoPai().getId();
 
-        sessaoEventoRepository.deleteById(id);
+        sessaoEventoRepository.deletar(id);
 
-        // Invalida o item único e a lista
         sessaoEventoRedisCache.invalidateCacheForSessaoEvento(id, eventoPaiId);
     }
 }

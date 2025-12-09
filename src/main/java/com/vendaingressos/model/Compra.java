@@ -7,10 +7,11 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "compra")
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class Compra {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

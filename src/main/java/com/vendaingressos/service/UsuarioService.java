@@ -6,7 +6,7 @@ import com.vendaingressos.model.Compra;
 import com.vendaingressos.model.Ingresso;
 import com.vendaingressos.model.Usuario;
 import com.vendaingressos.redis.UsuarioRedisCache;
-import com.vendaingressos.repository.UsuarioRepository;
+import com.vendaingressos.repository.jdbc.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,12 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class UsuarioService {
-
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
@@ -27,7 +25,10 @@ public class UsuarioService {
     private final UsuarioRedisCache usuarioRedisCache;
 
     @Autowired
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, CompraService compraService, UsuarioRedisCache usuarioRedisCache){
+    public UsuarioService(UsuarioRepository usuarioRepository,
+                          PasswordEncoder passwordEncoder,
+                          CompraService compraService,
+                          UsuarioRedisCache usuarioRedisCache){
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.compraService = compraService;
@@ -36,83 +37,94 @@ public class UsuarioService {
 
     @Transactional
     public Usuario cadastrarUsuario(Usuario usuario) {
-        if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
+        if (usuarioRepository.buscarPorEmail(usuario.getEmail()).isPresent()) {
             throw new BadRequestException("Já existe um usuário cadastrado com este e-mail.");
         }
+
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
 
-        Usuario novoUsuario = usuarioRepository.save(usuario);
-        usuarioRedisCache.cacheUsuario(novoUsuario);
+        usuarioRepository.salvar(usuario);
 
-        return usuarioRepository.save(usuario);
+        usuarioRedisCache.cacheUsuario(usuario);
+
+        return usuario;
     }
 
     @Transactional(readOnly = true)
     public List<Usuario> buscarTodosUsuarios(){
-        return usuarioRepository.findAll();
+        return usuarioRepository.listarTodos();
     }
 
     @Transactional(readOnly = true)
     public Optional<Usuario> buscarUsuarioPorId(Long id){
+        // 1. Tenta Cache
         Optional<Usuario> cachedUser = usuarioRedisCache.getCachedUsuario(id);
         if(cachedUser.isPresent()) {
             return cachedUser;
         }
 
-        //Para caso não esteja no cache, será procurado no banco de dados e posteriormente salvo no cache antes de retornar
-        Optional<Usuario> dbUser = usuarioRepository.findById(id);
-        //Se dbUser existir, chame o método cacheUsuario passando o próprio dbUser como parâmetro.
-        dbUser.ifPresent(usuarioRedisCache::cacheUsuario);
+        // 2. Busca no Banco
+        Usuario dbUser = usuarioRepository.buscarPorId(id);
 
-        return dbUser;
+        // 3. Se achou, salva no cache e retorna Optional
+        if (dbUser != null) {
+            usuarioRedisCache.cacheUsuario(dbUser);
+            return Optional.of(dbUser);
+        }
+
+        return Optional.empty();
     }
 
     @Transactional(readOnly = true)
     public Optional<Usuario> buscarUsuarioPorEmail(String email) {
-        return usuarioRepository.findByEmail(email);
+        return usuarioRepository.buscarPorEmail(email);
     }
 
     @Transactional
     public Usuario atualizarUsuario(Long id, Usuario usuarioAtualizado) {
-        return usuarioRepository.findById(id).map(usuario -> {
-            usuario.setNome(usuarioAtualizado.getNome());
-            usuario.setCpf(usuarioAtualizado.getCpf());
-            usuario.setDataNascimento(usuarioAtualizado.getDataNascimento());
-            usuario.setEmail(usuarioAtualizado.getEmail());
-            usuario.setEndereco(usuarioAtualizado.getEndereco());
-            usuario.setTelefone(usuarioAtualizado.getTelefone());
-            if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().isEmpty()) {
-                usuario.setSenha(passwordEncoder.encode(usuarioAtualizado.getSenha()));
-            }
+        Usuario usuarioExistente = usuarioRepository.buscarPorId(id);
 
-            Usuario usuarioSalvo = usuarioRepository.save(usuario);
+        if (usuarioExistente == null) {
+            throw new ResourceNotFoundException("Usuário não encontrado com ID: " + id);
+        }
 
-            usuarioRedisCache.invalidateCacheForUsuario(id);
-            usuarioRedisCache.cacheUsuario(usuarioSalvo);
+        usuarioExistente.setNome(usuarioAtualizado.getNome());
+        usuarioExistente.setCpf(usuarioAtualizado.getCpf());
+        usuarioExistente.setDataNascimento(usuarioAtualizado.getDataNascimento());
+        usuarioExistente.setEmail(usuarioAtualizado.getEmail());
+        usuarioExistente.setEndereco(usuarioAtualizado.getEndereco());
+        usuarioExistente.setTelefone(usuarioAtualizado.getTelefone());
 
-            return usuarioSalvo;
-        }).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + id));
+        if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().isEmpty()) {
+            usuarioExistente.setSenha(passwordEncoder.encode(usuarioAtualizado.getSenha()));
+        }
+
+        usuarioRepository.atualizar(usuarioExistente);
+
+        usuarioRedisCache.invalidateCacheForUsuario(id);
+        usuarioRedisCache.cacheUsuario(usuarioExistente);
+
+        return usuarioExistente;
     }
 
     @Transactional
     public void deletarUsuario(Long id) {
-        if (!usuarioRepository.existsById(id)) {
+        if (usuarioRepository.buscarPorId(id) == null) {
             throw new ResourceNotFoundException("Usuário não encontrado com ID: " + id);
         }
-        usuarioRepository.deleteById(id);
+
+        usuarioRepository.deletar(id);
         usuarioRedisCache.invalidateCacheForUsuario(id);
     }
 
     @Transactional(readOnly = true)
     public List<Ingresso> listarIngressosPorUsuario(Long usuarioId) {
-        // Primeiro, verifica se o usuário existe
-        if (!usuarioRepository.existsById(usuarioId)) {
+        if (usuarioRepository.buscarPorId(usuarioId) == null) {
             throw new ResourceNotFoundException("Usuário não encontrado com ID: " + usuarioId);
         }
-        // Busca todas as compras do usuário
+
         List<Compra> comprasDoUsuario = compraService.buscarComprasPorUsuario(usuarioId);
 
-        // Extrai os ingressos de cada compra
         return comprasDoUsuario.stream()
                 .map(Compra::getIngresso)
                 .collect(Collectors.toList());

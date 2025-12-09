@@ -2,26 +2,23 @@ package com.vendaingressos.service;
 
 import com.vendaingressos.exception.BadRequestException;
 import com.vendaingressos.exception.ResourceNotFoundException;
-import com.vendaingressos.model.Evento;
 import com.vendaingressos.model.Ingresso;
-import com.vendaingressos.model.SessaoEvento; // Importar a nova entidade
+import com.vendaingressos.model.SessaoEvento;
 import com.vendaingressos.redis.IngressoRedisCache;
-import com.vendaingressos.repository.EventoRepository;
-import com.vendaingressos.repository.IngressoRepository;
-import com.vendaingressos.repository.SessaoEventoRepository; // Importar o novo repositório
+import com.vendaingressos.repository.jdbc.IngressoRepository;
+import com.vendaingressos.repository.jdbc.SessaoEventoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors; // Adicionar para usar .stream().collect()
 
 @Service
 public class IngressoService {
 
     private final IngressoRepository ingressoRepository;
-    private final SessaoEventoRepository sessaoEventoRepository; // Novo repositório injetado
+    private final SessaoEventoRepository sessaoEventoRepository;
     private final IngressoRedisCache ingressoRedisCache;
 
     @Autowired
@@ -33,36 +30,38 @@ public class IngressoService {
 
     @Transactional
     public Ingresso criarIngressoParaSessaoEvento(Long sessaoEventoId, Ingresso ingresso) {
-        SessaoEvento sessaoEvento = sessaoEventoRepository.findById(sessaoEventoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Sessão de Evento não encontrada com ID: " + sessaoEventoId));
+        SessaoEvento sessaoEvento = sessaoEventoRepository.buscarPorId(sessaoEventoId);
+        if (sessaoEvento == null) {
+            throw new ResourceNotFoundException("Sessão de Evento não encontrada com ID: " + sessaoEventoId);
+        }
 
-        // Obter a capacidade total do evento pai (capacidade por dia)
+        if (sessaoEvento.getEventoPai() == null) {
+            throw new RuntimeException("Erro interno: Dados do evento pai não carregados para a sessão.");
+        }
+
         Integer capacidadeTotalEvento = sessaoEvento.getEventoPai().getCapacidadeTotal();
-
-        // Contar quantos ingressos já foram criados para esta sessão específica
-        long ingressosExistentesNestaSessao = ingressoRepository.countBySessaoEventoIdSessao(sessaoEventoId);
+        long ingressosExistentesNestaSessao = ingressoRepository.contarIngressosPorSessao(sessaoEventoId);
 
         if (ingressosExistentesNestaSessao >= capacidadeTotalEvento) {
             throw new BadRequestException("A sessão do evento atingiu sua capacidade máxima de ingressos.");
         }
 
         ingresso.setSessaoEvento(sessaoEvento);
-        Ingresso ingressoSalvo = ingressoRepository.save(ingresso);
+        ingressoRepository.salvar(ingresso);
 
-        ingressoRedisCache.cacheIngresso(ingressoSalvo);
+        ingressoRedisCache.cacheIngresso(ingresso);
 
-        return ingressoSalvo;
+        return ingresso;
     }
 
     @Transactional(readOnly = true)
     public List<Ingresso> listarIngressosPorSessaoEvento(Long sessaoEventoId) {
-        SessaoEvento sessaoEvento = sessaoEventoRepository.findById(sessaoEventoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Sessão de Evento não encontrada"));
+        if (sessaoEventoRepository.buscarPorId(sessaoEventoId) == null) {
+            throw new ResourceNotFoundException("Sessão de Evento não encontrada com ID: " + sessaoEventoId);
+        }
 
-        // Filtra os ingressos associados a esta sessão específica
-        return ingressoRepository.findAll().stream()
-                .filter(ingresso -> ingresso.getSessaoEvento().getIdSessao().equals(sessaoEventoId))
-                .collect(Collectors.toList());
+        // Otimização: Busca direta no banco filtrando por ID, sem stream no Java
+        return ingressoRepository.buscarPorSessao(sessaoEventoId);
     }
 
 
@@ -75,35 +74,46 @@ public class IngressoService {
         }
 
         // 2. Se não estiver no cache, busca no banco
-        Optional<Ingresso> dbIngresso = ingressoRepository.findById(ingressoId);
+        Ingresso ingresso = ingressoRepository.buscarPorId(ingressoId);
 
         // 3. Se encontrado, armazena no cache antes de retornar
-        dbIngresso.ifPresent(ingressoRedisCache::cacheIngresso);
+        if (ingresso != null) {
+            ingressoRedisCache.cacheIngresso(ingresso);
+            return Optional.of(ingresso);
+        }
 
-        return dbIngresso;
+        return Optional.empty();
     }
 
     @Transactional
     public boolean isIngressoValido(Long ingressoId) {
-        // Este método se beneficia indiretamente do cache no 'buscarIngressoPorId'
-        Ingresso ingresso = buscarIngressoPorId(ingressoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Ingresso não encontrado"));
-        return ingresso.isIngressoDisponivel();
+        Optional<Ingresso> ingressoOpt = buscarIngressoPorId(ingressoId);
+        if (ingressoOpt.isEmpty()) {
+            throw new ResourceNotFoundException("Ingresso não encontrado");
+        }
+        return ingressoOpt.get().isIngressoDisponivel();
     }
 
     @Transactional
     public void registrarEntrada(Long ingressoId) {
-        Ingresso ingresso = ingressoRepository.findById(ingressoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Ingresso não encontrado"));
+        Ingresso ingresso = ingressoRepository.buscarPorId(ingressoId);
+
+        if (ingresso == null) {
+            throw new ResourceNotFoundException("Ingresso não encontrado");
+        }
 
         if (!ingresso.isIngressoDisponivel()) {
             throw new BadRequestException("Ingresso já utilizado ou não disponível.");
         }
-        ingresso.setIngressoDisponivel(false);
-        Ingresso ingressoSalvo = ingressoRepository.save(ingresso);
 
-        // Invalida e recria o cache para refletir o status atualizado
+        // Atualiza estado
+        ingresso.setIngressoDisponivel(false);
+
+        // IMPORTANTE: No JDBC precisamos mandar atualizar explicitamente
+        ingressoRepository.atualizar(ingresso);
+
+        // Invalida e recria o cache
         ingressoRedisCache.invalidateCacheForIngresso(ingressoId);
-        ingressoRedisCache.cacheIngresso(ingressoSalvo);
+        ingressoRedisCache.cacheIngresso(ingresso);
     }
 }

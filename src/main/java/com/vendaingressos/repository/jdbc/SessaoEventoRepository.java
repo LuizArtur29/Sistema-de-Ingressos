@@ -4,7 +4,7 @@ import com.vendaingressos.model.SessaoEvento;
 
 import java.util.List;
 
-public interface SessaoEventoRepositoryJDBC {
+public interface SessaoEventoRepository {
     void salvar(SessaoEvento sessaoEvento);
     SessaoEvento buscarPorId(Long id);
     List<SessaoEvento> listarTodos();

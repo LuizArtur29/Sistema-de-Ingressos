@@ -7,9 +7,9 @@ import com.vendaingressos.model.Ingresso;
 import com.vendaingressos.model.Usuario;
 import com.vendaingressos.model.enums.MetodoPagamento;
 import com.vendaingressos.redis.CompraRedisCache;
-import com.vendaingressos.repository.CompraRepository;
-import com.vendaingressos.repository.IngressoRepository;
-import com.vendaingressos.repository.UsuarioRepository;
+import com.vendaingressos.repository.jdbc.CompraRepository;
+import com.vendaingressos.repository.jdbc.IngressoRepository;
+import com.vendaingressos.repository.jdbc.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,10 +37,16 @@ public class CompraService {
 
     @Transactional
     public Compra realizarCompra(Long usuarioId, Long ingressoId, int quantidadeIngressos, MetodoPagamento metodoPagamento, boolean isMeiaEntrada ) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + usuarioId));
-        Ingresso ingresso = ingressoRepository.findById(ingressoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Ingresso não encontrado com ID: " + ingressoId));
+
+        Usuario usuario = usuarioRepository.buscarPorId(usuarioId);
+        if (usuario == null) {
+            new ResourceNotFoundException("Usuário não encontrado com ID: " + usuarioId);
+        }
+
+        Ingresso ingresso = ingressoRepository.buscarPorId(ingressoId);
+        if (ingresso == null) {
+            new ResourceNotFoundException("Ingresso não encontrado com ID: " + ingressoId);
+        }
 
         if (!ingresso.isIngressoDisponivel()) {
             throw new BadRequestException("Ingresso não está disponível para compra.");
@@ -49,8 +55,10 @@ public class CompraService {
             throw new BadRequestException("A quantidade de ingressos deve ser maior que zero.");
         }
 
-        // Adicionar uma verificação mais robusta de disponibilidade baseada na capacidade da sessão
-        // e nos ingressos já vendidos para aquela sessão.
+        if (ingresso.getSessaoEvento() == null || ingresso.getSessaoEvento().getEventoPai() == null) {
+            throw new RuntimeException("Erro interno: Dados do evento não foram carregados corretamente pelo banco.");
+        }
+
         // A capacidade é do Evento pai, mas a contagem de vendidos é por SessaoEvento.
         Integer capacidadeTotalEventoPorDia = ingresso.getSessaoEvento().getEventoPai().getCapacidadeTotal();
         long ingressosVendidosNestaSessao = contarIngressosVendidosPorSessao(ingresso.getSessaoEvento().getIdSessao());
@@ -61,8 +69,12 @@ public class CompraService {
 
         double precoUnitarioBase = ingresso.getPreco();
         double precoFinalUnitario = precoUnitarioBase;
+
         if (isMeiaEntrada) {
             LocalDate hoje = LocalDate.now();
+            if (usuario.getDataNascimento() == null) {
+                throw new BadRequestException("Data de nascimento do usuário não cadastrada.");
+            }
             int idade = Period.between(usuario.getDataNascimento(), hoje).getYears();
             if (idade >= 18) {
                 throw new BadRequestException("O usuário não tem direito a meia-entrada por idade.");
@@ -81,23 +93,28 @@ public class CompraService {
         novaCompra.setMetodoPagamento(metodoPagamento.name());
         novaCompra.setStatus("Concluida");
 
-        Compra compraSalva = compraRepository.save(novaCompra);
+        compraRepository.salvar(novaCompra);
 
-        compraRedisCache.cacheCompra(compraSalva);
+        compraRedisCache.cacheCompra(novaCompra);
         compraRedisCache.invalidateCacheForComprasPorUsuario(usuarioId);
 
-        return compraSalva;
+        return novaCompra;
     }
 
     @Transactional(readOnly = true)
     public List<Compra> buscarTodasCompras() {
-        return compraRepository.findAll();
+        return compraRepository.listarTodos();
     }
 
     @Transactional(readOnly = true)
     public Optional<Compra> buscarCompraPorId(Long id) {
         Optional<Compra> cachedCompra = compraRedisCache.getCachedCompra(id);
-        return compraRepository.findById(id);
+        if (cachedCompra.isPresent()) {
+            return cachedCompra;
+        }
+
+        Compra compra = compraRepository.buscarPorId(id);
+        return Optional.ofNullable(compra);
     }
 
     @Transactional(readOnly = true)
@@ -109,10 +126,10 @@ public class CompraService {
         }
 
         // 2. Verifica a existência do usuário e busca no banco
-        if (!usuarioRepository.existsById(usuarioId)) {
+        if (usuarioRepository.buscarPorId(usuarioId) == null) {
             throw new ResourceNotFoundException("Usuário não encontrado com ID: " + usuarioId);
         }
-        List<Compra> compras = compraRepository.findByUsuarioIdUsuario(usuarioId);
+        List<Compra> compras = compraRepository.buscarPorUsuario(usuarioId);
 
         // 3. Se encontrado, armazena a lista no cache
         if (!compras.isEmpty()) {
@@ -123,27 +140,38 @@ public class CompraService {
 
     @Transactional
     public Compra atualizarStatusCompra(Long id, String novoStatus) {
-        return compraRepository.findById(id).map(compra ->{
-            compra.setStatus(novoStatus);
-            Compra compraSalva = compraRepository.save(compra);
+        Compra compra = compraRepository.buscarPorId(id);
 
-            // NOVO: Invalida o item único e a lista do usuário
-            compraRedisCache.invalidateCacheForCompra(id);
+        if (compra == null) {
+            throw new ResourceNotFoundException("Compra não encontrada com ID : " + id);
+        }
+
+        // Atualiza apenas o status no banco (Performance)
+        compra.setStatus(novoStatus);
+        compraRepository.atualizarStatus(id, novoStatus);
+
+        // Invalida cache
+        compraRedisCache.invalidateCacheForCompra(id);
+        if (compra.getUsuario() != null) {
             compraRedisCache.invalidateCacheForComprasPorUsuario(compra.getUsuario().getIdUsuario());
-            compraRedisCache.cacheCompra(compraSalva); // Recria o cache do item único
+        }
 
-            return compraSalva;
-        }).orElseThrow(() -> new ResourceNotFoundException("Compra não encontrada com ID : " + id));
+        // Recria cache unitário
+        compraRedisCache.cacheCompra(compra);
+
+        return compra;
     }
 
     @Transactional
     public void deletarCompra(Long id) {
-        Compra compra = compraRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Compra não encontrada com ID: " + id));
+        Compra compra = compraRepository.buscarPorId(id);
+        if (compra == null) {
+            throw new RuntimeException("Compra não encontrada com ID: " + id);
+        }
 
         Long usuarioId = compra.getUsuario().getIdUsuario();
 
-        compraRepository.deleteById(id);
+        compraRepository.deletar(id);
 
         // NOVO: Invalida o item único e a lista do usuário
         compraRedisCache.invalidateCacheForCompra(id);
@@ -153,7 +181,6 @@ public class CompraService {
     // Novo método para contar ingressos vendidos por Sessão de Evento
     @Transactional(readOnly = true)
     public long contarIngressosVendidosPorSessao(Long sessaoEventoId) {
-        Long totalIngressos = compraRepository.sumQuantidadeIngressosByIngressoSessaoEventoIdSessao(sessaoEventoId);
-        return totalIngressos != null ? totalIngressos : 0;
+        return compraRepository.contarIngressosVendidosPorSessao(sessaoEventoId);
     }
 }

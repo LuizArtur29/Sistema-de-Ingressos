@@ -1,7 +1,7 @@
 package com.vendaingressos.repository.jdbc.impl;
 
 import com.vendaingressos.model.Usuario;
-import com.vendaingressos.repository.jdbc.UsuarioRepositoryJDBC;
+import com.vendaingressos.repository.jdbc.UsuarioRepository;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class UsuarioRepositoryJDBCImpl implements UsuarioRepositoryJDBC {
+public class UsuarioRepositoryJDBCImpl implements UsuarioRepository {
 
     private final DataSource dataSource;
 
@@ -21,12 +21,35 @@ public class UsuarioRepositoryJDBCImpl implements UsuarioRepositoryJDBC {
 
     @Override
     public void salvar(Usuario usuario) {
-        String sql = "INSERT INTO usuario (nome, email, senha) VALUES (?, ?, ?)";
-        try (Connection conexao = dataSource.getConnection(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        String sql = "INSERT INTO usuario (nome, email, senha, cpf, telefone, endereco, data_nascimento) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conexao = dataSource.getConnection();
+             PreparedStatement stmt = conexao.prepareStatement(sql, new String[]{"id_usuario"})) {
+
             stmt.setString(1, usuario.getNome());
             stmt.setString(2, usuario.getEmail());
             stmt.setString(3, usuario.getSenha());
-            stmt.executeUpdate();
+            stmt.setString(4, usuario.getCpf());
+            stmt.setString(5, usuario.getTelefone());
+            stmt.setString(6, usuario.getEndereco());
+
+            if (usuario.getDataNascimento() != null) {
+                stmt.setDate(7, Date.valueOf(usuario.getDataNascimento()));
+            } else {
+                stmt.setNull(7, Types.DATE);
+            }
+
+            int affectedRows = stmt.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        usuario.setIdUsuario(generatedKeys.getLong(1));
+                    }
+                }
+            }
+
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao salvar usuário via JDBC", e);
         }

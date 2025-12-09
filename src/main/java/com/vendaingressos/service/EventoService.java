@@ -4,7 +4,7 @@ import com.vendaingressos.exception.BadRequestException;
 import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Evento;
 import com.vendaingressos.redis.EventoRedisCache;
-import com.vendaingressos.repository.EventoRepository;
+import com.vendaingressos.repository.jdbc.EventoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,32 +17,31 @@ public class EventoService {
 
     private final EventoRepository eventoRepository;
     private final EventoRedisCache eventoRedisCache;
-    // O CompraService não precisa mais ser injetado aqui para o método temIngressosDisponiveis
-    // pois a lógica de capacidade agora é por SessaoEvento.
-    // private final CompraService compraService;
 
     @Autowired
-    public EventoService(EventoRepository eventoRepository, EventoRedisCache eventoRedisCache /*, CompraService compraService*/) {
+    public EventoService(EventoRepository eventoRepository, EventoRedisCache eventoRedisCache) {
         this.eventoRepository = eventoRepository;
         this.eventoRedisCache = eventoRedisCache;
-        // this.compraService = compraService;
     }
 
     @Transactional
     public Evento salvarEvento(Evento evento) {
-        // Validação da data: garantir que dataFim não seja antes de dataInicio
-        if (evento.getDataFim().isBefore(evento.getDataInicio())) {
+        if (evento.getDataFim() != null && evento.getDataInicio() != null &&
+                evento.getDataFim().isBefore(evento.getDataInicio())) {
             throw new BadRequestException("A data de fim do evento não pode ser anterior à data de início.");
         }
-        Evento eventoSalvo = eventoRepository.save(evento);
+
+        eventoRepository.salvar(evento);
+
+        // Cache
         eventoRedisCache.cacheEvento(evento);
 
-        return eventoSalvo;
+        return evento;
     }
 
     @Transactional(readOnly = true)
     public List<Evento> buscarTodosEventos() {
-        return eventoRepository.findAll();
+        return eventoRepository.listarTodos();
     }
 
     @Transactional(readOnly = true)
@@ -51,59 +50,66 @@ public class EventoService {
         if (cachedEvento.isPresent()) {
             return cachedEvento;
         }
-        //Se não esiver no cache, busca no banco e se encontrado armazena no cache antes de ser retornado
-        Optional<Evento> dbEvento = eventoRepository.findById(id);
-        dbEvento.ifPresent(eventoRedisCache::cacheEvento);
 
-        return dbEvento;
+        Evento evento = eventoRepository.buscarPorId(id);
+
+        if (evento != null) {
+            eventoRedisCache.cacheEvento(evento);
+            return Optional.of(evento);
+        }
+
+        return Optional.empty();
     }
 
     @Transactional
     public void deletarEvento(Long id) {
-        if (!eventoRepository.existsById(id)) {
+        if (eventoRepository.buscarPorId(id) == null) {
             throw new ResourceNotFoundException("Evento não encontrado com ID: " + id);
         }
-        eventoRepository.deleteById(id);
-        eventoRedisCache.invalidateCacheForEvento(id); // Invalida o cache
+
+        eventoRepository.deletar(id);
+        eventoRedisCache.invalidateCacheForEvento(id);
     }
 
     @Transactional
     public Evento atualizarEvento(Long id, Evento eventoAtualizado) {
-        return eventoRepository.findById(id).map(evento -> {
-            evento.setNome(eventoAtualizado.getNome());
-            evento.setDescricao(eventoAtualizado.getDescricao());
-            evento.setDataInicio(eventoAtualizado.getDataInicio()); // Atualizado
-            evento.setDataFim(eventoAtualizado.getDataFim()); // Atualizado
-            evento.setLocal(eventoAtualizado.getLocal());
-            evento.setCapacidadeTotal(eventoAtualizado.getCapacidadeTotal());
-            evento.setStatus(eventoAtualizado.getStatus());
-            // Não há mais listaIngressos diretamente no Evento
+        // 1. Busca o evento existente
+        Evento eventoExistente = eventoRepository.buscarPorId(id);
 
-            Evento eventoSalvo = eventoRepository.save(evento);
-
-            eventoRedisCache.invalidateCacheForEvento(id);
-            eventoRedisCache.cacheEvento(eventoSalvo);
-
-            return eventoSalvo;
-        }).orElseThrow(() -> new ResourceNotFoundException("Evento não encontrado com ID: " + id));
-    }
-
-    // Este método temIngressosDisponiveis precisa ser reavaliado ou removido,
-    // pois a disponibilidade agora é por sessão.
-    // Se a intenção for verificar se *qualquer* sessão tem ingressos,
-    // a lógica precisará ser mais complexa. Por enquanto, vou remover.
-    /*
-    @Transactional(readOnly = true)
-    public boolean temIngressosDisponiveis(Long eventoId) {
-        Optional<Evento> eventoOptional = eventoRepository.findById(eventoId);
-        if (eventoOptional.isEmpty()) {
-            throw new RuntimeException("Evento não encontrado com ID: " + eventoId);
+        if (eventoExistente == null) {
+            throw new ResourceNotFoundException("Evento não encontrado com ID: " + id);
         }
-        Evento evento = eventoOptional.get();
-        // A contagem de ingressos vendidos agora seria por SessaoEvento
-        // long ingressosVendidos = compraService.contarIngressosVendidos(eventoId);
-        // return evento.getCapacidadeTotal() > ingressosVendidos;
-        return false; // Lógica temporária, precisa ser ajustada ou removida.
+
+        // 2. Atualiza os dados do objeto existente
+        eventoExistente.setNome(eventoAtualizado.getNome());
+        eventoExistente.setDescricao(eventoAtualizado.getDescricao());
+        eventoExistente.setDataInicio(eventoAtualizado.getDataInicio());
+        eventoExistente.setDataFim(eventoAtualizado.getDataFim());
+        eventoExistente.setLocal(eventoAtualizado.getLocal());
+        eventoExistente.setCapacidadeTotal(eventoAtualizado.getCapacidadeTotal());
+        eventoExistente.setStatus(eventoAtualizado.getStatus());
+
+        // Mantém a imagem antiga se a nova não for enviada
+        if (eventoAtualizado.getImagemNome() != null) {
+            eventoExistente.setImagemNome(eventoAtualizado.getImagemNome());
+        }
+
+        // 3. Chama o update do JDBC
+        eventoRepository.atualizar(eventoExistente);
+
+        // 4. Atualiza Cache
+        eventoRedisCache.invalidateCacheForEvento(id);
+        eventoRedisCache.cacheEvento(eventoExistente);
+
+        return eventoExistente;
     }
-    */
+
+    @Transactional(readOnly = true)
+    public Double obterReceitaTotal(Long idEvento) {
+        if (eventoRepository.buscarPorId(idEvento) == null) {
+            throw new ResourceNotFoundException("Evento não encontrado com ID: " + idEvento);
+        }
+
+        return eventoRepository.calcularReceitaTotal(idEvento);
+    }
 }

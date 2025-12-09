@@ -1,10 +1,11 @@
 package com.vendaingressos.service;
 
 import com.vendaingressos.exception.ResourceNotFoundException;
+import com.vendaingressos.model.Evento;
 import com.vendaingressos.model.Usuario;
 import com.vendaingressos.model.mongo.AvaliacaoEvento;
-import com.vendaingressos.repository.EventoRepository;
-import com.vendaingressos.repository.UsuarioRepository;
+import com.vendaingressos.repository.jdbc.EventoRepository;
+import com.vendaingressos.repository.jdbc.UsuarioRepository;
 import com.vendaingressos.repository.mongo.AvaliacaoEventoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,18 +25,34 @@ public class AvaliacaoService {
     private UsuarioRepository usuarioRepository;
 
     public AvaliacaoEvento avaliarEvento(Long idEvento, Long idUsuario, int nota, String comentario) {
-        if (!eventoRepository.existsById(idEvento)) {
+        Evento evento = eventoRepository.buscarPorId(idEvento);
+
+        if (evento == null) {
             throw new ResourceNotFoundException("Evento não encontrado no SQL com ID: " + idEvento);
         }
 
-        Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        Usuario usuario = usuarioRepository.buscarPorId(idUsuario);
 
-        AvaliacaoEvento avaliacao = new AvaliacaoEvento(idEvento, idUsuario, usuario.getNome(),  nota, comentario);
-        return avaliacaoRepository.save(avaliacao);
+        if (usuario == null) {
+            throw new ResourceNotFoundException("Usuário não encontrado com ID: " + idUsuario);
+        }
+
+        AvaliacaoEvento avaliacaoEvento = new AvaliacaoEvento(
+                idEvento,
+                idUsuario,
+                usuario.getNome(),
+                nota,
+                comentario
+        );
+
+        return avaliacaoRepository.save(avaliacaoEvento);
     }
 
     public List<AvaliacaoEvento> listarAvaliacoesDoEvento(Long idEvento) {
+        if (eventoRepository.buscarPorId(idEvento) == null) {
+            throw new ResourceNotFoundException("Evento não existe: " + idEvento);
+        }
+
         return avaliacaoRepository.findByIdEvento(idEvento);
     }
 }
