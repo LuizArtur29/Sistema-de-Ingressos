@@ -40,6 +40,7 @@ public class Evento {
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
+
     private List<SessaoEvento> sessoes = new ArrayList<>();
 
 
@@ -121,6 +122,7 @@ public class Evento {
     }
 
     public Administrador getAdministrador() { return administrador; }
+
     public void setAdministrador(Administrador administrador) { this.administrador = administrador; }
 
     public List<SessaoEvento> getSessoes() {
