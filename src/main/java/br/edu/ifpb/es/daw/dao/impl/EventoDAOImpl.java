@@ -5,6 +5,7 @@ import br.edu.ifpb.es.daw.dao.PersistenciaDawException;
 import br.edu.ifpb.es.daw.entities.Evento;
 import br.edu.ifpb.es.daw.util.JPAUtil;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
@@ -12,6 +13,10 @@ import jakarta.persistence.criteria.*;
 public class EventoDAOImpl extends AbstractDAOImpl<Evento, Long> implements EventoDAO {
     public EventoDAOImpl() {
         super(Evento.class, JPAUtil.getEntityManagerFactory());
+    }
+
+    public EventoDAOImpl(EntityManagerFactory emf) {
+        super(Evento.class, emf);
     }
 
     @Override

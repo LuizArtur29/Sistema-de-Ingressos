@@ -5,12 +5,17 @@ import br.edu.ifpb.es.daw.dao.UsuarioDAO;
 import br.edu.ifpb.es.daw.entities.Usuario;
 import br.edu.ifpb.es.daw.util.JPAUtil;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 
 public class UsuarioDAOImpl extends AbstractDAOImpl<Usuario, Long> implements UsuarioDAO {
     public UsuarioDAOImpl() {
         super(Usuario.class, JPAUtil.getEntityManagerFactory());
+    }
+
+    public UsuarioDAOImpl(EntityManagerFactory emf) {
+        super(Usuario.class, emf);
     }
 
     @Override
