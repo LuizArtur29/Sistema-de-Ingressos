@@ -24,7 +24,7 @@ public class DataGeneratorDAO {
 
         //Usuários
         Usuario u1 = new Usuario(
-                "João Silva Oliveira", "123.456.789-01",
+                "João Silva Oliveira", "12345678901",
                 LocalDate.of(1985, 10, 20),
                 "joao.silva@exemplo.com",
                 "senha123Forte",
@@ -42,7 +42,7 @@ public class DataGeneratorDAO {
         );
         Usuario u3 = new Usuario(
                 "José Dantas",
-                "111.222.333-44",
+                "11122233344",
                 LocalDate.of(1950, 1, 15),
                 "jose.dantas50@gmail.com",
                 "AntigaSenha",
@@ -51,7 +51,7 @@ public class DataGeneratorDAO {
         );
         Usuario u4 = new Usuario(
                 "Ana Beatriz Gomes",
-                "444.555.666-77",
+                "44455566677",
                 LocalDate.of(1998, 12, 31),
                 "ana@gomes.net",
                 "1aB@3cD$",
@@ -60,7 +60,7 @@ public class DataGeneratorDAO {
         );
         Usuario u5 = new Usuario(
                 "Carlos Eduardo",
-                "000.000.000-01",
+                "00000000001",
                 LocalDate.of(1975, 7, 7),
                 "carlos.e@mail.com",
                 "carlos1975",
@@ -69,7 +69,7 @@ public class DataGeneratorDAO {
         );
         Usuario u6 = new Usuario(
                 "Fernanda Rodrigues de Souza e Albuquerque",
-                "777.888.999-00",
+                "77788899900",
                 LocalDate.of(1990, 2, 28),
                 "fer.rodrigues_2023@provedor.biz",
                 "MySecretPwd$",
@@ -151,15 +151,11 @@ public class DataGeneratorDAO {
                 LocalDateTime.of(2026, 2, 28, 16, 45), Status.APROVADO);
 
         e1.addSessao(s1);
-        e2.addSessao(s3);
         e1.addSessao(s8);
-
+        e2.addSessao(s3);
         e2.addSessao(s5);
-
         e4.addSessao(s7);
-
         e5.addSessao(s6);
-
         e6.addSessao(s2);
         e6.addSessao(s4);
 

@@ -19,18 +19,4 @@ public class SessaoEventoDAOImpl extends AbstractDAOImpl<SessaoEvento, Long> imp
         super(SessaoEvento.class, emf);
     }
 
-    @Override
-    public SessaoEvento findSectionEventByEventObject(Evento eventoPai) throws PersistenciaDawException {
-        try(EntityManager em = getEntityManager()) {
-            SessaoEvento resultado = null;
-
-            TypedQuery<SessaoEvento> query = em.createQuery("SELECT se FROM SessaoEvento se WHERE se.eventoPai = :eventoPai", SessaoEvento.class);
-            query.setParameter("eventoPai", eventoPai);
-            resultado = query.getSingleResult();
-            return resultado;
-        } catch (PersistenceException pe) {
-            pe.printStackTrace();
-            throw new PersistenciaDawException("Ocorreu um erro em achar a Sessão Evento através do objeto Evento", pe);
-        }
-    }
 }
