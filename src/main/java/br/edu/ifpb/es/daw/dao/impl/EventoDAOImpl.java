@@ -3,6 +3,7 @@ package br.edu.ifpb.es.daw.dao.impl;
 import br.edu.ifpb.es.daw.dao.EventoDAO;
 import br.edu.ifpb.es.daw.dao.PersistenciaDawException;
 import br.edu.ifpb.es.daw.entities.Evento;
+import br.edu.ifpb.es.daw.entities.SessaoEvento;
 import br.edu.ifpb.es.daw.util.JPAUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -61,6 +62,21 @@ public class EventoDAOImpl extends AbstractDAOImpl<Evento, Long> implements Even
         } catch (PersistenceException pe) {
             pe.printStackTrace();
             throw new PersistenciaDawException("Ocorreu algum erro ao tentar recuperar um evento (com todas as suas sessões) pelo nome.", pe);
+        }
+    }
+
+    @Override
+    public Evento findEventBySectionEventObject(SessaoEvento sessaoEvento) throws PersistenciaDawException {
+        try (EntityManager em = getEntityManager()) {
+            Evento evento = null;
+
+            TypedQuery<Evento> query = em.createQuery("SELECT e FROM Evento e WHERE e.sessoes = :sessao", Evento.class);
+            query.setParameter("sessao", sessaoEvento);
+            evento = query.getSingleResult();
+            return evento;
+        } catch (PersistenceException pe) {
+            pe.printStackTrace();
+            throw new PersistenciaDawException("Ocorreu um erro em achar o Evento através do objeto Sessão Evento.", pe);
         }
     }
 }
