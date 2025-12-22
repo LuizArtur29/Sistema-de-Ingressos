@@ -42,7 +42,7 @@ public class MainConsultas {
             }
 
             // findEventBySectionEventObject - SessaoEvento
-            SessaoEvento s2 = new SessaoEvento("Cerimônia de Encerramento e Premiação",LocalDateTime.of(2024, 1, 15, 21, 0), Status.APROVADO);
+            SessaoEvento s2 = sessaoEventoDAO.findSessaoByName("Cerimônia de Encerramento e Premiação");
             Evento eventoProcurado3 = eventoDAO.findEventBySectionEventObject(s2);
             System.out.println(">>> " + eventoProcurado3.toString());
 

@@ -70,7 +70,7 @@ public class EventoDAOImpl extends AbstractDAOImpl<Evento, Long> implements Even
         try (EntityManager em = getEntityManager()) {
             Evento evento = null;
 
-            TypedQuery<Evento> query = em.createQuery("SELECT e FROM Evento e WHERE e.sessoes = :sessao", Evento.class);
+            TypedQuery<Evento> query = em.createQuery("SELECT s.eventoPai FROM SessaoEvento s WHERE s = :sessao", Evento.class);
             query.setParameter("sessao", sessaoEvento);
             evento = query.getSingleResult();
             return evento;
