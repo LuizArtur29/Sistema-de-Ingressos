@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    //Ela transforma um dado sensível em um código matemático seguro que só pode ser validado, nunca revertido.
     private final PasswordEncoder passwordEncoder;
     private final CompraService compraService;
     private final UsuarioRedisCache usuarioRedisCache;

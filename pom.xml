@@ -103,6 +103,10 @@
             <artifactId>minio</artifactId>
             <version>8.5.11</version>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-spatial</artifactId>
+        </dependency>
 	</dependencies>
 
 	<build>
