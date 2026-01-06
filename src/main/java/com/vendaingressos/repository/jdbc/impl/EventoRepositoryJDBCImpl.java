@@ -3,6 +3,7 @@ package com.vendaingressos.repository.jdbc.impl;
 import com.vendaingressos.model.Evento;
 import com.vendaingressos.model.Usuario;
 import com.vendaingressos.repository.jdbc.EventoRepository;
+import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -150,6 +151,16 @@ public class EventoRepositoryJDBCImpl implements EventoRepository {
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao calcular receita do evento via JDBC", e);
         }
+    }
+
+    @Override
+    public List<Evento> buscarEventoNoRaio(Point ponto, double raioMetros) {
+        return List.of();
+    }
+
+    @Override
+    public Double medirDistanciaEntrePontos(Long id, Point outroPonto) {
+        return 0.0;
     }
 
     private Evento mapearEvento(ResultSet rs) throws SQLException {

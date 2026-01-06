@@ -5,6 +5,10 @@ import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Evento;
 import com.vendaingressos.redis.EventoRedisCache;
 import com.vendaingressos.repository.jdbc.EventoRepository;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +21,7 @@ public class EventoService {
 
     private final EventoRepository eventoRepository;
     private final EventoRedisCache eventoRedisCache;
+    private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
     @Autowired
     public EventoService(EventoRepository eventoRepository, EventoRedisCache eventoRedisCache) {
@@ -111,5 +116,15 @@ public class EventoService {
         }
 
         return eventoRepository.calcularReceitaTotal(idEvento);
+    }
+
+    public List<Evento> buscarEventosProximos(double lat, double lng, double raioMetros) {
+        Point pontoBusca = geometryFactory.createPoint(new Coordinate(lng, lat));
+        return eventoRepository.buscarEventoNoRaio(pontoBusca, raioMetros);
+    }
+
+    public Double calcularDistanciaAteEvento(Long id, double lat, double lng) {
+        Point pontoCriado = geometryFactory.createPoint(new Coordinate(lng, lat));
+        return eventoRepository.medirDistanciaEntrePontos(id, pontoCriado);
     }
 }

@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor; // Adicionado para construtor padrão
 import lombok.AllArgsConstructor; // Adicionado para construtor com todos os campos
+import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDate; // Alterado para LocalDate para data de início e fim
 import java.util.ArrayList;
@@ -67,4 +68,7 @@ public class Evento {
     // orphanRemoval = true para remover sessões órfãs
     @OneToMany(mappedBy = "eventoPai", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SessaoEvento> sessoes = new ArrayList<>();
+
+    @Column(name = "localizacao")
+    private Point localizacao;
 }

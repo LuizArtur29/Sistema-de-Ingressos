@@ -2,6 +2,7 @@ package com.vendaingressos.dto;
 
 import com.vendaingressos.model.Evento;
 import lombok.Data;
+import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,6 +20,7 @@ public class EventoResponse {
     private Integer capacidadeTotal;
     private String status;
     private List<SessaoEventoResponse> sessoes;
+    private Point localizacao;
 
     public EventoResponse(Evento evento) {
         this.id = evento.getId();
@@ -33,5 +35,6 @@ public class EventoResponse {
         this.sessoes = evento.getSessoes().stream()
                 .map(SessaoEventoResponse::new)
                 .collect(Collectors.toList());
+        this.localizacao = evento.getLocalizacao();
     }
 }

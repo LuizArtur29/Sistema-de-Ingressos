@@ -132,4 +132,17 @@ public class EventoController {
         Double receita = eventoService.obterReceitaTotal(id);
         return new ResponseEntity<>(receita, HttpStatus.OK);
     }
+
+    @GetMapping("/proximos")
+    public ResponseEntity<List<Evento>> listarProximos(@RequestParam double lat, @RequestParam double lng, @RequestParam(defaultValue = "1000") double raio) {
+        List<Evento> eventos = eventoService.buscarEventosProximos(lat, lng, raio);
+        return ResponseEntity.ok(eventos);
+    }
+
+    @GetMapping("/{id}/distancia")
+    public ResponseEntity<Double> obterDistancia(@PathVariable Long id, @RequestParam double lat, @RequestParam double lng) {
+        Double distancia = eventoService.calcularDistanciaAteEvento(id, lat, lng);
+        return ResponseEntity.ok(distancia);
+    }
+
 }
