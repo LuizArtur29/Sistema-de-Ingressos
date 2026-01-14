@@ -59,7 +59,7 @@ CREATE TABLE ingresso (
 --changeset luizartur:6
 --comment: Tabela de compra
 CREATE TABLE compra (
-                        id_compra SERIAL PRIMARY KEY,
+                        id_compra BIGSERIAL PRIMARY KEY,
                         data_compra DATE NOT NULL,
                         quantidade_ingressos INTEGER NOT NULL,
                         valor_total DOUBLE PRECISION NOT NULL,
@@ -71,8 +71,9 @@ CREATE TABLE compra (
                         CONSTRAINT fk_compra_ingresso FOREIGN KEY (id_ingresso) REFERENCES ingresso(id_ingresso)
 );
 
---changeset luizartur:7
+--changeset luizartur:7 splitStatements:false
 --comment: Procedure para calcular receita
+
 CREATE OR REPLACE FUNCTION calcular_receita_evento(evento_id BIGINT)
 RETURNS DOUBLE PRECISION AS $$
 BEGIN
