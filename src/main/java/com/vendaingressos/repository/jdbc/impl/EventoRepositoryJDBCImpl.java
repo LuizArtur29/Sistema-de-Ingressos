@@ -157,10 +157,8 @@ public class EventoRepositoryJDBCImpl implements EventoRepository {
 
     @Override
     public Double calcularReceitaTotal(Long idEvento) {
-        String sql = "SELECT COALESCE(SUM(c.valor_total), 0) FROM compra c " +
-                "INNER JOIN ingresso i ON c.id_ingresso = i.id_ingresso " +
-                "INNER JOIN sessoes_evento se ON i.id_sessao_evento = se.id_sessao " +
-                "WHERE se.id_evento = ?";
+        String sql = "SELECT calcular_receita_evento(?)";
+
         try (Connection conexao = dataSource.getConnection();
              PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setLong(1, idEvento);
