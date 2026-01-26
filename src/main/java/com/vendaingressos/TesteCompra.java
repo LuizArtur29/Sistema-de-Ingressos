@@ -15,69 +15,58 @@ public class TesteCompra {
 
     public static void main(String[] args) {
         try {
-            // 1. Configuração do Banco de Dados
             DriverManagerDataSource dataSource = new DriverManagerDataSource();
             dataSource.setDriverClassName("org.postgresql.Driver");
             dataSource.setUrl("jdbc:postgresql://ep-dark-surf-ac8ztbpv.sa-east-1.aws.neon.tech/neondb?sslmode=require&channelBinding=require");
             dataSource.setUsername("neondb_owner");
             dataSource.setPassword("npg_CabVHZS10IdL");
 
-            // 2. Instanciação dos Repositórios
             UsuarioRepositoryJDBCImpl usuarioRepo = new UsuarioRepositoryJDBCImpl(dataSource);
             EventoRepositoryJDBCImpl eventoRepo = new EventoRepositoryJDBCImpl(dataSource);
             SessaoEventoRepositoryJDBCImpl sessaoRepo = new SessaoEventoRepositoryJDBCImpl(dataSource);
             IngressoRepositoryJDBCImpl ingressoRepo = new IngressoRepositoryJDBCImpl(dataSource);
             CompraRepositoryJDBCImpl compraRepo = new CompraRepositoryJDBCImpl(dataSource);
 
-            System.out.println("🚀 Iniciando Teste de Integração JDBC...\n");
+            System.out.println("Iniciando Teste de Integração JDBC\n");
 
-            // ---------------------------------------------------------
-            // PASSO 1: Garantir que existe um Usuário (Admin/Comprador)
-            // ---------------------------------------------------------
+
             Usuario usuario = buscarOuCriarUsuario(usuarioRepo);
-            System.out.println("✅ Usuário OK: " + usuario.getNome() + " (ID: " + usuario.getIdUsuario() + ")");
+            System.out.println("Usuário OK: " + usuario.getNome() + " (ID: " + usuario.getIdUsuario() + ")");
 
-            // ---------------------------------------------------------
-            // PASSO 2: Garantir que existe um Evento
-            // ---------------------------------------------------------
+
             Evento eventoCentral = buscarOuCriarEvento(eventoRepo, usuario);
-            System.out.println("📍 Evento alvo: " + eventoCentral.getNome() + " em " + eventoCentral.getLocalizacao());
+            System.out.println("Evento alvo: " + eventoCentral.getNome() + " em " + eventoCentral.getLocalizacao());
+            System.out.println("ID Evento: " + eventoCentral.getId());
 
-            // 3. Simular uma busca de alguém perto (ex: 500 metros de distância)
+            // Simular uma busca de alguém perto (ex: 500 metros de distância)
             GeometryFactory factory = new GeometryFactory();
             // Um ponto levemente deslocado
             Point minhaLocalizacao = factory.createPoint(new Coordinate(-46.6333, -23.5550));
             double raioDeBusca = 1000.0; // 1km
 
-            System.out.println("\n🔍 Buscando eventos num raio de " + raioDeBusca + " metros...");
+            System.out.println("\nBuscando eventos num raio de " + raioDeBusca + " metros...");
             System.out.println("   Minha posição: " + minhaLocalizacao);
 
             List<Evento> eventosEncontrados = eventoRepo.buscarEventoNoRaio(minhaLocalizacao, raioDeBusca);
 
             if (!eventosEncontrados.isEmpty()) {
-                System.out.println("✅ SUCESSO! Encontramos " + eventosEncontrados.size() + " evento(s):");
+                System.out.println("SUCESSO! Encontramos " + eventosEncontrados.size() + " evento(s):");
                 eventosEncontrados.forEach(e ->
                         System.out.println("   -> " + e.getNome() + " (ID: " + e.getId() + ")")
                 );
             } else {
-                System.err.println("❌ Nenhum evento encontrado (Verifique as coordenadas).");
+                System.err.println("Nenhum evento encontrado (Verifique as coordenadas).");
             }
 
-            // ---------------------------------------------------------
-            // PASSO 3: Garantir que existe uma Sessão
-            // ---------------------------------------------------------
+
             SessaoEvento sessao = buscarOuCriarSessao(sessaoRepo, eventoCentral);
-            System.out.println("✅ Sessão OK: " + sessao.getNomeSessao() + " (ID: " + sessao.getIdSessao() + ")");
+            System.out.println("Sessão OK: " + sessao.getNomeSessao() + " (ID: " + sessao.getIdSessao() + ")");
 
-            // ---------------------------------------------------------
-            // PASSO 4: Garantir que existe um Ingresso
-            // ---------------------------------------------------------
+
             Ingresso ingresso = buscarOuCriarIngresso(ingressoRepo, sessao);
-            System.out.println("✅ Ingresso OK: " + ingresso.getTipoIngresso() + " (ID: " + ingresso.getIdIngresso() + ")");
+            System.out.println("Ingresso OK: " + ingresso.getTipoIngresso() + " (ID: " + ingresso.getIdIngresso() + ")");
 
-            // ---------------------------------------------------------
-            // PASSO 5: Realizar a Compra
-            // ---------------------------------------------------------
+
             Compra compra = new Compra();
             compra.setDataCompra(LocalDate.now());
             compra.setQuantidadeIngressos(2);
@@ -87,24 +76,22 @@ public class TesteCompra {
             compra.setUsuario(usuario);
             compra.setIngresso(ingresso);
 
-            System.out.println("\n📝 Salvando compra via Repositório...");
+            System.out.println("\nSalvando compra via Repositório...");
             compraRepo.salvar(compra);
-            System.out.println("🎉 Compra salva com sucesso! ID Gerado: " + compra.getIdCompra());
+            System.out.println("Compra salva com sucesso! ID Gerado: " + compra.getIdCompra());
 
-            // ---------------------------------------------------------
-            // PASSO 6: Listar para confirmar
-            // ---------------------------------------------------------
-            System.out.println("\n📋 Listando compras do banco:");
+
+            System.out.println("\nListando compras do banco:");
             List<Compra> compras = compraRepo.listarTodos();
             compras.forEach(c ->
-                    System.out.println("  🛒 Compra ID: " + c.getIdCompra() +
+                    System.out.println("Compra ID: " + c.getIdCompra() +
                             " | Cliente: " + c.getUsuario().getIdUsuario() +
                             " | Valor: R$ " + c.getValorTotal() +
                             " | Status: " + c.getStatus())
             );
 
         } catch (Exception e) {
-            System.err.println("❌ Erro no teste: " + e.getMessage());
+            System.err.println("Erro no teste: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -112,9 +99,8 @@ public class TesteCompra {
     // --- Métodos Auxiliares usando Repositórios ---
 
     private static Usuario buscarOuCriarUsuario(UsuarioRepositoryJDBCImpl repo) {
-        // Tenta pegar o primeiro que encontrar, ou cria um novo
         return repo.listarTodos().stream().findFirst().orElseGet(() -> {
-            System.out.println("👤 Criando novo usuário...");
+            System.out.println("Criando novo usuário");
             Usuario u = new Usuario();
             u.setNome("Usuario Teste JDBC");
             u.setEmail("teste.jdbc@email.com");
@@ -130,7 +116,7 @@ public class TesteCompra {
 
     private static Evento buscarOuCriarEvento(EventoRepositoryJDBCImpl repo, Usuario admin) {
         return repo.listarTodos().stream().findFirst().orElseGet(() -> {
-            System.out.println("📍 Criando evento com localização...");
+            System.out.println("Criando evento com localização...");
             Evento e = new Evento();
             e.setNome("Festival PostGIS");
             e.setDescricao("Teste de Geolocalização");
@@ -154,9 +140,8 @@ public class TesteCompra {
     }
 
     private static SessaoEvento buscarOuCriarSessao(SessaoEventoRepositoryJDBCImpl repo, Evento evento) {
-        // Busca sessões deste evento específico
         return repo.buscarPorEventoPai(evento.getId()).stream().findFirst().orElseGet(() -> {
-            System.out.println("📅 Criando nova sessão...");
+            System.out.println("Criando nova sessão...");
             SessaoEvento s = new SessaoEvento();
             s.setNomeSessao("Palco Principal - Dia 1");
             s.setDataHoraSessao(LocalDateTime.now().plusDays(10).withHour(18));
@@ -168,9 +153,8 @@ public class TesteCompra {
     }
 
     private static Ingresso buscarOuCriarIngresso(IngressoRepositoryJDBCImpl repo, SessaoEvento sessao) {
-        // Busca ingressos desta sessão
         return repo.buscarPorSessao(sessao.getIdSessao()).stream().findFirst().orElseGet(() -> {
-            System.out.println("🎫 Criando novo tipo de ingresso...");
+            System.out.println("Criando novo tipo de ingresso...");
             Ingresso i = new Ingresso();
             i.setPreco(150.00);
             i.setTipoIngresso("PISTA");
