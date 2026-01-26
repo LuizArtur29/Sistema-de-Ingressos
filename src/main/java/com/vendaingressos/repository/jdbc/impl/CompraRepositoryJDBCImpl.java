@@ -28,7 +28,7 @@ public class CompraRepositoryJDBCImpl implements CompraRepository {
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conexao = dataSource.getConnection();
-             PreparedStatement stmt = conexao.prepareStatement(sql, new String[]{"id_compra"})) {
+             PreparedStatement stmt = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setDate(1, Date.valueOf(compra.getDataCompra()));
             stmt.setInt(2, compra.getQuantidadeIngressos());
@@ -43,7 +43,7 @@ public class CompraRepositoryJDBCImpl implements CompraRepository {
             if (affectedRows > 0) {
                 try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
-                        compra.setIdCompra(generatedKeys.getLong(1));
+                        compra.setIdCompra(generatedKeys.getLong("id_compra"));
                     }
                 }
             }

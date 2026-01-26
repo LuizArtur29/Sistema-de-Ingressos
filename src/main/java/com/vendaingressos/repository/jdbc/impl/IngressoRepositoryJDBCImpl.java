@@ -36,7 +36,7 @@ public class IngressoRepositoryJDBCImpl implements IngressoRepository {
 
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    ingresso.setIdIngresso(generatedKeys.getLong(1));
+                    ingresso.setIdIngresso(generatedKeys.getLong("id_ingresso"));
                 }
             }
 

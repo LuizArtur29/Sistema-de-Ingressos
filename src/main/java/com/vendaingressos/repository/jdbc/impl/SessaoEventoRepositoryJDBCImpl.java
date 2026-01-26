@@ -35,7 +35,7 @@ public class SessaoEventoRepositoryJDBCImpl implements SessaoEventoRepository {
 
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    sessaoEvento.setIdSessao(generatedKeys.getLong(1));
+                    sessaoEvento.setIdSessao(generatedKeys.getLong("id_sessao"));
                 }
             }
         } catch (SQLException e) {

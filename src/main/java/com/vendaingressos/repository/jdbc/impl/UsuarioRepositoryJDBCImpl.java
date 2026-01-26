@@ -25,7 +25,7 @@ public class UsuarioRepositoryJDBCImpl implements UsuarioRepository {
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conexao = dataSource.getConnection();
-             PreparedStatement stmt = conexao.prepareStatement(sql, new String[]{"id_usuario"})) {
+             PreparedStatement stmt = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, usuario.getNome());
             stmt.setString(2, usuario.getEmail());
@@ -45,7 +45,7 @@ public class UsuarioRepositoryJDBCImpl implements UsuarioRepository {
             if (affectedRows > 0) {
                 try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
-                        usuario.setIdUsuario(generatedKeys.getLong(1));
+                        usuario.setIdUsuario(generatedKeys.getLong("id_usuario"));
                     }
                 }
             }

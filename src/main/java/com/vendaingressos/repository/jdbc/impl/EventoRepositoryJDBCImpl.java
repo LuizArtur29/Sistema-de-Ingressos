@@ -62,7 +62,7 @@ public class EventoRepositoryJDBCImpl implements EventoRepository {
 
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    evento.setId(generatedKeys.getLong(1));
+                    evento.setId(generatedKeys.getLong("id"));
                 }
             }
 
