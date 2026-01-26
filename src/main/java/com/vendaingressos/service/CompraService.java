@@ -16,7 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -25,13 +27,15 @@ public class CompraService {
     private final CompraRepository compraRepository;
     private final UsuarioRepository usuarioRepository;
     private final IngressoRepository ingressoRepository;
+    private final LogService logService;
     private final CompraRedisCache compraRedisCache;
 
     @Autowired
-    public CompraService(CompraRepository compraRepository, UsuarioRepository usuarioRepository, IngressoRepository ingressoRepository, CompraRedisCache compraRedisCache) {
+    public CompraService(CompraRepository compraRepository, UsuarioRepository usuarioRepository, IngressoRepository ingressoRepository, LogService logService,CompraRedisCache compraRedisCache) {
         this.compraRepository = compraRepository;
         this.usuarioRepository = usuarioRepository;
         this.ingressoRepository = ingressoRepository;
+        this.logService = logService;
         this.compraRedisCache = compraRedisCache;
     }
 
@@ -94,6 +98,16 @@ public class CompraService {
         novaCompra.setStatus("Concluida");
 
         compraRepository.salvar(novaCompra);
+
+        Map<String, Object> detalhes = new HashMap<>();
+        detalhes.put("valor", novaCompra.getValorTotal());
+        detalhes.put("ingresso_id", ingressoId);
+
+        logService.registrarAtividade(
+                usuario.getEmail(),
+                "COMPRA_REALIZADA",
+                detalhes
+        );
 
         compraRedisCache.cacheCompra(novaCompra);
         compraRedisCache.invalidateCacheForComprasPorUsuario(usuarioId);
