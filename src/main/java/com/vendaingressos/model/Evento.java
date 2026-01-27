@@ -57,7 +57,6 @@ public class Evento {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_admin")
-    @JsonIgnore
     private Administrador administrador;
 
 
