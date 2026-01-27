@@ -10,8 +10,10 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,13 +22,15 @@ import java.util.Optional;
 public class EventoService {
 
     private final EventoRepository eventoRepository;
+    private final MinioService minioService;
     private final EventoRedisCache eventoRedisCache;
     private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
     @Autowired
-    public EventoService(EventoRepository eventoRepository, EventoRedisCache eventoRedisCache) {
+    public EventoService(EventoRepository eventoRepository, EventoRedisCache eventoRedisCache, MinioService minioService) {
         this.eventoRepository = eventoRepository;
         this.eventoRedisCache = eventoRedisCache;
+        this.minioService = minioService;
     }
 
     @Transactional
@@ -78,14 +82,14 @@ public class EventoService {
 
     @Transactional
     public Evento atualizarEvento(Long id, Evento eventoAtualizado) {
-        // 1. Busca o evento existente
+        // Busca o evento existente
         Evento eventoExistente = eventoRepository.buscarPorId(id);
 
         if (eventoExistente == null) {
             throw new ResourceNotFoundException("Evento não encontrado com ID: " + id);
         }
 
-        // 2. Atualiza os dados do objeto existente
+        //  Atualiza os dados do objeto existente
         eventoExistente.setNome(eventoAtualizado.getNome());
         eventoExistente.setDescricao(eventoAtualizado.getDescricao());
         eventoExistente.setDataInicio(eventoAtualizado.getDataInicio());
@@ -99,10 +103,10 @@ public class EventoService {
             eventoExistente.setImagemNome(eventoAtualizado.getImagemNome());
         }
 
-        // 3. Chama o update do JDBC
+        //  Chama o update do JDBC
         eventoRepository.atualizar(eventoExistente);
 
-        // 4. Atualiza Cache
+        // Atualiza Cache
         eventoRedisCache.invalidateCacheForEvento(id);
         eventoRedisCache.cacheEvento(eventoExistente);
 
@@ -127,4 +131,34 @@ public class EventoService {
         Point pontoCriado = geometryFactory.createPoint(new Coordinate(lng, lat));
         return eventoRepository.medirDistanciaEntrePontos(id, pontoCriado);
     }
+
+    @Transactional
+    public String uploadBannerEvento(Long id, MultipartFile arquivo) {
+
+        try {
+            Evento evento = eventoRepository.buscarPorId(id);
+            if (evento == null) {
+                throw new ResourceNotFoundException("Evento não encontrado");
+            }
+
+            String novoNomeArquivo = minioService.uploadArquivo(arquivo);
+
+            //Remoção física do arquivo antigo no MinIO (para não ocupar espaço)
+            if (evento.getImagemNome() != null) {
+                minioService.deletarArquivo(evento.getImagemNome());
+            }
+
+            evento.setImagemNome(novoNomeArquivo);
+            eventoRepository.atualizar(evento);
+
+            // Sincronização com Redis
+            eventoRedisCache.invalidateCacheForEvento(id);
+            eventoRedisCache.cacheEvento(evento);
+
+            return novoNomeArquivo;
+        } catch (Exception e) {
+            throw new RuntimeException("Falha ao processar upload do banner: " + e.getMessage());
+        }
+    }
+
 }

@@ -126,7 +126,7 @@ public class TesteCompra {
             e.setCapacidadeTotal(5000);
             e.setStatus("ATIVO");
             e.setAdministrador(admin);
-            e.setImagemNome("geo.png");
+
 
             // CRIA O PONTO (Latitude/Longitude)
             GeometryFactory factory = new GeometryFactory();

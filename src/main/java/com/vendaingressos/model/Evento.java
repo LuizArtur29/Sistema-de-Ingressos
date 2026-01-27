@@ -1,5 +1,6 @@
 package com.vendaingressos.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
@@ -69,6 +70,7 @@ public class Evento {
     @OneToMany(mappedBy = "eventoPai", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SessaoEvento> sessoes = new ArrayList<>();
 
+    @JsonIgnore
     @Column(name = "localizacao")
     private Point localizacao;
 }

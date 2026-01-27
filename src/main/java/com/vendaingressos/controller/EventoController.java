@@ -72,59 +72,30 @@ public class EventoController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/upload-banner")
-    public ResponseEntity<String> uploadBanner(@RequestParam("arquivo") MultipartFile arquivo) {
-        String nomeArquivo = minioService.uploadArquivo(arquivo);
-        return ResponseEntity.ok("Arquivo enviado! Nome salvo: " + nomeArquivo);
-    }
-
-    @GetMapping("/ver-banner/{nomeArquivo}")
-    public ResponseEntity<String> verBanner(@PathVariable String nomeArquivo) {
-        String url = minioService.getUrlArquivo(nomeArquivo);
-        return ResponseEntity.ok(url);
-    }
-
-    @PostMapping("/{id}/upload-banner")
-    public ResponseEntity<String> uploadBannerEvento(@PathVariable Long id,
-                                                     @RequestParam("arquivo") MultipartFile arquivo) {
+    @PostMapping("/{idEvento}/upload-banner")
+    public ResponseEntity<String> uploadBanner(@PathVariable Long idEvento, @RequestParam("arquivo") MultipartFile arquivo) {
         try {
-            // 1. Verificar se o evento existe (USANDO PADRÃO JDBC - NULL CHECK)
-            Evento evento = eventoRepository.buscarPorId(id);
-
-            if (evento == null) {
-                throw new ResourceNotFoundException("Evento não encontrado com ID: " + id);
-            }
-
-            // 2. Enviar arquivo para o MinIO
-            String nomeArquivo = minioService.uploadArquivo(arquivo);
-
-            // 3. Deletar imagem antiga se existir (Limpeza)
-            if (evento.getImagemNome() != null && !evento.getImagemNome().isEmpty()) {
-                try {
-                    minioService.deletarArquivo(evento.getImagemNome());
-                } catch (Exception e) {
-                    System.err.println("Aviso: Não foi possível apagar a imagem antiga no MinIO.");
-                }
-            }
-
-            // 4. Atualizar o nome da imagem no objeto
-            evento.setImagemNome(nomeArquivo);
-
-            // 5. Atualizar no Banco (USANDO ATUALIZAR, NÃO SAVE)
-            eventoRepository.atualizar(evento);
-
-            // 6. IMPORTANTE: Invalidar o Cache do Redis!
-            // Como mexemos no banco direto pelo repository, o Redis não sabe que mudou.
-            // Precisamos avisar ele:
-            eventoRedisCache.invalidateCacheForEvento(id);
-            eventoRedisCache.cacheEvento(evento);
-
-            return ResponseEntity.ok("Banner atualizado com sucesso! Nome: " + nomeArquivo);
-
+            String nomeArquivo = eventoService.uploadBannerEvento(idEvento, arquivo);
+            return ResponseEntity.ok("Banner atualizado com sucesso: " + nomeArquivo);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Erro ao salvar banner: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/{idEvento}/url-imagem")
+    public String getUrlImagemEvento(@PathVariable Long idEvento) {
+        Evento evento = eventoRepository.buscarPorId(idEvento);
+        return minioService.getUrlArquivo(evento.getImagemNome());
+    }
+
+    @DeleteMapping("/{idEvento}/delete-imagem")
+    public void deletarArquivoImagem(@PathVariable Long idEvento) {
+        Evento evento = eventoRepository.buscarPorId(idEvento);
+        minioService.deletarArquivo(evento.getImagemNome());
+        evento.setImagemNome(null);
+        eventoRepository.atualizar(evento);
     }
 
     @GetMapping("/{id}/receita")
