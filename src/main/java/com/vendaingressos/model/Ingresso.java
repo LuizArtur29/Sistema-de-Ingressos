@@ -8,9 +8,6 @@ import lombok.*;
 
 @Entity
 @Table(name = "ingresso")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Ingresso {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,4 +29,55 @@ public class Ingresso {
     private String tipoIngresso;
 
     private boolean ingressoDisponivel = true;
+
+    public Ingresso() {
+    }
+
+    public Ingresso(Long idIngresso, SessaoEvento sessaoEvento, double preco, String tipoIngresso, boolean ingressoDisponivel) {
+        this.idIngresso = idIngresso;
+        this.sessaoEvento = sessaoEvento;
+        this.preco = preco;
+        this.tipoIngresso = tipoIngresso;
+        this.ingressoDisponivel = ingressoDisponivel;
+    }
+
+    public Long getIdIngresso() {
+        return idIngresso;
+    }
+
+    public void setIdIngresso(Long idIngresso) {
+        this.idIngresso = idIngresso;
+    }
+
+    public SessaoEvento getSessaoEvento() {
+        return sessaoEvento;
+    }
+
+    public void setSessaoEvento(SessaoEvento sessaoEvento) {
+        this.sessaoEvento = sessaoEvento;
+    }
+
+    public double getPreco() {
+        return preco;
+    }
+
+    public void setPreco(double preco) {
+        this.preco = preco;
+    }
+
+    public String getTipoIngresso() {
+        return tipoIngresso;
+    }
+
+    public void setTipoIngresso(String tipoIngresso) {
+        this.tipoIngresso = tipoIngresso;
+    }
+
+    public boolean isIngressoDisponivel() {
+        return ingressoDisponivel;
+    }
+
+    public void setIngressoDisponivel(boolean ingressoDisponivel) {
+        this.ingressoDisponivel = ingressoDisponivel;
+    }
 }
