@@ -1,13 +1,14 @@
 package com.vendaingressos.dto;
 
 import com.vendaingressos.model.Ingresso;
+import com.vendaingressos.model.TipoIngresso;
 import lombok.Data;
 
 @Data
 public class IngressoResponse {
 
     private Long idIngresso;
-    private String tipoIngresso;
+    private TipoIngresso tipoIngresso;
     private double preco;
     private boolean ingressoDisponivel;
     private Long sessaoEventoId;

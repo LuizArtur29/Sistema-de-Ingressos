@@ -1,16 +1,13 @@
 package com.vendaingressos.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import lombok.Data;
-import lombok.NoArgsConstructor; // Adicionado para construtor padrão
-import lombok.AllArgsConstructor; // Adicionado para construtor com todos os campos
-
-import java.time.LocalDate; // Alterado para LocalDate para data de início e fim
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,11 +55,16 @@ public class Evento {
     @OneToMany(mappedBy = "eventoPai", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SessaoEvento> sessoes = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_admin")
+    @JsonIgnore
+    private Administrador administrador;
+
 
     public Evento() {
     }
 
-    public Evento(Long id, String nome, String descricao, LocalDate dataInicio, LocalDate dataFim, String local, Integer capacidadeTotal, String status, List<SessaoEvento> sessoes) {
+    public Evento(Long id, String nome, String descricao, LocalDate dataInicio, LocalDate dataFim, String local, Integer capacidadeTotal, String status, List<SessaoEvento> sessoes, Administrador administrador) {
         this.id = id;
         this.nome = nome;
         this.descricao = descricao;
@@ -72,6 +74,7 @@ public class Evento {
         this.capacidadeTotal = capacidadeTotal;
         this.status = status;
         this.sessoes = sessoes;
+        this.administrador = administrador;
     }
 
     public Long getId() {
@@ -144,5 +147,13 @@ public class Evento {
 
     public void setSessoes(List<SessaoEvento> sessoes) {
         this.sessoes = sessoes;
+    }
+
+    public Administrador getAdministrador() {
+        return administrador;
+    }
+
+    public void setAdministrador(Administrador administrador) {
+        this.administrador = administrador;
     }
 }

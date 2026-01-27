@@ -24,16 +24,16 @@ public class Ingresso {
     @Column(nullable = false)
     private double preco;
 
-    @NotBlank(message = "O tipo de ingresso não pode estar em branco")
-    @Column(nullable = false)
-    private String tipoIngresso;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tipo_ingresso")
+    private TipoIngresso tipoIngresso;
 
     private boolean ingressoDisponivel = true;
 
     public Ingresso() {
     }
 
-    public Ingresso(Long idIngresso, SessaoEvento sessaoEvento, double preco, String tipoIngresso, boolean ingressoDisponivel) {
+    public Ingresso(Long idIngresso, SessaoEvento sessaoEvento, double preco, TipoIngresso tipoIngresso, boolean ingressoDisponivel) {
         this.idIngresso = idIngresso;
         this.sessaoEvento = sessaoEvento;
         this.preco = preco;
@@ -65,11 +65,11 @@ public class Ingresso {
         this.preco = preco;
     }
 
-    public String getTipoIngresso() {
+    public TipoIngresso getTipoIngresso() {
         return tipoIngresso;
     }
 
-    public void setTipoIngresso(String tipoIngresso) {
+    public void setTipoIngresso(TipoIngresso tipoIngresso) {
         this.tipoIngresso = tipoIngresso;
     }
 
