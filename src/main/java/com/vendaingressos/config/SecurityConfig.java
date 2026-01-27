@@ -1,25 +1,18 @@
 package com.vendaingressos.config;
 
 import com.vendaingressos.filter.JwtRequestFilter;
-import com.vendaingressos.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -37,28 +30,30 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-                .cors(org.springframework.security.config.Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable()) // Desabilita CSRF para APIs Stateless
+                .cors(cors -> cors.configure(http)) // Mantém as configurações de CORS
                 .authorizeHttpRequests(authorize -> authorize
-                        // Permite acesso público ao endpoint de login e cadastro de usuário
-                        .requestMatchers("/api/auth/login", "/api/usuarios").permitAll()
-                        // Permite GET em eventos para todos
+                        // 1. Libera explicitamente as rotas de autenticação e cadastro
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
+
+                        // 2. Libera GET em eventos para visitantes
                         .requestMatchers(HttpMethod.GET, "/api/eventos/**").permitAll()
-                        // Qualquer outra requisição precisa de autenticação
+
+                        // 3. Garante que qualquer outra rota exija APENAS que o usuário esteja autenticado
+                        // Isso evita erros se a Role não estiver perfeitamente mapeada no Token
                         .anyRequest().authenticated()
                 )
-                // Configura o gerenciamento de sessão para ser stateless
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // JWT é stateless
 
-        // Adiciona nosso filtro JWT antes do filtro padrão de username/password
+        // Adiciona o filtro JWT ANTES do filtro de autenticação padrão
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // Essencial para criptografar as senhas
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(); // Criptografia necessária para o UsuarioService
     }
 }
