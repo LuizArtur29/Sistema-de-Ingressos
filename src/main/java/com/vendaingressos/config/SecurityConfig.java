@@ -40,6 +40,8 @@ public class SecurityConfig {
                         // 2. Libera GET em eventos para visitantes
                         .requestMatchers(HttpMethod.GET, "/api/eventos/**").permitAll()
 
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+
                         // 3. Garante que qualquer outra rota exija APENAS que o usuário esteja autenticado
                         // Isso evita erros se a Role não estiver perfeitamente mapeada no Token
                         .anyRequest().authenticated()
