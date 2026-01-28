@@ -1,4 +1,5 @@
-<img width="1234" height="535" alt="image" src="https://github.com/user-attachments/assets/e3be8659-c15a-4f62-910b-c78b75388d2e" />
+<img width="1301" height="538" alt="image" src="https://github.com/user-attachments/assets/f68d74cf-7098-4da3-8c1a-06d8988e2f20" />
+
 
 Minimundo
 O sistema foi projetado para gerenciar de forma robusta a venda e transferência de ingressos para eventos, com papéis de usuário bem definidos.
