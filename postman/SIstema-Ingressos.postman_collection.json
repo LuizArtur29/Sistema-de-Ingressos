@@ -1,0 +1,1383 @@
+{
+  "info": {
+    "_postman_id": "b038ec61-f9af-40f8-85b0-570aa41966a4",
+    "name": "SIstema-Ingressos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51873289",
+    "_collection_link": "https://go.postman.co/collection/46814486-b038ec61-f9af-40f8-85b0-570aa41966a4?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Administrador",
+      "item": [
+        {
+          "name": "Cadastrar Administrador",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDUyMjQsImV4cCI6MTc2OTY0MTIyNH0.8REL2f3C_Q7R8CjOn1k1jOXPrP0qxg6AAZgraPy1YaQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nome\": \"Admin Geral\",\r\n  \"email\": \"admin@vendaingressos.com\",\r\n  \"senha\": \"adminPassword\",\r\n  \"telefone\": \"83911112222\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/administradores",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "administradores"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar admins",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDMyNTYsImV4cCI6MTc2OTYzOTI1Nn0.1_oU8dX1AavEVGOr6Of0ExFBjmMJs6zmZGZyNBMd3uo",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/administradores",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "administradores"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Compra",
+      "item": [
+        {
+          "name": "Realizar Compra",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDY1MjcsImV4cCI6MTc2OTY0MjUyN30.wZRdkUH5XPpKTpp3aesQpmTymT9OnLe3Zb-8DfRAU1s",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"usuarioID\": 1,\r\n  \"ingressoID\": 1,\r\n  \"quantidadeIngressos\": 1,\r\n  \"metodoPagamento\": \"PIX\",\r\n  \"isMeiaEntrada\": false\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/compras",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "compras"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar todas compras",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDY1MjcsImV4cCI6MTc2OTY0MjUyN30.wZRdkUH5XPpKTpp3aesQpmTymT9OnLe3Zb-8DfRAU1s",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/compras",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "compras"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar compra por id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDY1MjcsImV4cCI6MTc2OTY0MjUyN30.wZRdkUH5XPpKTpp3aesQpmTymT9OnLe3Zb-8DfRAU1s",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/compras/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "compras",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Compras por Usuario",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDY1MjcsImV4cCI6MTc2OTY0MjUyN30.wZRdkUH5XPpKTpp3aesQpmTymT9OnLe3Zb-8DfRAU1s",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/compras/usuario/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "compras",
+                "usuario",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deletar Compra",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDY1MjcsImV4cCI6MTc2OTY0MjUyN30.wZRdkUH5XPpKTpp3aesQpmTymT9OnLe3Zb-8DfRAU1s",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/compras/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "compras",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar Status Compra",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDk5ODEsImV4cCI6MTc2OTY0NTk4MX0.c_5qWb1LTBO4My7n_aQBklRKxwWYnX-FoGb9SOkcagM",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"CONCLUÍDA\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/compras/2/status",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "compras",
+                "2",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Evento",
+      "item": [
+        {
+          "name": "Criar Evento",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDUyMjQsImV4cCI6MTc2OTY0MTIyNH0.8REL2f3C_Q7R8CjOn1k1jOXPrP0qxg6AAZgraPy1YaQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nome\": \"Fest Verão\",\r\n  \"descricao\": \"Melhor festa de verão da Paraíba\",\r\n  \"dataInicio\": \"2026-01-28\",\r\n  \"dataFim\": \"2026-02-20\",\r\n  \"local\": \"Ponta de Campina\",\r\n  \"capacidadeTotal\": 5000,\r\n  \"status\": \"ATIVO\",\r\n  \"administrador\": {\r\n    \"idAdmin\": 1\r\n  }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/eventos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "eventos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar todos eventos",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/eventos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "eventos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Evento por Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/eventos/4",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "eventos",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar Evento",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDMyNTYsImV4cCI6MTc2OTYzOTI1Nn0.1_oU8dX1AavEVGOr6Of0ExFBjmMJs6zmZGZyNBMd3uo",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"nome\": \"Fest Verão - Cabedelo\",\r\n    \"descricao\": \"Melhor festa de verão da Paraíba\",\r\n    \"dataInicio\": \"2026-01-28\",\r\n    \"dataFim\": \"2026-02-20\",\r\n    \"local\": \"Ponta de Campina\",\r\n    \"capacidadeTotal\": 5000,\r\n    \"status\": \"ATIVO\",\r\n    \"sessoes\": []\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/eventos/4",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "eventos",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deletar Evento",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDUyMjQsImV4cCI6MTc2OTY0MTIyNH0.8REL2f3C_Q7R8CjOn1k1jOXPrP0qxg6AAZgraPy1YaQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/eventos/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "eventos",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ingresso",
+      "item": [
+        {
+          "name": "Criar Ingresso",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MTI3NDMsImV4cCI6MTc2OTY0ODc0M30.TYoy9YIQWJBUIF9yzcyE92PezLXFNijUTuDlXVMXlK4",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"preco\": 350.0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/ingressos/criar/2/6",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ingressos",
+                "criar",
+                "2",
+                "6"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ingresso Válido",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDY1MjcsImV4cCI6MTc2OTY0MjUyN30.wZRdkUH5XPpKTpp3aesQpmTymT9OnLe3Zb-8DfRAU1s",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/ingressos/ingressoDisponivel/3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ingressos",
+                "ingressoDisponivel",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar Entrada",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2FvQGVtYWlsLmNvbSIsImlhdCI6MTc2OTU1OTg4OCwiZXhwIjoxNzY5NTk1ODg4fQ.sTQa_tmcQz0nfj7ugq7zRfVj4QWTklpMypE20_Qy-Pc",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/ingressos/registrarEntrada/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ingressos",
+                "registrarEntrada",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Ingressos Por Sessao",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDg5OTYsImV4cCI6MTc2OTY0NDk5Nn0.xNkIf9jMyriylXT0h3BPmSUuFks4RrO-VY6LofwduTk",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/ingressos/listarIngressosPorSessao/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ingressos",
+                "listarIngressosPorSessao",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Ingresso Por ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDg5OTYsImV4cCI6MTc2OTY0NDk5Nn0.xNkIf9jMyriylXT0h3BPmSUuFks4RrO-VY6LofwduTk",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/ingressos/buscarIngresso/3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ingressos",
+                "buscarIngresso",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SessaoEvento",
+      "item": [
+        {
+          "name": "Criar Sessao Evento",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDUyMjQsImV4cCI6MTc2OTY0MTIyNH0.8REL2f3C_Q7R8CjOn1k1jOXPrP0qxg6AAZgraPy1YaQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nomeSessao\": \"Dia 1 - Abertura - Shows: Zé Vaqueiro e Safadão\",\r\n  \"dataHoraSessao\": \"2026-01-28T18:00:00\",\r\n  \"statusSessao\": \"ATIVO\",\r\n  \"eventoPai\": {\r\n    \"id\": 2\r\n  }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/sessoes-evento",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "sessoes-evento"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar todas Sessoes Eventos",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDMyNTYsImV4cCI6MTc2OTYzOTI1Nn0.1_oU8dX1AavEVGOr6Of0ExFBjmMJs6zmZGZyNBMd3uo",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/sessoes-evento",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "sessoes-evento"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Sessao Evento Por Id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDMyNTYsImV4cCI6MTc2OTYzOTI1Nn0.1_oU8dX1AavEVGOr6Of0ExFBjmMJs6zmZGZyNBMd3uo",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/sessoes-evento/3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "sessoes-evento",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Sessoes Por Evento Pai",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDMyNTYsImV4cCI6MTc2OTYzOTI1Nn0.1_oU8dX1AavEVGOr6Of0ExFBjmMJs6zmZGZyNBMd3uo",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/sessoes-evento/evento/4",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "sessoes-evento",
+                "evento",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar Sessao Evento",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDc2NDMsImV4cCI6MTc2OTY0MzY0M30.6fQ-kvPB894cmLF5D4DRUFH_Tim6U7fU1Gzvr5DDgzs",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nomeSessao\": \"Sábado - Noite Premium\",\r\n  \"dataHoraSessao\": \"2026-12-20T22:00:00\",\r\n  \"statusSessao\": \"ATIVO\",\r\n  \"eventoPai\": {\r\n    \"id\": 1\r\n  }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/sessoes-evento/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "sessoes-evento",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deletar Sessao Evento",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2FvQGVtYWlsLmNvbSIsImlhdCI6MTc2OTU1OTIzOSwiZXhwIjoxNzY5NTk1MjM5fQ.x_Rrxb0-f8wVR5fY-bKOxXmyBheLMXNjFHvZj0wwV2g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/sessoes-evento/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "sessoes-evento",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TipoIngresso",
+      "item": [
+        {
+          "name": "Criar Tipo Ingresso",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDUyMjQsImV4cCI6MTc2OTY0MTIyNH0.8REL2f3C_Q7R8CjOn1k1jOXPrP0qxg6AAZgraPy1YaQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nomeSetor\": \"Pista\",\r\n  \"preco\": 150.00,\r\n  \"quantidadeTotal\": 1000,\r\n  \"quantidadeDisponivel\": 1000,\r\n  \"lote\": 1,\r\n  \"sessao\": {\r\n    \"idSessao\": 1\r\n  }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/tipos-ingresso",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "tipos-ingresso"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar o Tipo de Ingresso Por Sessao",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDg5OTYsImV4cCI6MTc2OTY0NDk5Nn0.xNkIf9jMyriylXT0h3BPmSUuFks4RrO-VY6LofwduTk",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/tipos-ingresso/sessao/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "tipos-ingresso",
+                "sessao",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transferencia",
+      "item": [
+        {
+          "name": "Transferencia de Ingresso",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDY1MjcsImV4cCI6MTc2OTY0MjUyN30.wZRdkUH5XPpKTpp3aesQpmTymT9OnLe3Zb-8DfRAU1s",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"valorRevenda\": 200.00,\r\n  \"vendedor\": { \"idUsuario\": 1 },\r\n  \"comprador\": { \"idUsuario\": 2 },\r\n  \"ingressoTransferido\": { \"idIngresso\": 1 }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/transferencias",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "transferencias"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuario",
+      "item": [
+        {
+          "name": "Criar Usuário",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nome\": \"João\",\r\n  \"CPF\": \"12345678901\",\r\n  \"dataNascimento\": \"2005-05-15\",\r\n  \"email\": \"joao@email.com\",\r\n  \"senha\": \"1234\",\r\n  \"endereco\": \"Rua João Mendes, 23\",\r\n  \"telefone\": \"83988887776\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/usuarios",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "usuarios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Todos os Usuários",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDMyNTYsImV4cCI6MTc2OTYzOTI1Nn0.1_oU8dX1AavEVGOr6Of0ExFBjmMJs6zmZGZyNBMd3uo",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/usuarios",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "usuarios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Usuário por Id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDMyNTYsImV4cCI6MTc2OTYzOTI1Nn0.1_oU8dX1AavEVGOr6Of0ExFBjmMJs6zmZGZyNBMd3uo",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/usuarios/5",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "usuarios",
+                "5"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Usuario Por Email",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDMyNTYsImV4cCI6MTc2OTYzOTI1Nn0.1_oU8dX1AavEVGOr6Of0ExFBjmMJs6zmZGZyNBMd3uo",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/usuarios/email/wolgrand@email.com",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "usuarios",
+                "email",
+                "wolgrand@email.com"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar Usuário",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b2xncmFuZEBlbWFpbC5jb20iLCJpYXQiOjE3Njk2MDMyNTYsImV4cCI6MTc2OTYzOTI1Nn0.1_oU8dX1AavEVGOr6Of0ExFBjmMJs6zmZGZyNBMd3uo",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"nome\": \"Wolgrand Araújo\",\r\n  \"CPF\": \"12345678901\",\r\n  \"dataNascimento\": \"2005-05-15\",\r\n  \"email\": \"wolgrand@email.com\",\r\n  \"senha\": \"1234\",\r\n  \"endereco\": \"Rua João Mendes, 23\",\r\n  \"telefone\": \"83988887776\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/usuarios/5",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "usuarios",
+                "5"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deletar Usuário",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2FvQGVtYWlsLmNvbSIsImlhdCI6MTc2OTU1NzgwMCwiZXhwIjoxNzY5NTkzODAwfQ.AmfNbPk824klhBWjePe1FsVwnqM1Cz-KmpkLGgHfCVg",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/usuarios/3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "usuarios",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authentification",
+      "item": [
+        {
+          "name": "Fazer Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"wolgrand@email.com\",\r\n  \"senha\": \"1234\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
