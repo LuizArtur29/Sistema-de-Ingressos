@@ -1,5 +1,6 @@
 package com.vendaingressos.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -26,6 +27,7 @@ public class Ingresso {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tipo_ingresso")
+    @JsonIgnore
     private TipoIngresso tipoIngresso;
 
     private boolean ingressoDisponivel = true;

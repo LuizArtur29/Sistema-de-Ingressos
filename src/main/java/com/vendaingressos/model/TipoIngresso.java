@@ -1,5 +1,6 @@
 package com.vendaingressos.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -27,6 +28,7 @@ public class TipoIngresso {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sessao_id", nullable = false)
+    @JsonIgnore
     private SessaoEvento sessao;
 
     @OneToMany(
@@ -35,6 +37,7 @@ public class TipoIngresso {
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
+    @JsonIgnore
     private Set<Ingresso> ingressosGerados = new HashSet<>();
 
     public TipoIngresso() {}

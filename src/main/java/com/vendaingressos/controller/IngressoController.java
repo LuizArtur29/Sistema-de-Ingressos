@@ -2,6 +2,7 @@ package com.vendaingressos.controller;
 
 import com.vendaingressos.dto.IngressoResponse;
 import com.vendaingressos.model.Ingresso;
+import com.vendaingressos.repository.IngressoRepository;
 import com.vendaingressos.service.IngressoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,12 @@ public class IngressoController {
 
     private final IngressoService ingressoService;
 
+    private final IngressoRepository ingressoRepository;
+
     @Autowired
-    public IngressoController(IngressoService ingressoService) {
+    public IngressoController(IngressoService ingressoService,  IngressoRepository ingressoRepository) {
         this.ingressoService = ingressoService;
+        this.ingressoRepository = ingressoRepository;
     }
 
     // Alterado para criar ingresso para uma SessaoEvento específica
@@ -39,6 +43,17 @@ public class IngressoController {
                 .map(IngressoResponse::new)
                 .collect(Collectors.toList());
         return new ResponseEntity<>(ingressosDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/tipo/{tipoId}")
+    public ResponseEntity<List<IngressoResponse>> listarPorTipo(@PathVariable Long tipoId) {
+        List<Ingresso> ingressos = ingressoRepository.findByTipoIngressoIdTipoIngresso(tipoId);
+
+        List<IngressoResponse> response = ingressos.stream()
+                .map(IngressoResponse::new)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("buscarIngresso/{ingressoId}")

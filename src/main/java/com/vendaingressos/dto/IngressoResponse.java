@@ -1,23 +1,34 @@
 package com.vendaingressos.dto;
 
 import com.vendaingressos.model.Ingresso;
-import com.vendaingressos.model.TipoIngresso;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class IngressoResponse {
 
     private Long idIngresso;
-    private TipoIngresso tipoIngresso;
-    private double preco;
+    private Double preco;
     private boolean ingressoDisponivel;
     private Long sessaoEventoId;
+    private Long idTipoIngresso;
+    private String nomeTipoIngresso;
 
     public IngressoResponse(Ingresso ingresso) {
         this.idIngresso = ingresso.getIdIngresso();
-        this.tipoIngresso = ingresso.getTipoIngresso();
         this.preco = ingresso.getPreco();
         this.ingressoDisponivel = ingresso.isIngressoDisponivel();
-        this.sessaoEventoId = ingresso.getSessaoEvento().getIdSessao();
+
+        if (ingresso.getSessaoEvento() != null) {
+            this.sessaoEventoId = ingresso.getSessaoEvento().getIdSessao();
+        }
+
+        if (ingresso.getTipoIngresso() != null) {
+            this.idTipoIngresso = ingresso.getTipoIngresso().getIdTipoIngresso();
+            this.nomeTipoIngresso = ingresso.getTipoIngresso().getNomeSetor();
+        }
     }
 }
