@@ -1,5 +1,6 @@
 package com.vendaingressos.service;
 
+import com.vendaingressos.dto.StatusUpdateRequest;
 import com.vendaingressos.exception.BadRequestException;
 import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Compra;
@@ -101,11 +102,15 @@ public class CompraService {
     }
 
     @Transactional
-    public Compra atualizarStatusCompra(Long id, String novoStatus) {
-        return compraRepository.findById(id).map(compra ->{
-            compra.setStatus(novoStatus);
-            return compraRepository.save(compra);
-        }).orElseThrow(() -> new ResourceNotFoundException("Compra não encontrada com ID : " + id));
+    public Compra atualizarStatus(Long id, StatusUpdateRequest request) {
+        Compra compra = compraRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Compra não encontrada"));
+
+        // Adicione um print para depurar:
+        System.out.println("Status recebido do DTO: " + request.getStatus());
+
+        compra.setStatus(request.getStatus()); // Garanta que esta linha existe
+        return compraRepository.save(compra);
     }
 
     @Transactional

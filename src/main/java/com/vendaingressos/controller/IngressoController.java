@@ -20,18 +20,20 @@ public class IngressoController {
 
     private final IngressoService ingressoService;
 
-    private final IngressoRepository ingressoRepository;
-
     @Autowired
-    public IngressoController(IngressoService ingressoService,  IngressoRepository ingressoRepository) {
+    public IngressoController(IngressoService ingressoService) {
         this.ingressoService = ingressoService;
-        this.ingressoRepository = ingressoRepository;
     }
 
-    // Alterado para criar ingresso para uma SessaoEvento específica
-    @PostMapping("/criar/{sessaoEventoId}")
-    public ResponseEntity<IngressoResponse> criarIngresso(@PathVariable Long sessaoEventoId, @Valid @RequestBody Ingresso ingresso) {
-        Ingresso novoIngresso = ingressoService.criarIngressoParaSessaoEvento(sessaoEventoId, ingresso);
+    @PostMapping("/criar/{sessaoEventoId}/{tipoIngressoId}") // Adicionamos o ID do tipo na URL
+    public ResponseEntity<IngressoResponse> criarIngresso(
+            @PathVariable Long sessaoEventoId,
+            @PathVariable Long tipoIngressoId, // Recebe o ID do tipo aqui
+            @RequestBody Ingresso ingresso) { // O corpo agora só precisa do preço
+
+        // Passamos os dois IDs para o service
+        Ingresso novoIngresso = ingressoService.criarIngressoParaSessaoEvento(sessaoEventoId, tipoIngressoId, ingresso);
+
         return new ResponseEntity<>(new IngressoResponse(novoIngresso), HttpStatus.CREATED);
     }
 
@@ -43,17 +45,6 @@ public class IngressoController {
                 .map(IngressoResponse::new)
                 .collect(Collectors.toList());
         return new ResponseEntity<>(ingressosDTO, HttpStatus.OK);
-    }
-
-    @GetMapping("/tipo/{tipoId}")
-    public ResponseEntity<List<IngressoResponse>> listarPorTipo(@PathVariable Long tipoId) {
-        List<Ingresso> ingressos = ingressoRepository.findByTipoIngressoIdTipoIngresso(tipoId);
-
-        List<IngressoResponse> response = ingressos.stream()
-                .map(IngressoResponse::new)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(response);
     }
 
     @GetMapping("buscarIngresso/{ingressoId}")

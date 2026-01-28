@@ -1,15 +1,16 @@
 package com.vendaingressos.dto;
 
-import lombok.Data;
 
-@Data
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class StatusUpdateRequest {
 
-    public String novoStatus;
-
-    public StatusUpdateRequest() {}
-
-    public StatusUpdateRequest(String novoStatus) {
-        this.novoStatus = novoStatus;
-    }
+    public String status;
 }

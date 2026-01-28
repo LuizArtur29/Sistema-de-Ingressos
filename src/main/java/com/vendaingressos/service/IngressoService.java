@@ -5,9 +5,11 @@ import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Evento;
 import com.vendaingressos.model.Ingresso;
 import com.vendaingressos.model.SessaoEvento; // Importar a nova entidade
+import com.vendaingressos.model.TipoIngresso;
 import com.vendaingressos.repository.EventoRepository;
 import com.vendaingressos.repository.IngressoRepository;
 import com.vendaingressos.repository.SessaoEventoRepository; // Importar o novo repositório
+import com.vendaingressos.repository.TipoIngressoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,30 +22,29 @@ import java.util.stream.Collectors; // Adicionar para usar .stream().collect()
 public class IngressoService {
 
     private final IngressoRepository ingressoRepository;
-    private final SessaoEventoRepository sessaoEventoRepository; // Novo repositório injetado
+    private final SessaoEventoRepository sessaoEventoRepository;
+
+    private final TipoIngressoRepository tipoIngressoRepository;
 
     @Autowired
-    public IngressoService(IngressoRepository ingressoRepository, SessaoEventoRepository sessaoEventoRepository) {
+    public IngressoService(IngressoRepository ingressoRepository, SessaoEventoRepository sessaoEventoRepository,  TipoIngressoRepository tipoIngressoRepository) {
         this.ingressoRepository = ingressoRepository;
         this.sessaoEventoRepository = sessaoEventoRepository;
+        this.tipoIngressoRepository = tipoIngressoRepository;
     }
 
     @Transactional
-    public Ingresso criarIngressoParaSessaoEvento(Long sessaoEventoId, Ingresso ingresso) {
-        SessaoEvento sessaoEvento = sessaoEventoRepository.findById(sessaoEventoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Sessão de Evento não encontrada com ID: " + sessaoEventoId));
+    public Ingresso criarIngressoParaSessaoEvento(Long sessaoId, Long tipoId, Ingresso ingresso) {
+        SessaoEvento sessao = sessaoEventoRepository.findById(sessaoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Sessão não encontrada"));
 
-        // Obter a capacidade total do evento pai (capacidade por dia)
-        Integer capacidadeTotalEvento = sessaoEvento.getEventoPai().getCapacidadeTotal();
+        TipoIngresso tipo = tipoIngressoRepository.findById(tipoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tipo de ingresso não encontrado"));
 
-        // Contar quantos ingressos já foram criados para esta sessão específica
-        long ingressosExistentesNestaSessao = ingressoRepository.countBySessaoEventoIdSessao(sessaoEventoId);
+        ingresso.setSessaoEvento(sessao);
+        ingresso.setTipoIngresso(tipo);
+        ingresso.setIngressoDisponivel(true);
 
-        if (ingressosExistentesNestaSessao >= capacidadeTotalEvento) {
-            throw new BadRequestException("A sessão do evento atingiu sua capacidade máxima de ingressos.");
-        }
-
-        ingresso.setSessaoEvento(sessaoEvento);
         return ingressoRepository.save(ingresso);
     }
 

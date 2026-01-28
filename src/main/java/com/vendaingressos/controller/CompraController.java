@@ -66,9 +66,13 @@ public class CompraController {
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<CompraResponse> atualizarStatusCompra(@PathVariable Long id, @Valid @RequestBody StatusUpdateRequest request) {
-            Compra compraAtualizada = compraService.atualizarStatusCompra(id, request.novoStatus);
-            return new ResponseEntity<>(new CompraResponse(compraAtualizada), HttpStatus.OK);
+    public ResponseEntity<CompraResponse> atualizarStatusCompra(
+            @PathVariable Long id,
+            @RequestBody StatusUpdateRequest request) {
+
+        Compra compraAtualizada = compraService.atualizarStatus(id, request);
+
+        return ResponseEntity.ok(new CompraResponse(compraAtualizada));
     }
 
     @DeleteMapping("/{id}")
