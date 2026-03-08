@@ -1,33 +1,49 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
-
-### STS ###
-.apt_generated
+# --- Java / Maven (Backend) ---
+**/target/
+**/build/
+.mtl.xml
 .classpath
-.factorypath
 .project
-.settings
-.springBeans
-.sts4-cache
+.settings/
+*.jar
+*.war
+*.ear
+# Opcional: Remova a linha abaixo se quiser que o time use o ./mvnw
+# .mvn/wrapper/maven-wrapper.jar
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
+# --- Node / React / Next.js (Frontend) ---
+**/node_modules/
+**/.next/
+**/dist/
+**/build/
+**/out/
+.vercel
+*.tsbuildinfo
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
+# --- IDEs (IntelliJ, VS Code, NetBeans) ---
+.idea/
 .vscode/
+*.iml
+*.iws
+*.ipr
+.nb-gradle/
+/nbproject/private/
+
+# --- Infra & Env ---
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+**/.docker/
+
+# --- OS Files ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
