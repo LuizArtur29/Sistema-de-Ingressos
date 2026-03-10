@@ -1,19 +1,79 @@
-<img width="1301" height="538" alt="image" src="https://github.com/user-attachments/assets/f68d74cf-7098-4da3-8c1a-06d8988e2f20" />
+# 🎫 Sistema de Ingressos
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java" />
+  <img src="https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white" alt="Spring Boot" />
+  <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
+  <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+</p>
 
-Minimundo
-O sistema foi projetado para gerenciar de forma robusta a venda e transferência de ingressos para eventos, com papéis de usuário bem definidos.
+Plataforma robusta para gerenciamento, venda e transferência de ingressos para eventos, desenvolvida com foco em escalabilidade e geolocalização.
 
-No topo da hierarquia está o Administrador, responsável por cadastrar e gerenciar os eventos na plataforma. Cada Evento, que representa um acontecimento principal como um festival, é criado por um administrador e contém informações gerais como nome, descrição, período de duração (data_inicio, data_fim), local e capacidade.
+---
 
-Para oferecer maior flexibilidade, cada Evento se desdobra em uma ou várias SessaoEvento. Cada sessão representa uma data ou horário específico dentro do evento principal, permitindo um controle granular sobre o acesso, com seu próprio nome, data e hora.
+## 📖 Sobre o Projeto
 
-A estrutura de venda é detalhada em dois níveis: TipoIngresso e Ingresso. Cada SessaoEvento pode ter múltiplos tipos de ingresso (ex: "Pista", "VIP", "Meia-Entrada"), cada um cadastrado como um TipoIngresso com atributos específicos como preço, lote, quantidade total e ingressos disponíveis. Quando uma venda é efetivada, são gerados registros individuais na entidade Ingresso, representando cada bilhete único vendido.
+O sistema permite o rastreamento completo do ciclo de vida de um ingresso, desde a criação do evento pelo administrador até a revenda entre usuários finais.
 
-O sistema gerencia os Usuarios, que são os clientes finais. O cadastro do Usuario armazena dados pessoais completos, como nome, CPF, data de nascimento, informações de contato e credenciais de acesso.
+### 🚀 Principais Funcionalidades
+* **Gestão de Eventos:** Cadastro de eventos com múltiplas sessões e tipos de ingressos (VIP, Pista, etc.).
+* **Venda Granular:** Controle de lotes, preços e disponibilidade em tempo real.
+* **Transferência P2P:** Funcionalidade de revenda onde um usuário pode transferir um ingresso para outro com registro de valor negociado.
+* **Geolocalização:** Integração com **PostGIS** para busca e exibição de eventos baseada na localização do usuário.
 
-A transação primária é a Compra. Realizada por um Usuario, uma Compra pode conter um ou vários Ingressos individuais. O registro da Compra armazena detalhes da transação, como a data, a quantidade de ingressos, o valor total, o método de pagamento e o status.
+---
 
-Uma nova funcionalidade central do sistema é a Transferencia de ingressos entre usuários. Um Usuario (vendedor) pode transferir um Ingresso específico para outro Usuario (comprador). Essa transação é registrada na entidade Transferencia, que armazena o valor de revenda negociado, conectando o ingresso aos dois usuários envolvidos na troca.
+## 🏗️ Estrutura do Monorepo
 
-Este modelo permite um rastreamento completo do ciclo de vida de um ingresso: desde a criação do evento pelo administrador, passando pela definição dos tipos de ingresso, a compra inicial por um usuário, até uma possível revenda ou transferência para outro cliente.
+Para facilitar a manutenção e o deploy, o projeto está organizado da seguinte forma:
+
+| Diretório | Descrição |
+| :--- | :--- |
+| **`/backend`** | API desenvolvida em Java com Spring Boot |
+| **`/frontend`** | Interface do usuário em Next.js e Tailwind CSS |
+| **`/docs`** | Documentação técnica, diagramas e guias |
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+- **Backend:** Java 17+, Spring Boot 3, Spring Security (JWT), Hibernate/JPA.
+- **Frontend:** React, Next.js (App Router), TypeScript, Tailwind CSS.
+- **Banco de Dados:** PostgreSQL com extensão **PostGIS** para dados espaciais.
+- **Cache/Performance:** Redis para gerenciamento de sessões e cache.
+
+---
+
+## ⚙️ Como Executar
+
+O projeto utiliza Docker para orquestrar o ambiente de desenvolvimento.
+
+1. **Clone o repositório:**
+   ```bash
+   git clone [https://github.com/WolgrandAP/sistema-de-ingressos.git](https://github.com/WolgrandAP/sistema-de-ingressos.git)
+   cd sistema-de-ingressos
+
+2. **Suba os serviços (Banco de Dados e Cache):**
+   ```bash
+   docker-compose up -d
+
+2. **Inicie o Backend:**
+   ```bash
+    cd backend
+    ./mvnw spring-boot:run
+
+---
+
+## 📄 Documentação Adicional
+
+Para detalhes técnicos e guias de processo, acesse os documentos abaixo na pasta `/docs`:
+
+* 🏛️ **[Arquitetura e Banco de Dados](./docs/database.md)**: Detalhes sobre o schema e regras de integridade.
+* 🔌 **[Endpoints da API](./docs/api_endpoints.md)**: Guia de integração e rotas principais.
+* 🤝 **[Guia de Contribuição](./docs/CONTRIBUTING.md)**: Padrões de GitFlow, Issues e Commits do time.
+* 📐 **[Diagrama DER](./docs/architecture/diagrama_der.png)**: Visualização gráfica do banco de dados.
+   
+
+---
+**Desenvolvido por:** [Wolgrand (@WolgrandAP)](https://github.com/WolgrandAP), [Luiz Artur (@LuizArtur29)](https://github.com/LuizArtur29) e [Mateus Virginio(@MateusVirginio)](https://github.com/MateusVirginio).
