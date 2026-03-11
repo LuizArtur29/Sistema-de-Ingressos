@@ -64,4 +64,16 @@ O projeto utiliza Docker para orquestrar o ambiente de desenvolvimento.
     ./mvnw spring-boot:run
 
 ---
+
+## 📄 Documentação Adicional
+
+Para detalhes técnicos e guias de processo, acesse os documentos abaixo na pasta `/docs`:
+
+* 🏛️ **[Arquitetura e Banco de Dados](./docs/database.md)**: Detalhes sobre o schema e regras de integridade.
+* 🔌 **[Endpoints da API](./docs/api_endpoints.md)**: Guia de integração e rotas principais.
+* 🤝 **[Guia de Contribuição](./docs/CONTRIBUTING.md)**: Padrões de GitFlow, Issues e Commits do time.
+* 📐 **[Diagrama DER](./docs/architecture/diagrama_der.png)**: Visualização gráfica do banco de dados.
+   
+
+---
 **Desenvolvido por:** [Wolgrand (@WolgrandAP)](https://github.com/WolgrandAP), [Luiz Artur (@LuizArtur29)](https://github.com/LuizArtur29) e [Mateus Virginio(@MateusVirginio)](https://github.com/MateusVirginio).
