@@ -2,15 +2,11 @@ services:
   db:
     image: postgres:15
     container_name: postgres-dev
+    env_file:
+      - ./backend/.env
     environment:
-      # O Docker vai buscar esses valores no arquivo .env da raiz
       POSTGRES_USER: ${DB_LOCAL_USER}
       POSTGRES_PASSWORD: ${DB_LOCAL_PASS}
       POSTGRES_DB: devdb
     ports:
       - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
