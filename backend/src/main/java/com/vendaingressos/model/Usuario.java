@@ -31,6 +31,7 @@ public class Usuario {
     @Email(message = "Formato de email inválido")
     private String email;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @NotBlank(message = "A senha não pode estar em branco")
     private String senha;
 

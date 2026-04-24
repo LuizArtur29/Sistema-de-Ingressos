@@ -31,6 +31,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
 
         // A próxima evolução seria adicionar um campo 'role' no modelo de Usuario.
-        return new User(usuario.getEmail(), usuario.getSenha(), Collections.emptyList());
+        return new User(usuario.getEmail(), usuario.getSenha(), authorities);
     }
 }

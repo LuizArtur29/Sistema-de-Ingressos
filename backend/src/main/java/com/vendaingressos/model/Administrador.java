@@ -1,4 +1,5 @@
 package com.vendaingressos.model;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 import java.util.Objects;
@@ -16,7 +17,10 @@ public class Administrador {
     private Long idAdmin;
     private String nome;
     private String email;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String senha;
+
     private String telefone;
 
     @OneToMany(
