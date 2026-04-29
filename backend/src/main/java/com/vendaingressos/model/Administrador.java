@@ -15,8 +15,6 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-@EqualsAndHashCode
-@ToString
 public class Administrador {
 
     @Id
@@ -42,4 +40,25 @@ public class Administrador {
             fetch = FetchType.LAZY
     )
     private List<Evento> eventosCriados = new ArrayList<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Administrador that = (Administrador) o;
+        return Objects.equals(idAdmin, that.idAdmin);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(idAdmin);
+    }
+
+    @Override
+    public String toString() {
+        return "Administrador{" +
+                "idAdmin=" + idAdmin +
+                ", nome='" + nome + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }

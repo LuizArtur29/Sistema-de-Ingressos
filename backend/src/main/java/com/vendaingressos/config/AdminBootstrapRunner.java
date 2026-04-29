@@ -9,6 +9,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class AdminBootstrapRunner implements CommandLineRunner {
@@ -16,6 +18,8 @@ public class AdminBootstrapRunner implements CommandLineRunner {
     private final AdministradorRepository administradorRepository;
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private static final Logger log = LoggerFactory.getLogger(AdminBootstrapRunner.class);
 
     @Value("${security.bootstrap-admin.enabled:false}")
     private boolean enabled;
@@ -55,7 +59,8 @@ public class AdminBootstrapRunner implements CommandLineRunner {
             return;
         }
         if (usuarioRepository.findByEmail(email).isPresent()) {
-            throw new IllegalStateException("Email do bootstrap admin já está em uso por usuário: " + email);
+            log.warn("Bootstrap admin ignorado: email já existe em Usuario: {}", email);
+            return;
         }
 
         Administrador admin = new Administrador();
