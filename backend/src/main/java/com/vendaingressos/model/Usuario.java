@@ -4,12 +4,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import com.vendaingressos.model.enums.Role;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Entity
 @Table(name = "usuario")
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,81 +47,7 @@ public class Usuario {
             message = "Formato de telefone inválido. Use (XX) XXXX-XXXX ou (XX) XXXXX-XXXX")
     private String telefone;
 
-    public Usuario() {
-    }
-
-    public Usuario(Long idUsuario, String nome, String cpf, LocalDate dataNascimento, String email, String senha, String endereco, String telefone) {
-        this.idUsuario = idUsuario;
-        this.nome = nome;
-        this.cpf = cpf;
-        this.dataNascimento = dataNascimento;
-        this.email = email;
-        this.senha = senha;
-        this.endereco = endereco;
-        this.telefone = telefone;
-    }
-
-    public Long getIdUsuario() {
-        return idUsuario;
-    }
-
-    public void setIdUsuario(Long idUsuario) {
-        this.idUsuario = idUsuario;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
-    }
-
-    public LocalDate getDataNascimento() {
-        return dataNascimento;
-    }
-
-    public void setDataNascimento(LocalDate dataNascimento) {
-        this.dataNascimento = dataNascimento;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
-
-    public String getEndereco() {
-        return endereco;
-    }
-
-    public void setEndereco(String endereco) {
-        this.endereco = endereco;
-    }
-
-    public String getTelefone() {
-        return telefone;
-    }
-
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
-    }
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.USUARIO;
 }

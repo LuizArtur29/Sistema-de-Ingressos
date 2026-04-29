@@ -1,10 +1,14 @@
 package com.vendaingressos.service;
 
+import com.vendaingressos.dto.UsuarioCreateRequest;
+import com.vendaingressos.dto.UsuarioUpdateRequest;
 import com.vendaingressos.exception.BadRequestException;
 import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Compra;
 import com.vendaingressos.model.Ingresso;
 import com.vendaingressos.model.Usuario;
+import com.vendaingressos.model.enums.Role;
+import com.vendaingressos.repository.AdministradorRepository;
 import com.vendaingressos.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,20 +26,32 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final CompraService compraService;
+    private final AdministradorRepository administradorRepository;
 
     @Autowired
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, CompraService compraService){
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, CompraService compraService, AdministradorRepository administradorRepository){
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.compraService = compraService;
+        this.administradorRepository = administradorRepository;
     }
 
     @Transactional
-    public Usuario cadastrarUsuario(Usuario usuario) {
-        if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
-            throw new BadRequestException("Já existe um usuário cadastrado com este e-mail.");
+    public Usuario cadastrarUsuario(UsuarioCreateRequest dto) {
+        if (usuarioRepository.findByEmail(dto.email()).isPresent() || administradorRepository.findByEmail(dto.email()).isPresent()) {
+            throw new BadRequestException("Já existe um usuário ou administrador cadastrado com este e-mail.");
         }
-        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
+
+        Usuario usuario = new Usuario();
+        usuario.setNome(dto.nome());
+        usuario.setCpf(dto.cpf());
+        usuario.setDataNascimento(dto.dataNascimento());
+        usuario.setEmail(dto.email());
+        usuario.setSenha(passwordEncoder.encode(dto.senha()));
+        usuario.setEndereco(dto.endereco());
+        usuario.setTelefone(dto.telefone());
+        usuario.setRole(Role.USUARIO);
+
         return usuarioRepository.save(usuario);
     }
 
@@ -56,17 +71,37 @@ public class UsuarioService {
     }
 
     @Transactional
-    public Usuario atualizarUsuario(Long id, Usuario usuarioAtualizado) {
+    public Usuario atualizarUsuario(Long id, UsuarioUpdateRequest usuarioAtualizado) {
         return usuarioRepository.findById(id).map(usuario -> {
-            usuario.setNome(usuarioAtualizado.getNome());
-            usuario.setCpf(usuarioAtualizado.getCpf());
-            usuario.setDataNascimento(usuarioAtualizado.getDataNascimento());
-            usuario.setEmail(usuarioAtualizado.getEmail());
-            usuario.setEndereco(usuarioAtualizado.getEndereco());
-            usuario.setTelefone(usuarioAtualizado.getTelefone());
-            if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().isEmpty()) {
-                usuario.setSenha(passwordEncoder.encode(usuarioAtualizado.getSenha()));
+            if (usuarioAtualizado.nome() != null && !usuarioAtualizado.nome().isBlank()) {
+                usuario.setNome(usuarioAtualizado.nome());
             }
+
+            if (usuarioAtualizado.dataNascimento() != null) {
+                usuario.setDataNascimento(usuarioAtualizado.dataNascimento());
+            }
+
+            if (usuarioAtualizado.email() != null && !usuarioAtualizado.email().isBlank()
+                    && !usuarioAtualizado.email().equalsIgnoreCase(usuario.getEmail())) {
+                if (usuarioRepository.findByEmail(usuarioAtualizado.email()).isPresent()
+                        || administradorRepository.findByEmail(usuarioAtualizado.email()).isPresent()) {
+                    throw new BadRequestException("Já existe um usuário ou administrador cadastrado com este e-mail: " + usuarioAtualizado.email());
+                }
+                usuario.setEmail(usuarioAtualizado.email());
+            }
+
+            if (usuarioAtualizado.endereco() != null && !usuarioAtualizado.endereco().isBlank()) {
+                usuario.setEndereco(usuarioAtualizado.endereco());
+            }
+
+            if (usuarioAtualizado.telefone() != null && !usuarioAtualizado.telefone().isBlank()) {
+                usuario.setTelefone(usuarioAtualizado.telefone());
+            }
+
+            if (usuarioAtualizado.senha() != null && !usuarioAtualizado.senha().isBlank()) {
+                usuario.setSenha(passwordEncoder.encode(usuarioAtualizado.senha()));
+            }
+
             return usuarioRepository.save(usuario);
         }).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + id));
     }

@@ -1,6 +1,8 @@
 package com.vendaingressos.controller;
 
+import com.vendaingressos.dto.UsuarioCreateRequest;
 import com.vendaingressos.dto.UsuarioResponse;
+import com.vendaingressos.dto.UsuarioUpdateRequest;
 import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Usuario;
 import com.vendaingressos.service.UsuarioService;
@@ -8,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,8 +30,8 @@ public class UsuarioController {
 
     // Endpoint para cadastrar um novo usuário (POST /api/usuarios)
     @PostMapping
-    public ResponseEntity<UsuarioResponse> cadastrarUsuario(@Valid @RequestBody Usuario usuario) {
-        Usuario novoUsuario = usuarioService.cadastrarUsuario(usuario);
+    public ResponseEntity<UsuarioResponse> cadastrarUsuario(@Valid @RequestBody UsuarioCreateRequest dto) {
+        Usuario novoUsuario = usuarioService.cadastrarUsuario(dto);
         return new ResponseEntity<>(new UsuarioResponse(novoUsuario), HttpStatus.CREATED);
     }
 
@@ -57,8 +60,8 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponse> atualizarUsuario(@PathVariable Long id, @Valid @RequestBody Usuario usuario) {
-        Usuario usuarioAtualizado = usuarioService.atualizarUsuario(id, usuario);
+    public ResponseEntity<UsuarioResponse> atualizarUsuario(@PathVariable Long id, @Valid @RequestBody UsuarioUpdateRequest dto) {
+        Usuario usuarioAtualizado = usuarioService.atualizarUsuario(id, dto);
         return new ResponseEntity<>(new UsuarioResponse(usuarioAtualizado), HttpStatus.OK);
     }
 
@@ -66,5 +69,22 @@ public class UsuarioController {
     public ResponseEntity<Void> deletarUsuario(@PathVariable Long id) {
         usuarioService.deletarUsuario(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UsuarioResponse> meuPerfil(Authentication authentication) {
+        String email = authentication.getName();
+        Usuario usuario = usuarioService.buscarUsuarioPorEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário autenticado não encontrado."));
+        return ResponseEntity.ok(new UsuarioResponse(usuario));
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<UsuarioResponse> atualizarMeuPerfil(Authentication authentication, @Valid @RequestBody UsuarioUpdateRequest dto) {
+        String email = authentication.getName();
+        Usuario atual = usuarioService.buscarUsuarioPorEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário autenticado não encontrado."));
+        Usuario atualizado = usuarioService.atualizarUsuario(atual.getIdUsuario(), dto);
+        return ResponseEntity.ok(new UsuarioResponse(atualizado));
     }
 }
