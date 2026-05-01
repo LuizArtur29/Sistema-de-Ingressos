@@ -1,8 +1,13 @@
 package com.vendaingressos.dto;
 
 import com.vendaingressos.model.Compra;
+import com.vendaingressos.model.Ingresso;
 import lombok.Data;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 @Data
 public class CompraResponse {
@@ -15,7 +20,10 @@ public class CompraResponse {
     private String status;
     private Long usuarioId;
     private String nomeUsuario;
+    /** Primeiro ID (menor), compatível com respostas antigas; prefira {@link #ingressoIds}. */
     private Long ingressoId;
+    /** Todos os ingressos ligados à compra (um por unidade). */
+    private List<Long> ingressoIds = List.of();
     private String nomeEvento;
 
     public CompraResponse(Compra compra) {
@@ -27,7 +35,16 @@ public class CompraResponse {
         this.status = compra.getStatus();
         this.usuarioId = compra.getUsuario().getIdUsuario();
         this.nomeUsuario = compra.getUsuario().getNome();
-        this.ingressoId = compra.getIngresso().getIdIngresso();
-        this.nomeEvento = compra.getIngresso().getSessaoEvento().getEventoPai().getNome();
+
+        List<Ingresso> lista = compra.getIngressos() != null
+                ? new ArrayList<>(compra.getIngressos())
+                : new ArrayList<>();
+        lista.sort(Comparator.comparing(Ingresso::getIdIngresso));
+        if (!lista.isEmpty()) {
+            Ingresso ref = lista.get(0);
+            this.ingressoId = ref.getIdIngresso();
+            this.nomeEvento = ref.getSessaoEvento().getEventoPai().getNome();
+            this.ingressoIds = lista.stream().map(Ingresso::getIdIngresso).toList();
+        }
     }
 }

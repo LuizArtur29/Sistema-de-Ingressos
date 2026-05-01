@@ -23,6 +23,13 @@ public class SessaoEvento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idSessao;
 
+    /**
+     * Limite de público para esta sessão. Se null, usa-se {@link Evento#getCapacidadeTotal()}
+     * nas validações de compra.
+     */
+    @Column(name = "capacidade")
+    private Integer capacidade;
+
     @NotBlank(message = "O nome da sessão não pode estar em branco")
     @Column(nullable = false, length = 255)
     private String nomeSessao; // Ex: "Dia 1", "Sábado", "Sessão da Manhã"

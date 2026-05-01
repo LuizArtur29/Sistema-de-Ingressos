@@ -44,6 +44,8 @@ public class IngressoService {
         ingresso.setSessaoEvento(sessao);
         ingresso.setTipoIngresso(tipo);
         ingresso.setIngressoDisponivel(true);
+        ingresso.setVendido(false);
+        ingresso.setCompra(null);
 
         return ingressoRepository.save(ingresso);
     }
@@ -69,7 +71,7 @@ public class IngressoService {
     public boolean isIngressoValido(Long ingressoId) {
         Ingresso ingresso = ingressoRepository.findById(ingressoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ingresso não encontrado"));
-        return ingresso.isIngressoDisponivel();
+        return ingresso.isVendido() && ingresso.isIngressoDisponivel();
     }
 
     @Transactional
@@ -77,8 +79,11 @@ public class IngressoService {
         Ingresso ingresso = ingressoRepository.findById(ingressoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Ingresso não encontrado"));
 
+        if (!ingresso.isVendido()) {
+            throw new BadRequestException("Ingresso ainda não foi vendido.");
+        }
         if (!ingresso.isIngressoDisponivel()) {
-            throw new BadRequestException("Ingresso já utilizado ou não disponível.");
+            throw new BadRequestException("Ingresso já utilizado.");
         }
         ingresso.setIngressoDisponivel(false);
         ingressoRepository.save(ingresso);

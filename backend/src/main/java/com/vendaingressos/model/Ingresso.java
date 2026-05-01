@@ -34,16 +34,24 @@ public class Ingresso {
     private TipoIngresso tipoIngresso;
 
     private boolean ingressoDisponivel = true;
+    private boolean vendido = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_compra")
+    @JsonIgnore
+    private Compra compra;
 
     public Ingresso() {
     }
 
-    public Ingresso(Long idIngresso, SessaoEvento sessaoEvento, double preco, TipoIngresso tipoIngresso, boolean ingressoDisponivel) {
+    public Ingresso(Long idIngresso, SessaoEvento sessaoEvento, double preco, TipoIngresso tipoIngresso, boolean ingressoDisponivel, boolean vendido, Compra compra) {
         this.idIngresso = idIngresso;
         this.sessaoEvento = sessaoEvento;
         this.preco = preco;
         this.tipoIngresso = tipoIngresso;
         this.ingressoDisponivel = ingressoDisponivel;
+        this.vendido = vendido;
+        this.compra = compra;
     }
 
     public Long getIdIngresso() {
@@ -84,5 +92,21 @@ public class Ingresso {
 
     public void setIngressoDisponivel(boolean ingressoDisponivel) {
         this.ingressoDisponivel = ingressoDisponivel;
+    }
+
+    public boolean isVendido() {
+        return vendido;
+    }
+
+    public void setVendido(boolean vendido) {
+        this.vendido = vendido;
+    }
+
+    public Compra getCompra() {
+        return compra;
+    }
+
+    public void setCompra(Compra compra) {
+        this.compra = compra;
     }
 }

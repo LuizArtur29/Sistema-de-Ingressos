@@ -87,9 +87,8 @@ public class UsuarioService {
         // Busca todas as compras do usuário
         List<Compra> comprasDoUsuario = compraService.buscarComprasPorUsuario(usuarioId);
 
-        // Extrai os ingressos de cada compra
         return comprasDoUsuario.stream()
-                .map(Compra::getIngresso)
+                .flatMap(c -> c.getIngressos().stream())
                 .collect(Collectors.toList());
     }
 }

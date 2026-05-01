@@ -12,7 +12,11 @@ public class IngressoResponse {
 
     private Long idIngresso;
     private Double preco;
+    /** {@code false} após uso na entrada; não indica se está à venda. */
     private boolean ingressoDisponivel;
+    private boolean vendido;
+    /** Pode ser comprado ({@code !vendido}). */
+    private boolean disponivelParaCompra;
     private Long sessaoEventoId;
     private Long idTipoIngresso;
     private String nomeTipoIngresso;
@@ -21,6 +25,8 @@ public class IngressoResponse {
         this.idIngresso = ingresso.getIdIngresso();
         this.preco = ingresso.getPreco();
         this.ingressoDisponivel = ingresso.isIngressoDisponivel();
+        this.vendido = ingresso.isVendido();
+        this.disponivelParaCompra = !ingresso.isVendido();
 
         if (ingresso.getSessaoEvento() != null) {
             this.sessaoEventoId = ingresso.getSessaoEvento().getIdSessao();
