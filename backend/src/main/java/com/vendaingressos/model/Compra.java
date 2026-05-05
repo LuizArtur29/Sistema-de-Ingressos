@@ -1,10 +1,10 @@
 package com.vendaingressos.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 
 import java.time.LocalDate;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "compra")
@@ -23,22 +23,10 @@ public class Compra {
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
 
-    @ManyToOne
-    @JoinColumn(name = "id_ingresso")
-    private Ingresso ingresso;
+    @OneToMany(mappedBy = "compra", fetch = FetchType.LAZY)
+    private List<Ingresso> ingressos = new ArrayList<>();
 
     public Compra() {
-    }
-
-    public Compra(Long idCompra, LocalDate dataCompra, int quantidadeIngressos, double valorTotal, String metodoPagamento, String status, Usuario usuario, Ingresso ingresso) {
-        this.idCompra = idCompra;
-        this.dataCompra = dataCompra;
-        this.quantidadeIngressos = quantidadeIngressos;
-        this.valorTotal = valorTotal;
-        this.metodoPagamento = metodoPagamento;
-        this.status = status;
-        this.usuario = usuario;
-        this.ingresso = ingresso;
     }
 
     public Long getIdCompra() {
@@ -97,11 +85,11 @@ public class Compra {
         this.usuario = usuario;
     }
 
-    public Ingresso getIngresso() {
-        return ingresso;
+    public List<Ingresso> getIngressos() {
+        return ingressos;
     }
 
-    public void setIngresso(Ingresso ingresso) {
-        this.ingresso = ingresso;
+    public void setIngressos(List<Ingresso> ingressos) {
+        this.ingressos = ingressos;
     }
 }

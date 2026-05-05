@@ -60,6 +60,7 @@ public class SessaoEventoService {
             sessao.setNomeSessao(sessaoEventoAtualizada.getNomeSessao());
             sessao.setDataHoraSessao(sessaoEventoAtualizada.getDataHoraSessao());
             sessao.setStatusSessao(sessaoEventoAtualizada.getStatusSessao());
+            sessao.setCapacidade(sessaoEventoAtualizada.getCapacidade());
             // Se o eventoPai puder ser atualizado, adicione lógica para buscar e setar o novo eventoPai
             // Por simplicidade, assumimos que o eventoPai não muda após a criação.
 
