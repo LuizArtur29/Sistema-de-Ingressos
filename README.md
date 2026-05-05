@@ -53,16 +53,23 @@ O projeto utiliza Docker para orquestrar o ambiente de desenvolvimento.
    ```bash
    git clone [https://github.com/WolgrandAP/sistema-de-ingressos.git](https://github.com/WolgrandAP/sistema-de-ingressos.git)
    cd sistema-de-ingressos
-
-2. **Suba os serviços (Banco de Dados e Cache):**
+2. **Configuração de ambiente:**
+   - Crie um arquivo .env na raiz do projeto baseando-se no arquivo de exemplo:
+   ```bash
+   cp .env.example .env
+   # Edite o .env com suas credenciais locais
+3. **Suba os serviços (Banco de Dados e Cache):**
    ```bash
    docker-compose up -d
-
-2. **Inicie o Backend:**
+4. **Inicie o Backend:**
    ```bash
     cd backend
     ./mvnw spring-boot:run
-
+5. **Inicie o Frontend:**
+   ```bash
+      cd ../frontend
+      npm install
+      npm run dev
 ---
 
 ## 📄 Documentação Adicional

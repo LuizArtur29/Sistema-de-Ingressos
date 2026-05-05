@@ -3,10 +3,10 @@ services:
     image: postgres:15
     container_name: postgres-dev
     env_file:
-      - ./backend/.env
+      - .env
     environment:
+      POSTGRES_DB: ${DB_LOCAL}
       POSTGRES_USER: ${DB_LOCAL_USER}
       POSTGRES_PASSWORD: ${DB_LOCAL_PASS}
-      POSTGRES_DB: devdb
     ports:
       - "5433:5432"
