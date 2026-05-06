@@ -41,6 +41,29 @@ O sistema utiliza **JWT (JSON Web Token)** para proteger rotas sensíveis.
 | :--- | :--- | :--- |
 | `POST` | `/api/transferencias` | Realiza a transferência de titularidade de um ingresso para outro usuário. |
 
+**Payload (Request)**
+```json
+{
+  "ingressoId": 10,
+  "compradorId": 2,
+  "valorRevenda": 50.0
+}
+```
+**Resposta (Response)**
+```json
+{
+  "idTransferencia": 1,
+  "ingressoId": 10,
+  "vendedorId": 1,
+  "compradorId": 2,
+  "valorRevenda": 50.0
+}
+```
+### Erros comuns
+- **400 Bad Request:** ingresso inválido, comprador não encontrado, valorRevenda inválido.
+
+- **403 Forbidden:** apenas o titular atual pode transferir.
+
 ---
 
 ## 📝 Observações Técnicas

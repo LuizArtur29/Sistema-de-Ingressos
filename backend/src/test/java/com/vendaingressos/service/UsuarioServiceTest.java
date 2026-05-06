@@ -215,7 +215,7 @@ class UsuarioServiceTest {
 
         Ingresso ingresso = new Ingresso();
         Compra compra = new Compra();
-        compra.setIngresso(ingresso);
+        compra.setIngressos(List.of(ingresso));
 
         when(compraService.buscarComprasPorUsuario(1L)).thenReturn(List.of(compra));
 
