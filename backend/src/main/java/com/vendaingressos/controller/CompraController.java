@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/compras")
-@CrossOrigin(origins = "http://localhost:8080")
 public class CompraController {
 
     private final CompraService compraService;

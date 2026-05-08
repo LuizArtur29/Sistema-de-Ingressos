@@ -58,6 +58,19 @@ O projeto utiliza Docker para orquestrar o ambiente de desenvolvimento.
    ```bash
    cp .env.example .env
    # Edite o .env com suas credenciais locais
+
+### 🌐 CORS (Frontend ↔ Backend)
+
+O CORS é configurado **centralmente** no backend e controlado pela propriedade:
+
+security.cors.allowed-origins=http://localhost:3000,http://localhost:8080
+
+**Exemplos:**
+- **Dev:** `http://localhost:3000,http://localhost:8080`
+- **Prod:** `https://seu-frontend.com`
+
+Essa propriedade pode ser ajustada no `backend/src/main/resources/application.properties` ou sobrescrita por variáveis de ambiente.
+
 3. **Suba os serviços (Banco de Dados e Cache):**
    ```bash
    docker-compose up -d

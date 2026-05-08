@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/usuarios") // Define o caminho base para os endpoints de usuário
-@CrossOrigin(origins = "http://localhost:8080")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;

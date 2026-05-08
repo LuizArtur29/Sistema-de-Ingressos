@@ -14,8 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/sessoes-evento") // Define o caminho base para os endpoints de sessão de evento
-@CrossOrigin(origins = "http://localhost:8080") // Permite requisições do frontend
+@RequestMapping("/api/sessoes-evento")
 public class SessaoEventoController {
 
     private final SessaoEventoService sessaoEventoService;

@@ -13,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tipos-ingresso")
-@CrossOrigin(origins = "http://localhost:8080")
 public class TipoIngressoController {
 
     @Autowired

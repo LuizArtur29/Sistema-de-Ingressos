@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/transferencias")
-@CrossOrigin(origins = "http://localhost:8080")
 public class TransferenciaController {
 
     @Autowired
