@@ -55,6 +55,7 @@ public class TransferenciaService {
             throw new ForbiddenException("Apenas o titular atual do ingresso pode transferir.");
         }
 
+
         if (!ingressoService.isIngressoValido(ingresso.getIdIngresso())) {
             throw new BadRequestException("Ingresso inválido ou já utilizado.");
         }

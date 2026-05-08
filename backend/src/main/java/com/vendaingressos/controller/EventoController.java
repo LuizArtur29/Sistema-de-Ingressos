@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/eventos")
-@CrossOrigin(origins = "http://localhost:8080")
 public class EventoController {
 
     private final EventoService eventoService;

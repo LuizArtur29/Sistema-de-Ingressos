@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/ingressos")
-@CrossOrigin(origins = "http://localhost:8080")
 public class IngressoController {
 
     private final IngressoService ingressoService;
