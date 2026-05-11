@@ -5,9 +5,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
 import com.vendaingressos.filter.JwtRequestFilter;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.mockito.MockitoBean;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,7 +23,7 @@ class ApplicationExceptionHandlerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private JwtRequestFilter jwtRequestFilter;
 
     @Test
