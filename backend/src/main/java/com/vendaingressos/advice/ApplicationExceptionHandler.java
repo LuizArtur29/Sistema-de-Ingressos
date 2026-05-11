@@ -24,6 +24,7 @@ public class ApplicationExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ApplicationExceptionHandler.class);
     private static final String MDC_CORRELATION_ID = "correlationId";
+    private static final String CORRELATION_HEADER = "X-Correlation-Id";
 
     private static final String TITLE_BAD_REQUEST = "Bad Request";
     private static final String TITLE_VALIDATION_ERROR = "Validation Error";
@@ -89,8 +90,12 @@ public class ApplicationExceptionHandler {
         pd.setTitle(title);
         pd.setProperty("timestamp", Instant.now());
         pd.setProperty("path", request.getRequestURI());
-        pd.setProperty("correlationId", MDC.get("correlationId"));
+
+        String correlationId = MDC.get(MDC_CORRELATION_ID);
+        if (correlationId == null || correlationId.isBlank()) {
+            correlationId = request.getHeader(CORRELATION_HEADER);
+        }
+        pd.setProperty("correlationId", correlationId);
         return pd;
     }
-
 }
