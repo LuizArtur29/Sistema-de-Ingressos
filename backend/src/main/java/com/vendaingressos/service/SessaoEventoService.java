@@ -1,6 +1,5 @@
 package com.vendaingressos.service;
 
-import com.vendaingressos.exception.BadRequestException; // Se precisar de validações
 import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Evento;
 import com.vendaingressos.model.SessaoEvento;

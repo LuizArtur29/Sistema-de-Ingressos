@@ -19,6 +19,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
@@ -29,6 +31,8 @@ import java.util.Optional;
 
 @Service
 public class CompraService {
+
+    private static final Logger log = LoggerFactory.getLogger(CompraService.class);
 
     private final CompraRepository compraRepository;
     private final UsuarioRepository usuarioRepository;
@@ -51,7 +55,12 @@ public class CompraService {
 
     @Transactional
     public Compra realizarCompra(Long usuarioId, Long ingressoId, int quantidadeIngressos, MetodoPagamento metodoPagamento, boolean isMeiaEntrada) {
+        log.info("compra_iniciada usuarioId={} ingressoId={} qtd={} pagamento={}",
+                usuarioId, ingressoId, quantidadeIngressos, metodoPagamento);
+
         if (quantidadeIngressos <= 0) {
+            log.warn("compra_rejeitada usuarioId={} ingressoId={} motivo={}",
+                    usuarioId, ingressoId, "quantidade_invalida");
             throw new BadRequestException("A quantidade de ingressos deve ser maior que zero.");
         }
 
@@ -100,7 +109,7 @@ public class CompraService {
         );
 
         if (ingressosReservados.size() != quantidadeIngressos) {
-            throw new BadRequestException("Não foi possível reservar a quantidade solicitada. Tente novamente.");
+            throw new BadRequestException("Não foi possível reservar quantidade solicitada. Tente novamente.");
         }
 
         aplicarDecrementoTipoIngresso(tipoIngressoId, ingressosReservados.size());
@@ -112,7 +121,7 @@ public class CompraService {
             LocalDate hoje = LocalDate.now();
             int idade = Period.between(usuario.getDataNascimento(), hoje).getYears();
             if (idade >= 18) {
-                throw new BadRequestException("O usuário não tem direito a meia-entrada por idade.");
+                throw new BadRequestException("O usuário não tem direito à meia-entrada por idade.");
             }
             precoFinalUnitario = precoUnitarioBase / 2.0;
         }
@@ -136,6 +145,10 @@ public class CompraService {
         ingressoRepository.saveAll(ingressosReservados);
 
         compraRepository.flush();
+
+        log.info("compra_concluida compraId={} usuarioId={} qtd={} valorTotal={}",
+                compraSalva.getIdCompra(), usuarioId, ingressosReservados.size(), valorTotal);
+
         return compraRepository.findByIdFetchIngressos(compraSalva.getIdCompra())
                 .orElse(compraSalva);
     }

@@ -1,6 +1,5 @@
 package com.vendaingressos.service;
 
-import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.TipoIngresso;
 import com.vendaingressos.repository.TipoIngressoRepository; // Necessário criar a interface JpaRepository
 import org.springframework.beans.factory.annotation.Autowired;
