@@ -15,14 +15,10 @@ import java.util.Optional;
 public class EventoService {
 
     private final EventoRepository eventoRepository;
-    // O CompraService não precisa mais ser injetado aqui para o método temIngressosDisponiveis
-    // pois a lógica de capacidade agora é por SessaoEvento.
-    // private final CompraService compraService;
 
     @Autowired
-    public EventoService(EventoRepository eventoRepository /*, CompraService compraService*/) {
+    public EventoService(EventoRepository eventoRepository) {
         this.eventoRepository = eventoRepository;
-        // this.compraService = compraService;
     }
 
     @Transactional
@@ -66,23 +62,4 @@ public class EventoService {
             return eventoRepository.save(evento);
         }).orElseThrow(() -> new ResourceNotFoundException("Evento não encontrado com ID: " + id));
     }
-
-    // Este método temIngressosDisponiveis precisa ser reavaliado ou removido,
-    // pois a disponibilidade agora é por sessão.
-    // Se a intenção for verificar se *qualquer* sessão tem ingressos,
-    // a lógica precisará ser mais complexa. Por enquanto, vou remover.
-    /*
-    @Transactional(readOnly = true)
-    public boolean temIngressosDisponiveis(Long eventoId) {
-        Optional<Evento> eventoOptional = eventoRepository.findById(eventoId);
-        if (eventoOptional.isEmpty()) {
-            throw new RuntimeException("Evento não encontrado com ID: " + eventoId);
-        }
-        Evento evento = eventoOptional.get();
-        // A contagem de ingressos vendidos agora seria por SessaoEvento
-        // long ingressosVendidos = compraService.contarIngressosVendidos(eventoId);
-        // return evento.getCapacidadeTotal() > ingressosVendidos;
-        return false; // Lógica temporária, precisa ser ajustada ou removida.
-    }
-    */
 }

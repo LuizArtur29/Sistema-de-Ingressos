@@ -1,6 +1,7 @@
 package com.vendaingressos.controller;
 
 import com.vendaingressos.dto.TipoIngressoRequest;
+import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.SessaoEvento;
 import com.vendaingressos.model.TipoIngresso;
 import com.vendaingressos.repository.SessaoEventoRepository;
@@ -31,7 +32,7 @@ public class TipoIngressoController {
         tipo.setLote(request.getLote());
 
         SessaoEvento sessao = sessaoEventoRepository.findById(request.getSessaoId())
-                .orElseThrow(() -> new RuntimeException("Sessão não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Sessão não encontrada"));
 
         tipo.setSessao(sessao);
 
