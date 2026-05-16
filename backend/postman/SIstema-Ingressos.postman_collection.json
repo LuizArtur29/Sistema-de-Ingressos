@@ -556,16 +556,18 @@
               }
             },
             "url": {
-              "raw": "http://localhost:8080/ingressos/criar/2/6",
+              "raw": "http://localhost:8080/api/ingressos/sessoes/2/tipos/6",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "8080",
               "path": [
+                "api",
                 "ingressos",
-                "criar",
+                "sessoes",
                 "2",
+                "tipos",
                 "6"
               ]
             }
@@ -588,16 +590,17 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/ingressos/ingressoDisponivel/3",
+              "raw": "http://localhost:8080/api/ingressos/3/disponibilidade",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "8080",
               "path": [
+                "api",
                 "ingressos",
-                "ingressoDisponivel",
-                "3"
+                "3",
+                "disponibilidade"
               ]
             }
           },
@@ -619,16 +622,17 @@
             "method": "PUT",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/ingressos/registrarEntrada/2",
+              "raw": "http://localhost:8080/api/ingressos/2/entrada",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "8080",
               "path": [
+                "api",
                 "ingressos",
-                "registrarEntrada",
-                "2"
+                "2",
+                "entrada"
               ]
             }
           },
@@ -650,15 +654,16 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/ingressos/listarIngressosPorSessao/1",
+              "raw": "http://localhost:8080/api/ingressos/sessoes/1",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "8080",
               "path": [
+                "api",
                 "ingressos",
-                "listarIngressosPorSessao",
+                "sessoes",
                 "1"
               ]
             }
@@ -681,15 +686,15 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/ingressos/buscarIngresso/3",
+              "raw": "http://localhost:8080/api/ingressos/3",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "8080",
               "path": [
+                "api",
                 "ingressos",
-                "buscarIngresso",
                 "3"
               ]
             }
