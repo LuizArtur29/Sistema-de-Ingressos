@@ -46,14 +46,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         //publicos
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/eventos/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/eventos**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
                         //usuarios
                         .requestMatchers(HttpMethod.GET, "/api/usuarios/me").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/usuarios/me").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/usuarios/meus-ingressos").hasAnyRole("USER", "ADMIN")
 
                         //admin
                         .requestMatchers(HttpMethod.POST, "/api/eventos/**").hasRole("ADMIN")
@@ -62,7 +62,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/sessoes-evento/**").hasRole("ADMIN")
                         .requestMatchers("/api/tipos-ingresso/**").hasRole("ADMIN")
                         .requestMatchers("/api/administradores/**").hasRole("ADMIN")
-                        .requestMatchers("/ingressos/**").hasRole("ADMIN")
+                        .requestMatchers("/api/ingressos/**").hasRole("ADMIN")
                         .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
 
                         // autenticados (user/admin)

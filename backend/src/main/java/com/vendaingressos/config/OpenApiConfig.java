@@ -78,11 +78,11 @@ public class OpenApiConfig {
         if (path.startsWith("/api/sessoes-evento")
                 || path.startsWith("/api/tipos-ingresso")
                 || path.startsWith("/api/administradores")
-                || path.startsWith("/ingressos")) {
+                || path.startsWith("/api/ingressos")) {
             return List.of("ROLE_ADMIN");
         }
         if (path.startsWith("/api/usuarios")) {
-            if (path.equals("/api/usuarios/me") || path.equals("/api/usuarios/meus-ingressos")) {
+            if (path.equals("/api/usuarios/me")) {
                 return List.of("ROLE_USER", "ROLE_ADMIN");
             }
             if (method != PathItem.HttpMethod.POST) {

@@ -1,0 +1,37 @@
+.toastContainer {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+}
+
+.toast {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: #0f172a;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.12);
+}
+
+.success {
+    border-color: #bbf7d0;
+    background: #ecfdf5;
+    color: #065f46;
+}
+
+.error {
+    border-color: #fecaca;
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.info {
+    border-color: #bfdbfe;
+    background: #eff6ff;
+    color: #1e40af;
+}
