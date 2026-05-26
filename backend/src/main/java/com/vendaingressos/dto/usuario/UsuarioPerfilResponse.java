@@ -1,12 +1,14 @@
-package com.vendaingressos.dto;
+package com.vendaingressos.dto.usuario;
 
 import com.vendaingressos.model.Usuario;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Data
-public class UsuarioResponse {
+@NoArgsConstructor
+public class UsuarioPerfilResponse {
 
     private Long idUsuario;
     private String nome;
@@ -16,7 +18,7 @@ public class UsuarioResponse {
     private String endereco;
     private String telefone;
 
-    public UsuarioResponse(Usuario usuario) {
+    public UsuarioPerfilResponse(Usuario usuario) {
         this.idUsuario = usuario.getIdUsuario();
         this.nome = usuario.getNome();
         this.cpf = usuario.getCpf();

@@ -1,7 +1,9 @@
 package com.vendaingressos.controller;
 
 import com.vendaingressos.dto.UsuarioCreateRequest;
-import com.vendaingressos.dto.UsuarioResponse;
+import com.vendaingressos.dto.usuario.UsuarioAllResponse;
+import com.vendaingressos.dto.usuario.UsuarioPerfilResponse;
+import com.vendaingressos.dto.usuario.UsuarioAdminResponse;
 import com.vendaingressos.dto.UsuarioUpdateRequest;
 import com.vendaingressos.exception.ResourceNotFoundException;
 import com.vendaingressos.model.Usuario;
@@ -17,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/usuarios") // Define o caminho base para os endpoints de usuário
+@RequestMapping("/api/usuarios")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
@@ -29,39 +31,39 @@ public class UsuarioController {
 
     // Endpoint para cadastrar um novo usuário (POST /api/usuarios)
     @PostMapping
-    public ResponseEntity<UsuarioResponse> cadastrarUsuario(@Valid @RequestBody UsuarioCreateRequest dto) {
+    public ResponseEntity<UsuarioPerfilResponse> cadastrarUsuario(@Valid @RequestBody UsuarioCreateRequest dto) {
         Usuario novoUsuario = usuarioService.cadastrarUsuario(dto);
-        return new ResponseEntity<>(new UsuarioResponse(novoUsuario), HttpStatus.CREATED);
+        return new ResponseEntity<>(new UsuarioPerfilResponse(novoUsuario), HttpStatus.CREATED);
     }
 
     // Endpoint para listar todos os usuários (GET /api/usuarios)
     @GetMapping
-    public ResponseEntity<List<UsuarioResponse>> listarTodosUsuarios() {
+    public ResponseEntity<List<UsuarioAllResponse>> listarTodosUsuarios() {
         List<Usuario> usuarios = usuarioService.buscarTodosUsuarios();
-        List<UsuarioResponse> usuariosDTO = usuarios.stream()
-                .map(UsuarioResponse::new)
+        List<UsuarioAllResponse> usuariosDTO = usuarios.stream()
+                .map(UsuarioAllResponse::new)
                 .collect(Collectors.toList());
         return new ResponseEntity<>(usuariosDTO, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponse> buscarUsuarioPorId(@PathVariable Long id) {
+    public ResponseEntity<UsuarioAdminResponse> buscarUsuarioPorId(@PathVariable Long id) {
        return usuarioService.buscarUsuarioPorId(id)
-               .map(usuario -> new ResponseEntity<>(new UsuarioResponse(usuario), HttpStatus.OK))
+               .map(usuario -> new ResponseEntity<>(new UsuarioAdminResponse(usuario), HttpStatus.OK))
                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + id));
     }
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<UsuarioResponse> buscarUsuarioPorEmail(@PathVariable String email) {
+    public ResponseEntity<UsuarioAdminResponse> buscarUsuarioPorEmail(@PathVariable String email) {
         return usuarioService.buscarUsuarioPorEmail(email)
-                .map(usuario -> new ResponseEntity<>(new UsuarioResponse(usuario), HttpStatus.OK))
+                .map(usuario -> new ResponseEntity<>(new UsuarioAdminResponse(usuario), HttpStatus.OK))
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com e-mail: " + email));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponse> atualizarUsuario(@PathVariable Long id, @Valid @RequestBody UsuarioUpdateRequest dto) {
+    public ResponseEntity<UsuarioPerfilResponse> atualizarUsuario(@PathVariable Long id, @Valid @RequestBody UsuarioUpdateRequest dto) {
         Usuario usuarioAtualizado = usuarioService.atualizarUsuario(id, dto);
-        return new ResponseEntity<>(new UsuarioResponse(usuarioAtualizado), HttpStatus.OK);
+        return new ResponseEntity<>(new UsuarioPerfilResponse(usuarioAtualizado), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -71,19 +73,19 @@ public class UsuarioController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UsuarioResponse> meuPerfil(Authentication authentication) {
+    public ResponseEntity<UsuarioPerfilResponse> meuPerfil(Authentication authentication) {
         String email = authentication.getName();
         Usuario usuario = usuarioService.buscarUsuarioPorEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário autenticado não encontrado."));
-        return ResponseEntity.ok(new UsuarioResponse(usuario));
+        return ResponseEntity.ok(new UsuarioPerfilResponse(usuario));
     }
 
     @PutMapping("/me")
-    public ResponseEntity<UsuarioResponse> atualizarMeuPerfil(Authentication authentication, @Valid @RequestBody UsuarioUpdateRequest dto) {
+    public ResponseEntity<UsuarioPerfilResponse> atualizarMeuPerfil(Authentication authentication, @Valid @RequestBody UsuarioUpdateRequest dto) {
         String email = authentication.getName();
         Usuario atual = usuarioService.buscarUsuarioPorEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário autenticado não encontrado."));
         Usuario atualizado = usuarioService.atualizarUsuario(atual.getIdUsuario(), dto);
-        return ResponseEntity.ok(new UsuarioResponse(atualizado));
+        return ResponseEntity.ok(new UsuarioPerfilResponse(atualizado));
     }
 }
