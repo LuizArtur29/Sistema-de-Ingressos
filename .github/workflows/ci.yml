@@ -8,7 +8,7 @@ on:
 
 jobs:
   test-and-validate:
-    name: Testes & Validação de Código
+    name: Testes e Validação de Código
     runs-on: ubuntu-latest
 
     steps:
@@ -29,7 +29,7 @@ jobs:
           echo "DB_LOCAL_PASS=testpass" >> .env
           echo "JWT_SECRET_BASE64=9a4f632e2225243a612141243161242131231231231231231231231231231231" >> .env
 
-      - name: Executar a Suite de Testes & Validação JaCoCo
+      - name: Executar a Suite de Testes e Validação JaCoCo
         working-directory: ./backend
         run: |
           chmod +x mvnw
