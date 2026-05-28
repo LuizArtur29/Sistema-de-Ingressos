@@ -44,15 +44,15 @@ jobs:
           exit-code: '1'
           severity: 'CRITICAL'
 
-docker-simulation:
-  name: Simulação de Build Docker
-  runs-on: ubuntu-latest
-  needs: test-and-validate
+  docker-simulation:
+    name: Simulação de Build Docker
+    runs-on: ubuntu-latest
+    needs: test-and-validate
 
-  steps:
-    - name: Clonar o repositório
-      uses: actions/checkout@v4
+    steps:
+      - name: Clonar o repositório
+        uses: actions/checkout@v4
 
-    - name: Executar o Build fictício do Dockerfile
-      run: |
-        docker build -t venda-ingressos-api:test ./backend
+      - name: Executar o Build fictício do Dockerfile
+        run: |
+          docker build -t venda-ingressos-api:test ./backend
