@@ -8,5 +8,42 @@ services:
       POSTGRES_DB: ${DB_LOCAL}
       POSTGRES_USER: ${DB_LOCAL_USER}
       POSTGRES_PASSWORD: ${DB_LOCAL_PASS}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ingresso-net
+
+  cache:
+    image: redis:7-alpine
+    container_name: redis-dev
+    networks:
+      - ingresso-net
+
+  api:
+    container_name: venda-ingressos-backend
+    image: venda-ingressos-api
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
-      - "5433:5432"
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_LOCAL}
+      SPRING_DATASOURCE_USERNAME: ${DB_LOCAL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_LOCAL_PASS}
+      SPRING_DATA_REDIS_HOST: cache
+      SPRING_DATA_REDIS_PORT: 6379
+    depends_on:
+      - db
+      - cache
+    networks:
+      - ingresso-net
+
+volumes:
+  postgres_data:
+
+networks:
+  ingresso-net:
+    driver: bridge
