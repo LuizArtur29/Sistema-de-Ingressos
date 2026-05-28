@@ -35,7 +35,7 @@ jobs:
           chmod +x mvnw
           ./mvnw clean test
 
-      - name: Scan de Segurança (Trivy)
+      - name: Scan de Segurança
         uses: actions/trivy-action@master
         with:
           scan-type: 'fs'
