@@ -2,20 +2,32 @@ name: Continuous Integration (CI)
 
 on:
   push:
-    branches: [  ]
   pull_request:
-    branches: [  ]
 
 jobs:
   test-and-validate:
-    name: Testes e Validação de Código
+    name: Testes & Validação de Código
     runs-on: ubuntu-latest
 
+    services:
+      db:
+        image: postgres:15
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+        ports:
+          - 5432:5432
+      cache:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
     steps:
-      - name: Clonar o repositório
+      - name: 📥 Clonar o repositório
         uses: actions/checkout@v4
 
-      - name: Configurar o ambiente Java (JDK 21)
+      - name: ☕ Configurar o ambiente Java (JDK 21)
         uses: actions/setup-java@v4
         with:
           java-version: '21'
@@ -29,13 +41,19 @@ jobs:
           echo "DB_LOCAL_PASS=testpass" >> .env
           echo "JWT_SECRET_BASE64=9a4f632e2225243a612141243161242131231231231231231231231231231231" >> .env
 
-      - name: Executar a Suite de Testes e Validação JaCoCo
+      - name: Executar a Suite de Testes & Validação JaCoCo
         working-directory: ./backend
         run: |
           chmod +x mvnw
           ./mvnw clean test
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/testdb
+          SPRING_DATASOURCE_USERNAME: testuser
+          SPRING_DATASOURCE_PASSWORD: testpass
+          SPRING_DATA_REDIS_HOST: localhost
+          SPRING_DATA_REDIS_PORT: 6379
 
-      - name: Scan de Segurança
+      - name: Scan de Segurança (Trivy)
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
