@@ -1,8 +1,10 @@
 name: Continuous Integration (CI)
 
 on:
-  push: [ master, dev ]
-  pull_request: [master, dev ]
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [master, dev ]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
