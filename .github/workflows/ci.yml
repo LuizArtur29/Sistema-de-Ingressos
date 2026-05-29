@@ -36,7 +36,7 @@ jobs:
           ./mvnw clean test
 
       - name: Scan de Segurança
-        uses: actions/trivy-action@master
+        uses: aquasecurity/trivy-action
         with:
           scan-type: 'fs'
           scan-ref: './backend'
