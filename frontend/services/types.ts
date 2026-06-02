@@ -48,3 +48,13 @@ export type RegisterResponse = {
     endereco: string;
     telefone: string;
 };
+
+export type UsuarioPerfil = {
+    idUsuario?: number;
+    nome: string;
+    cpf?: string;
+    dataNascimento?: string;
+    email: string;
+    endereco?: string;
+    telefone?: string;
+};
