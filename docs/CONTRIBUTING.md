@@ -1,66 +1,72 @@
-# 🤝 Guia de Contribuição
+# Guia de Contribuição
 
-Este guia define os padrões de desenvolvimento para o **Sistema de Ingressos**. Para manter a organização entre o time (@WolgrandAP, Luiz e Mateus), seguimos o fluxo de trabalho **GitFlow**, **Conventional Commits** e gestão via **Issues**.
+Este guia define os padrões de desenvolvimento do Sistema de Ingressos. O fluxo atual usa GitFlow, Conventional Commits e gestão por Issues.
 
----
+## Branches
 
-## 🌿 Estrutura de Branches
+| Branch | Uso |
+| :--- | :--- |
+| `master` | Código estável |
+| `develop` | Integração das entregas |
+| `feature/issue-[numero]-descricao-curta` | Desenvolvimento de uma issue específica |
 
-1.  **`master`**: Código estável em produção.
-2.  **`develop`**: Branch principal de integração.
-3.  **`feature/`**: Tarefas específicas (ex: `feature/issue-10-setup-front`).
+## Fluxo de Trabalho
 
----
+### 1. Preparar a issue
 
-## 🔄 Fluxo de Trabalho Completo (Lifecycle)
+- Nenhuma tarefa deve ser iniciada sem uma issue aberta.
+- Escolha a issue no board, atribua a você mesmo e mova para `In Progress`.
 
-Para garantir a qualidade, toda tarefa deve seguir este ciclo de vida:
+### 2. Criar a branch
 
-### 1. Preparação (Issue)
-- Nenhuma tarefa deve ser iniciada sem uma **Issue** aberta no GitHub.
-- Escolha a Issue no Board, atribua a você mesmo (**Assignee**) e mova para a coluna **"In Progress"**.
+```bash
+git checkout develop
+git pull origin develop
+git checkout -b feature/issue-[numero]-descricao-curta
+```
 
-### 2. Desenvolvimento Local
-- Crie sua branch a partir da `develop` atualizada:
-  ```bash
-  git checkout develop
-  git pull origin develop
-  git checkout -b feature/issue-[numero]-descricao-curta
+### 3. Commits
 
-### 3. Commits Semânticos
-Utilize o padrão para facilitar o histórico:
+Use Conventional Commits:
 
-**`feat`**: Novas funcionalidades.
+| Tipo | Uso |
+| :--- | :--- |
+| `feat` | Nova funcionalidade |
+| `fix` | Correção de bug |
+| `docs` | Documentação |
+| `test` | Testes |
+| `chore` | Build, infraestrutura ou dependências |
 
-**`fix`**: Correções ded bugs.
+Exemplos:
 
-**`docs`**: Documentação.
+```text
+feat: adiciona criacao de eventos no dashboard
+fix: corrige validacao de cpf no cadastro de usuario
+docs: atualiza setup local do projeto
+```
 
-**`chore`**: build, infra, dependências.
+### 4. Sincronizar e enviar
 
-### 4. Sincronização e Push
-- Antes de enviar, garanta que seu código está integrado com o que há de mais novo:
-  ```bash
-  git pull origin develop
-  git push origin feature/issue-[numero]-descricao-curta
+```bash
+git pull origin develop
+git push origin feature/issue-[numero]-descricao-curta
+```
 
-### 5. Pull Request (PR) & Code Review
-- Abra um PR da sua branch para `develop`.
-- Na dedscrição, utilize a palavra-chave: `Close #10` (para fechar a issue automaticamente).
-- Solicite a revisão ded pelo menos um colega do time.
-- **Ajustes:** Se o revisor pedir mudanças, faça-as na mesma branch e dê push; o PR atualizará sozinho.
+### 5. Abrir pull request
 
-### 6. Finalização (Merge & Cleanup)
-Após o PR ser aprovado e o Merge realizado pelo autor ou líder técnico:
-- **Exclua a branch remota** no GitHub (clique no botão "Delete branch" que aparece após o merge).
-- **Limpeza local:**
-  ```bash
-  git checkout develop
-  git pull origin develop
-  git branch -d feature/issue-[numero]-descricao-curta
+- Abra o PR da sua branch para `develop`.
+- Na descrição, use a palavra-chave da issue, por exemplo `Close #10`.
+- Solicite revisão de pelo menos uma pessoa do time.
+- Se houver ajustes, faça novos commits na mesma branch e envie novamente.
 
----
-## 📝 Padrão de Mensagens
-Exemplo:
+### 6. Finalizar
 
- `feat: implementa integração com PostGIS para busca de eventos`
+Depois do merge:
+
+```bash
+git checkout develop
+git pull origin develop
+git branch -d feature/issue-[numero]-descricao-curta
+```
+
+Se a branch remota não for removida automaticamente pelo GitHub, remova-a manualmente após o merge.
