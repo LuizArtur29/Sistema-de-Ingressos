@@ -10,3 +10,10 @@ export async function register(payload: RegisterRequest): Promise<RegisterRespon
     const { data } = await api.post<RegisterResponse>("/api/usuarios", payload);
     return data;
 }
+
+import { UsuarioPerfil } from "./types";
+
+export async function getMyProfile(): Promise<UsuarioPerfil> {
+    const { data } = await api.get<UsuarioPerfil>("/api/usuarios/me");
+    return data;
+}

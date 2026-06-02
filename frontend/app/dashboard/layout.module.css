@@ -60,3 +60,19 @@
   margin: 0 auto;
   width: 100%;
 }
+
+.logoutButton {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: var(--text-main);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.logoutButton:hover {
+  background-color: rgba(26, 92, 255, 0.06);
+  border-color: var(--primary-blue);
+}
