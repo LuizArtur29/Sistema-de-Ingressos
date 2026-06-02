@@ -13,16 +13,17 @@ import {
 } from "@/services/sessoes";
 import { listarTiposPorSessao, criarTipoIngresso } from "@/services/tiposIngressos";
 import {
-  Evento,
-  EventoPayload,
-  SessaoEvento,
-  SessaoEventoPayload,
-  TipoIngresso,
-  TipoIngressoPayload,
+  EventoResponse,
+  EventoCreateRequest,
+  SessaoEventoResponse,
+  SessaoEventoRequest,
+  TipoIngressoResponse,
+  TipoIngressoCreateRequest,
+  EventoStatus,
 } from "@/services/types";
 import styles from "./page.module.css";
 
-type FormState = EventoPayload;
+type FormState = EventoCreateRequest;
 
 const initialFormState: FormState = {
   nome: "",
@@ -31,10 +32,10 @@ const initialFormState: FormState = {
   dataFim: "",
   local: "",
   capacidadeTotal: 0,
-  status: "ATIVO",
+  status: "ATIVO" as EventoStatus,
 };
 
-const statusLabelMap: Record<Evento["status"], string> = {
+const statusLabelMap: Record<EventoStatus, string> = {
   ATIVO: "Ativo",
   CANCELADO: "Cancelado",
   FINALIZADO: "Finalizado",
@@ -45,7 +46,7 @@ function normalizeDate(value?: string) {
   return value.slice(0, 10);
 }
 
-function toFormState(evento: Evento): FormState {
+function toFormState(evento: EventoResponse): FormState {
   return {
     nome: evento.nome,
     descricao: evento.descricao,
@@ -53,7 +54,7 @@ function toFormState(evento: Evento): FormState {
     dataFim: normalizeDate(evento.dataFim),
     local: evento.local,
     capacidadeTotal: evento.capacidadeTotal,
-    status: evento.status,
+    status: evento.status as EventoStatus,
   };
 }
 
@@ -80,20 +81,20 @@ export default function EventDetails() {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [sessoes, setSessoes] = useState<SessaoEvento[]>([]);
+  const [sessoes, setSessoes] = useState<SessaoEventoResponse[]>([]);
   const [loadingSessoes, setLoadingSessoes] = useState(false);
   const [errorSessoes, setErrorSessoes] = useState<string | null>(null);
   const [sessaoSelecionada, setSessaoSelecionada] = useState<number | null>(null);
 
-  const [tiposIngresso, setTiposIngresso] = useState<TipoIngresso[]>([]);
+  const [tiposIngresso, setTiposIngresso] = useState<TipoIngressoResponse[]>([]);
   const [loadingTipos, setLoadingTipos] = useState(false);
   const [errorTipos, setErrorTipos] = useState<string | null>(null);
 
   const [sessaoNome, setSessaoNome] = useState("");
   const [sessaoDataHora, setSessaoDataHora] = useState("");
-  const [sessaoStatus, setSessaoStatus] = useState("ATIVO");
+  const [sessaoStatus, setSessaoStatus] = useState<EventoStatus>("ATIVO");
   const [sessaoCapacidade, setSessaoCapacidade] = useState<number | "">("");
-  const [sessaoEditando, setSessaoEditando] = useState<SessaoEvento | null>(null);
+  const [sessaoEditando, setSessaoEditando] = useState<SessaoEventoResponse | null>(null);
 
   const [tipoNomeSetor, setTipoNomeSetor] = useState("");
   const [tipoPreco, setTipoPreco] = useState<number | "">("");
@@ -209,7 +210,7 @@ export default function EventDetails() {
   const handleSalvarSessao = async (e: FormEvent) => {
     e.preventDefault();
 
-    const payload: SessaoEventoPayload = {
+    const payload: SessaoEventoRequest = {
       nomeSessao: sessaoNome,
       dataHoraSessao: toLocalDateTime(sessaoDataHora),
       statusSessao: sessaoStatus,
@@ -262,7 +263,7 @@ export default function EventDetails() {
     e.preventDefault();
     if (!sessaoSelecionada) return;
 
-    const payload: TipoIngressoPayload = {
+    const payload: TipoIngressoCreateRequest = {
       nomeSetor: tipoNomeSetor,
       preco: Number(tipoPreco),
       quantidadeTotal: Number(tipoQuantidadeTotal),
@@ -433,7 +434,7 @@ export default function EventDetails() {
                   <select
                       className={styles.select}
                       value={form.status}
-                      onChange={(e) => updateField("status", e.target.value as Evento["status"])}
+                      onChange={(e) => updateField("status", e.target.value as EventoStatus)}
                       required
                   >
                     <option value="ATIVO">Ativo</option>
@@ -490,7 +491,7 @@ export default function EventDetails() {
                               setSessaoEditando(sessao);
                               setSessaoNome(sessao.nomeSessao);
                               setSessaoDataHora(toDateTimeLocal(sessao.dataHoraSessao));
-                              setSessaoStatus(sessao.statusSessao);
+                              setSessaoStatus(sessao.statusSessao as EventoStatus);
                               setSessaoCapacidade(sessao.capacidade ?? "");
                             }}
                         >
@@ -532,7 +533,7 @@ export default function EventDetails() {
             <select
                 className={styles.select}
                 value={sessaoStatus}
-                onChange={(e) => setSessaoStatus(e.target.value)}
+                onChange={(e) => setSessaoStatus(e.target.value as EventoStatus)}
             >
               <option value="ATIVO">Ativo</option>
               <option value="ESGOTADO">Esgotado</option>

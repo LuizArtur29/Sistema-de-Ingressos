@@ -1,5 +1,5 @@
 import api from "./http";
-import { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from "./types";
+import { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, UsuarioAutenticado } from "./types";
 
 export async function login(payload: LoginRequest): Promise<LoginResponse> {
     const { data } = await api.post<LoginResponse>("/api/auth/login", payload);
@@ -13,7 +13,7 @@ export async function register(payload: RegisterRequest): Promise<RegisterRespon
 
 import { UsuarioPerfil } from "./types";
 
-export async function getMyProfile(): Promise<UsuarioPerfil> {
-    const { data } = await api.get<UsuarioPerfil>("/api/usuarios/me");
+export async function getMyProfile(): Promise<UsuarioAutenticado> {
+    const { data } = await api.get<UsuarioAutenticado>("/api/usuarios/me");
     return data;
 }

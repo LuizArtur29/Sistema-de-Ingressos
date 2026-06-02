@@ -4,19 +4,19 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/ToastProvider";
 import { listarEventos } from "@/services/eventos";
-import { Evento } from "@/services/types";
+import { EventoResponse, EventoStatus } from "@/services/types";
 import styles from "./page.module.css";
 
 type StatusClass = "active" | "canceled" | "finished";
 type FiltroStatus = "TODOS" | "ATIVO" | "CANCELADO" | "FINALIZADO";
 
-const statusClassMap: Record<Evento["status"], StatusClass> = {
+const statusClassMap: Record<EventoStatus["status"], StatusClass> = {
   ATIVO: "active",
   CANCELADO: "canceled",
   FINALIZADO: "finished",
 };
 
-const statusLabelMap: Record<Evento["status"], string> = {
+const statusLabelMap: Record<EventoStatus["status"], string> = {
   ATIVO: "Ativo",
   CANCELADO: "Cancelado",
   FINALIZADO: "Finalizado",
@@ -35,7 +35,7 @@ function formatDateRange(start?: string, end?: string) {
 }
 
 export default function Dashboard() {
-  const [eventos, setEventos] = useState<Evento[]>([]);
+  const [eventos, setEventos] = useState<EventoResponse[]>([]);
   const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
