@@ -54,7 +54,7 @@ export default function Dashboard() {
       }
     };
     load();
-  }, []);
+  }, [showToast]);
 
   const stats = useMemo(() => {
     const total = eventos.length;
@@ -158,7 +158,11 @@ export default function Dashboard() {
               </div>
           ) : (
               eventosFiltrados.map((event) => (
-                  <div key={event.id} className={styles.eventCard}>
+                  <Link
+                      key={event.id}
+                      href={`/dashboard/eventos/${event.id}`}
+                      className={styles.eventCard}
+                  >
                     <div className={styles.eventHeader}>
                       <h3 className={styles.eventTitle}>{event.nome}</h3>
                       <span className={`${styles.badge} ${styles[statusClassMap[event.status]]}`}>
@@ -180,7 +184,7 @@ export default function Dashboard() {
                         {event.capacidadeTotal.toLocaleString("pt-BR")} pessoas
                       </div>
                     </div>
-                  </div>
+                  </Link>
               ))
           )}
         </div>

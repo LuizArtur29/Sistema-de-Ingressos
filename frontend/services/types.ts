@@ -8,7 +8,7 @@ export type LoginResponse= {
 }
 
 export type Evento = {
-    id?: number;
+    id: number;
     nome: string;
     descricao: string;
     dataInicio: string;
@@ -17,6 +17,8 @@ export type Evento = {
     capacidadeTotal: number;
     status: "ATIVO" | "CANCELADO" | "FINALIZADO";
 };
+
+export type EventoPayload = Omit<Evento, "id">;
 
 export type RegisterRequest = {
     nome: string;

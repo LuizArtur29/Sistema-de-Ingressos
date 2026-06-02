@@ -13,6 +13,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             router.replace("/");
             return;
         }
+        // sessionStorage is only available after mount, so readiness is resolved here.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setReady(true);
     }, [router]);
 
