@@ -60,3 +60,36 @@ export type UsuarioPerfil = {
     endereco?: string;
     telefone?: string;
 };
+
+export type SessaoEvento = {
+    idSessao: number;
+    nomeSessao: string;
+    dataHoraSessao: string;
+    statusSessao: string;
+    capacidade: number | null;
+};
+
+export type SessaoEventoPayload = {
+    nomeSessao: string;
+    dataHoraSessao: string;
+    statusSessao: string;
+    capacidade: number | null;
+    eventoPai: { id: number };
+};
+
+export type TipoIngresso = {
+    idTipoIngresso: number;
+    nomeSetor: string;
+    preco: number;
+    quantidadeTotal: number;
+    quantidadeDisponivel: number;
+    lote: number;
+};
+
+export type TipoIngressoPayload = {
+    nomeSetor: string;
+    preco: number;
+    quantidadeTotal: number;
+    lote: number;
+    sessaoId: number;
+};
