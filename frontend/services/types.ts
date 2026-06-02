@@ -1,33 +1,10 @@
-export type LoginRequest= {
+export type LoginRequest = {
     email: string;
     senha: string;
 };
 
-export type LoginResponse= {
+export type LoginResponse = {
     jwt: string;
-}
-
-export type Evento = {
-    id: number;
-    nome: string;
-    descricao: string;
-    dataInicio: string;
-    dataFim: string;
-    local: string;
-    capacidadeTotal: number;
-    status: "ATIVO" | "CANCELADO" | "FINALIZADO";
-};
-
-export type EventoPayload = Omit<Evento, "id">;
-
-export type RegisterRequest = {
-    nome: string;
-    CPF: string; // precisa ser "CPF"
-    dataNascimento: string; // yyyy-mm-dd
-    email: string;
-    senha: string;
-    endereco: string;
-    telefone: string;
 };
 
 export type FieldErrorItem = {
@@ -41,6 +18,52 @@ export type ApiProblemDetail = {
     errors?: FieldErrorItem[];
 };
 
+// ============ EVENTO ============
+
+export type EventoStatus = "ATIVO" | "CANCELADO" | "FINALIZADO";
+
+export type EventoCreateRequest = {
+    nome: string;
+    descricao: string;
+    dataInicio: string;
+    dataFim: string;
+    local: string;
+    capacidadeTotal: number;
+    status: EventoStatus;
+};
+
+export type SessaoEventoResponse = {
+    idSessao: number;
+    nomeSessao: string;
+    dataHoraSessao: string;
+    statusSessao: string;
+    capacidade: number | null;
+};
+
+export type EventoResponse = {
+    id: number;
+    nome: string;
+    descricao: string;
+    dataInicio: string;
+    dataFim: string;
+    local: string;
+    capacidadeTotal: number;
+    status: EventoStatus;
+    sessoes: SessaoEventoResponse[];
+};
+
+// ============ USUÁRIO ============
+
+export type RegisterRequest = {
+    nome: string;
+    CPF: string;
+    dataNascimento: string;
+    email: string;
+    senha: string;
+    endereco: string;
+    telefone: string;
+};
+
 export type RegisterResponse = {
     idUsuario?: number;
     nome: string;
@@ -51,25 +74,22 @@ export type RegisterResponse = {
     telefone: string;
 };
 
-export type UsuarioPerfil = {
-    idUsuario?: number;
+export type UsuarioAutenticado = {
+    idUsuario: number;
     nome: string;
-    cpf?: string;
-    dataNascimento?: string;
+    cpf: string;
+    dataNascimento: string;
     email: string;
-    endereco?: string;
-    telefone?: string;
+    endereco: string;
+    telefone: string;
 };
 
-export type SessaoEvento = {
-    idSessao: number;
-    nomeSessao: string;
-    dataHoraSessao: string;
-    statusSessao: string;
-    capacidade: number | null;
-};
+// Se quiser manter o nome usado atualmente na tela:
+export type UsuarioPerfil = UsuarioAutenticado;
 
-export type SessaoEventoPayload = {
+// ============ SESSÃO ============
+
+export type SessaoEventoRequest = {
     nomeSessao: string;
     dataHoraSessao: string;
     statusSessao: string;
@@ -77,7 +97,9 @@ export type SessaoEventoPayload = {
     eventoPai: { id: number };
 };
 
-export type TipoIngresso = {
+// ============ TIPO DE INGRESSO ============
+
+export type TipoIngressoResponse = {
     idTipoIngresso: number;
     nomeSetor: string;
     preco: number;
@@ -86,10 +108,38 @@ export type TipoIngresso = {
     lote: number;
 };
 
-export type TipoIngressoPayload = {
+export type TipoIngressoCreateRequest = {
     nomeSetor: string;
     preco: number;
     quantidadeTotal: number;
     lote: number;
     sessaoId: number;
+};
+
+// ============ COMPRA ============
+
+export type CompraResponse = {
+    idCompra: number;
+    dataCompra: string;
+    quantidadeIngressos: number;
+    valorTotal: number;
+    metodoPagamento: string;
+    status: string;
+    usuarioId: number;
+    nomeUsuario: string;
+    ingressoId?: number;
+    nomeEvento?: string;
+};
+
+// ============ INGRESSO ============
+
+export type IngressoResponse = {
+    idIngresso: number;
+    preco: number;
+    ingressoDisponivel: boolean;
+    vendido: boolean;
+    disponivelParaCompra: boolean;
+    sessaoEventoId?: number;
+    idTipoIngresso?: number;
+    nomeTipoIngresso?: string;
 };

@@ -1,18 +1,18 @@
 import api from "./http";
-import { SessaoEvento, SessaoEventoPayload } from "./types";
+import { SessaoEventoResponse, SessaoEventoRequest } from "./types";
 
-export async function listarSessoesPorEvento(eventoId: number): Promise<SessaoEvento[]> {
-    const { data } = await api.get<SessaoEvento[]>(`/api/sessoes-evento/evento/${eventoId}`);
+export async function listarSessoesPorEvento(eventoId: number): Promise<SessaoEventoResponse[]> {
+    const { data } = await api.get<SessaoEventoResponse[]>(`/api/sessoes-evento/evento/${eventoId}`);
     return data;
 }
 
-export async function criarSessao(payload: SessaoEventoPayload): Promise<SessaoEvento> {
-    const { data } = await api.post<SessaoEvento>("/api/sessoes-evento", payload);
+export async function criarSessao(payload: SessaoEventoRequest): Promise<SessaoEventoResponse> {
+    const { data } = await api.post<SessaoEventoResponse>("/api/sessoes-evento", payload);
     return data;
 }
 
-export async function atualizarSessao(id: number, payload: SessaoEventoPayload): Promise<SessaoEvento> {
-    const { data } = await api.put<SessaoEvento>(`/api/sessoes-evento/${id}`, payload);
+export async function atualizarSessao(id: number, payload: SessaoEventoRequest): Promise<SessaoEventoResponse> {
+    const { data } = await api.put<SessaoEventoResponse>(`/api/sessoes-evento/${id}`, payload);
     return data;
 }
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ToastProvider";
 import { criarEvento } from "@/services/eventos";
+import { EventoCreateRequest, EventoStatus } from "@/services/types";
 import styles from "./page.module.css";
 
 export default function CreateEvent() {
@@ -17,7 +18,7 @@ export default function CreateEvent() {
   const [local, setLocal] = useState("");
   const { showToast } = useToast();
   const [capacidadeTotal, setCapacidadeTotal] = useState(0);
-  const [status, setStatus] = useState<"ATIVO" | "CANCELADO" | "FINALIZADO">("ATIVO");
+  const [status, setStatus] = useState<EventoStatus>("ATIVO");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +29,7 @@ export default function CreateEvent() {
     setLoading(true);
 
     try {
-      await criarEvento({
+      const payload: EventoCreateRequest = {
         nome,
         descricao,
         dataInicio,
@@ -36,7 +37,8 @@ export default function CreateEvent() {
         local,
         capacidadeTotal,
         status,
-      });
+      };
+      await criarEvento(payload);
       showToast("Evento criado com sucesso.", "success");
       router.push("/dashboard");
     } catch {
