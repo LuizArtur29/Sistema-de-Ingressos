@@ -1,99 +1,172 @@
-# 🎫 Sistema de Ingressos
+# Sistema de Ingressos
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java" />
-  <img src="https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white" alt="Spring Boot" />
-  <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
-  <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
-  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
-</p>
+Sistema web para gerenciamento, venda e transferência de ingressos para eventos.
 
-Plataforma robusta para gerenciamento, venda e transferência de ingressos para eventos, desenvolvida com foco em escalabilidade e geolocalização.
+## Estado Atual
 
----
+Implementado hoje:
 
-## 📖 Sobre o Projeto
+- API REST em Java 21 com Spring Boot 3.5.3.
+- Autenticação JWT com Spring Security.
+- Persistência com Spring Data JPA/Hibernate e PostgreSQL.
+- Swagger/OpenAPI exposto pelo backend.
+- Frontend em Next.js 16, React 18 e TypeScript.
+- Telas de autenticação, dashboard e criação de eventos no frontend.
+- Docker Compose para PostgreSQL, Redis, backend e proxy Nginx.
 
-O sistema permite o rastreamento completo do ciclo de vida de um ingresso, desde a criação do evento pelo administrador até a revenda entre usuários finais.
+Planejado ou ainda não integrado na aplicação:
 
-### 🚀 Principais Funcionalidades
-* **Gestão de Eventos:** Cadastro de eventos com múltiplas sessões e tipos de ingressos (VIP, Pista, etc.).
-* **Venda Granular:** Controle de lotes, preços e disponibilidade em tempo real.
-* **Transferência P2P:** Funcionalidade de revenda onde um usuário pode transferir um ingresso para outro com registro de valor negociado.
-* **Geolocalização:** Integração com **PostGIS** para busca e exibição de eventos baseada na localização do usuário.
+- PostGIS/geolocalização. O banco atual é `postgres:15` sem extensão PostGIS e não há campos espaciais no modelo.
+- Uso de Redis em cache/sessão. O serviço existe no Compose, mas o backend não possui dependência Spring Data Redis nem código usando Redis.
+- Migrations versionadas com Flyway/Liquibase. Em desenvolvimento, o schema é criado/atualizado por `spring.jpa.hibernate.ddl-auto=update`.
+- Frontend no Docker Compose. Hoje ele roda localmente via `npm run dev`.
 
----
+## Arquitetura
 
-## 🏗️ Estrutura do Monorepo
+O monorepo está organizado assim:
 
-Para facilitar a manutenção e o deploy, o projeto está organizado da seguinte forma:
-
-| Diretório | Descrição |
+| Caminho | Descrição |
 | :--- | :--- |
-| **`/backend`** | API desenvolvida em Java com Spring Boot |
-| **`/frontend`** | Interface do usuário em Next.js e Tailwind CSS |
-| **`/docs`** | Documentação técnica, diagramas e guias |
+| `backend/` | API Spring Boot, controllers REST, serviços, repositórios JPA e configuração de segurança |
+| `frontend/` | Aplicação Next.js com App Router |
+| `docs/` | Documentação técnica, endpoints e diagrama relacional |
+| `infra/nginx/` | Proxy Nginx usado pelo Docker Compose |
+| `docker-compose.yml` | Serviços locais de banco, Redis, API e Nginx |
 
----
+Fluxo local recomendado: PostgreSQL no Docker, backend executado pelo Maven Wrapper e frontend executado pelo npm.
 
-## 🛠️ Tecnologias Utilizadas
+## Requisitos
 
-- **Backend:** Java 17+, Spring Boot 3, Spring Security (JWT), Hibernate/JPA.
-- **Frontend:** React, Next.js (App Router), TypeScript, Tailwind CSS.
-- **Banco de Dados:** PostgreSQL com extensão **PostGIS** para dados espaciais.
-- **Cache/Performance:** Redis para gerenciamento de sessões e cache.
+- Docker e Docker Compose.
+- JDK 21.
+- Node.js 20+ e npm.
 
----
+## Setup Local End-to-End
 
-## ⚙️ Como Executar
+### 1. Configurar variáveis
 
-O projeto utiliza Docker para orquestrar o ambiente de desenvolvimento.
+Na raiz do repositório:
 
-1. **Clone o repositório:**
-   ```bash
-   git clone [https://github.com/WolgrandAP/sistema-de-ingressos.git](https://github.com/WolgrandAP/sistema-de-ingressos.git)
-   cd sistema-de-ingressos
-2. **Configuração de ambiente:**
-   - Crie um arquivo .env na raiz do projeto baseando-se no arquivo de exemplo:
-   ```bash
-   cp .env.example .env
-   # Edite o .env com suas credenciais locais
+```bash
+cp .env.example .env
+```
 
-### 🌐 CORS (Frontend ↔ Backend)
+Os valores de `.env.example` já funcionam para desenvolvimento local. O backend importa esse arquivo quando é executado a partir de `backend/`.
 
-O CORS é configurado **centralmente** no backend e controlado pela propriedade:
+Variáveis principais:
 
-security.cors.allowed-origins=http://localhost:3000,http://localhost:8080
+| Variável | Uso |
+| :--- | :--- |
+| `DB_LOCAL` | Nome do banco criado pelo container PostgreSQL |
+| `DB_LOCAL_USER` | Usuário do PostgreSQL local |
+| `DB_LOCAL_PASS` | Senha do PostgreSQL local |
+| `JWT_SECRET_BASE64` | Chave Base64 usada para assinar tokens JWT |
+| `SECURITY_BOOTSTRAP_ADMIN_ENABLED` | Liga/desliga criação automática de admin local |
+| `BOOTSTRAP_ADMIN_*` | Dados do admin criado quando o bootstrap está habilitado |
 
-**Exemplos:**
-- **Dev:** `http://localhost:3000,http://localhost:8080`
-- **Prod:** `https://seu-frontend.com`
+Para criar um admin automaticamente no primeiro start com banco vazio, altere em `.env`:
 
-Essa propriedade pode ser ajustada no `backend/src/main/resources/application.properties` ou sobrescrita por variáveis de ambiente.
+```properties
+SECURITY_BOOTSTRAP_ADMIN_ENABLED=true
+```
 
-3. **Suba os serviços (Banco de Dados e Cache):**
-   ```bash
-   docker-compose up -d
-4. **Inicie o Backend:**
-   ```bash
-    cd backend
-    ./mvnw spring-boot:run
-5. **Inicie o Frontend:**
-   ```bash
-      cd ../frontend
-      npm install
-      npm run dev
----
+### 2. Subir o banco local
 
-## 📄 Documentação Adicional
+```bash
+docker compose up -d db
+```
 
-Para detalhes técnicos e guias de processo, acesse os documentos abaixo na pasta `/docs`:
+O container publica o PostgreSQL em `localhost:5433`, que é a porta usada por `backend/src/main/resources/application-dev.properties`.
 
-* 🏛️ **[Arquitetura e Banco de Dados](./docs/database.md)**: Detalhes sobre o schema e regras de integridade.
-* 🔌 **[Endpoints da API](./docs/api_endpoints.md)**: Guia de integração e rotas principais.
-* 🤝 **[Guia de Contribuição](./docs/CONTRIBUTING.md)**: Padrões de GitFlow, Issues e Commits do time.
-* 📐 **[Diagrama DER](./docs/architecture/diagrama_der.png)**: Visualização gráfica do banco de dados.
-   
+Para reiniciar o banco do zero:
 
----
-**Desenvolvido por:** [Wolgrand (@WolgrandAP)](https://github.com/WolgrandAP), [Luiz Artur (@LuizArtur29)](https://github.com/LuizArtur29) e [Mateus Virginio(@MateusVirginio)](https://github.com/MateusVirginio).
+```bash
+docker compose down -v
+docker compose up -d db
+```
+
+### 3. Subir o backend
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+Serviços do backend:
+
+- API: `http://localhost:8080`
+- Swagger UI: `http://localhost:8080/swagger-ui.html`
+- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+
+O profile ativo padrão é `dev`. Nesse profile, o Hibernate atualiza o schema automaticamente no PostgreSQL local.
+
+### 4. Subir o frontend
+
+Em outro terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+O frontend fica em `http://localhost:3000`.
+
+Por padrão, ele chama a API em `http://localhost:8080`. Para sobrescrever a URL:
+
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:8080 npm run dev
+```
+
+### 5. Alternativa: backend via Docker Compose
+
+Para subir banco, Redis, backend e Nginx no Docker:
+
+```bash
+docker compose up -d --build
+```
+
+Endereços nessa opção:
+
+- API direta: `http://localhost:8080`
+- API via Nginx: `http://localhost`
+- PostgreSQL local: `localhost:5433`
+
+O frontend ainda deve ser iniciado separadamente em `frontend/`.
+
+## Comandos Úteis
+
+Backend:
+
+```bash
+cd backend
+./mvnw test
+./mvnw spring-boot:run
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm run lint
+npm run build
+```
+
+Docker:
+
+```bash
+docker compose ps
+docker compose logs -f db
+docker compose logs -f api
+```
+
+## Documentação
+
+- [Banco de dados e modelo relacional](./docs/database.md)
+- [Endpoints da API](./docs/api_endpoints.md)
+- [Guia de contribuição](./docs/CONTRIBUTING.md)
+- [Diagrama relacional](./docs/architecture/modelo-relacional.png)
+
+## Autores
+
+[Wolgrand (@WolgrandAP)](https://github.com/WolgrandAP), [Luiz Artur (@LuizArtur29)](https://github.com/LuizArtur29) e [Mateus Virginio (@MateusVirginio)](https://github.com/MateusVirginio).
