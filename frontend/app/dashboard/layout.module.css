@@ -76,3 +76,39 @@
   background-color: rgba(26, 92, 255, 0.06);
   border-color: var(--primary-blue);
 }
+
+@media (max-width: 640px) {
+  .topbar {
+    padding: 1rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    font-size: 1rem;
+  }
+
+  .profile {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .userName {
+    font-size: 0.85rem;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+
+  .logoutButton {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .content {
+    padding: 1.5rem 1rem;
+  }
+}
