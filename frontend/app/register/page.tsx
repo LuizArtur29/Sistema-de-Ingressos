@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { isAxiosError } from "axios";
 import { register } from "@/services/auth";
 import { ApiProblemDetail, RegisterRequest } from "@/services/types";
 import { useToast } from "@/components/ToastProvider";
@@ -80,8 +81,8 @@ export default function Register() {
             await register(form);
             showToast("Cadastro realizado com sucesso.", "success");
             router.push("/");
-        } catch (err: any) {
-            const data = err?.response?.data as ApiProblemDetail | undefined;
+        } catch (err: unknown) {
+            const data = isAxiosError<ApiProblemDetail>(err) ? err.response?.data : undefined;
             if (data?.errors?.length) {
                 const apiErrors: FieldErrors = {};
                 data.errors.forEach((item) => {
