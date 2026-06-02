@@ -147,3 +147,25 @@
   font-size: 0.85rem;
   font-weight: 500;
 }
+
+.forgotPasswordDisabled {
+  display: block;
+  text-align: right;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+}
+
+.registerLink {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.registerLink a {
+  color: var(--primary-blue);
+}
+
+.registerLink a:hover {
+  text-decoration: underline;
+}

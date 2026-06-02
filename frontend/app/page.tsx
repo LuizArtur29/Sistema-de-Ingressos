@@ -113,9 +113,9 @@ export default function Login() {
                   <circle cx="12" cy="12" r="3" />
                 </svg>
               </div>
-              <Link href="#" className={styles.forgotPassword}>
-                Esqueci minha senha
-              </Link>
+              <span className={styles.forgotPasswordDisabled}>
+                Recuperação de senha temporariamente indisponível
+              </span>
             </div>
 
             {error && <p className={styles.errorText}>{error}</p>}
@@ -126,8 +126,8 @@ export default function Login() {
           </form>
         </div>
 
-        <div className={styles.demoBox}>
-          Acesso demo: demo@tickethub.com / demo123
+        <div className={styles.registerLink}>
+          Não tem conta? <Link href="/register">Cadastre-se</Link>
         </div>
       </div>
   );
