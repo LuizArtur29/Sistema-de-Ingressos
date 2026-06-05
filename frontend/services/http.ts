@@ -36,12 +36,14 @@ function isTokenValid(token: string): boolean {
 api.interceptors.request.use((config) => {
     const token = sessionStorage.getItem("token");
 
-    if (token && isTokenValid(token)) {
-        config.headers.Authorization = `Bearer ${token}`;
-    } else {
-        sessionStorage.removeItem("token");
-        if (typeof window !== "undefined") {
-            window.dispatchEvent(new Event("session-expired"));
+    if (token) {
+        if (isTokenValid(token)) {
+            config.headers.Authorization = `Bearer ${token}`;
+        } else {
+            sessionStorage.removeItem("token");
+            if (typeof window !== "undefined") {
+                window.dispatchEvent(new Event("session-expired"));
+            }
         }
     }
 
