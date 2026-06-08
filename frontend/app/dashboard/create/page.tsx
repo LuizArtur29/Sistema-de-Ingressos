@@ -3,46 +3,109 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { isAxiosError } from "axios";
 import { useToast } from "@/components/ToastProvider";
 import { criarEvento } from "@/services/eventos";
-import { EventoCreateRequest, EventoStatus } from "@/services/types";
+import { ApiProblemDetail, EventoCreateRequest, EventoStatus } from "@/services/types";
 import styles from "./page.module.css";
+
+type FormState = Omit<EventoCreateRequest, "capacidadeTotal"> & {
+  capacidadeTotal: string;
+};
+
+type FieldErrors = Partial<Record<keyof FormState, string>>;
+
+const initialForm: FormState = {
+  nome: "",
+  descricao: "",
+  dataInicio: "",
+  dataFim: "",
+  local: "",
+  capacidadeTotal: "",
+  status: "ATIVO",
+};
 
 export default function CreateEvent() {
   const router = useRouter();
-
-  const [nome, setNome] = useState("");
-  const [descricao, setDescricao] = useState("");
-  const [dataInicio, setDataInicio] = useState("");
-  const [dataFim, setDataFim] = useState("");
-  const [local, setLocal] = useState("");
   const { showToast } = useToast();
-  const [capacidadeTotal, setCapacidadeTotal] = useState(0);
-  const [status, setStatus] = useState<EventoStatus>("ATIVO");
 
+  const [form, setForm] = useState<FormState>(initialForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+
+  const updateField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    setFieldErrors((prev) => ({ ...prev, [field]: undefined }));
+    setError(null);
+  };
+
+  const validate = (): boolean => {
+    const errors: FieldErrors = {};
+    const capacidade = Number(form.capacidadeTotal);
+
+    if (!form.nome.trim()) errors.nome = "Informe o nome do evento.";
+    if (!form.descricao.trim()) errors.descricao = "Informe a descrição do evento.";
+    if (!form.dataInicio) errors.dataInicio = "Informe a data de início.";
+    if (!form.dataFim) errors.dataFim = "Informe a data de término.";
+    if (form.dataInicio && form.dataFim && form.dataFim < form.dataInicio) {
+      errors.dataFim = "A data de término não pode ser anterior à data de início.";
+    }
+    if (!form.local.trim()) errors.local = "Informe o local do evento.";
+    if (!form.capacidadeTotal.trim()) {
+      errors.capacidadeTotal = "Informe a capacidade total.";
+    } else if (!Number.isInteger(capacidade) || capacidade <= 0) {
+      errors.capacidadeTotal = "A capacidade total deve ser maior que zero.";
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
+
     setError(null);
+
+    if (!validate()) {
+      showToast("Corrija os campos destacados.", "error");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const payload: EventoCreateRequest = {
-        nome,
-        descricao,
-        dataInicio,
-        dataFim,
-        local,
-        capacidadeTotal,
-        status,
+        ...form,
+        nome: form.nome.trim(),
+        descricao: form.descricao.trim(),
+        local: form.local.trim(),
+        capacidadeTotal: Number(form.capacidadeTotal),
       };
       await criarEvento(payload);
       showToast("Evento criado com sucesso.", "success");
       router.push("/dashboard");
-    } catch {
-      setError("Não foi possível criar o evento.");
+    } catch (err: unknown) {
+      const data = isAxiosError<ApiProblemDetail>(err) ? err.response?.data : undefined;
+
+      if (data?.errors?.length) {
+        const apiErrors: FieldErrors = {};
+        const unmappedErrors: string[] = [];
+
+        data.errors.forEach((item) => {
+          if (item.field in initialForm) {
+            apiErrors[item.field as keyof FormState] = item.message;
+            return;
+          }
+          unmappedErrors.push(item.message);
+        });
+
+        setFieldErrors(apiErrors);
+        setError(unmappedErrors[0] || "Corrija os erros do formulário.");
+      } else {
+        setError(data?.detail || "Não foi possível criar o evento. Tente novamente.");
+      }
       showToast("Falha ao criar evento.", "error");
     } finally {
       setLoading(false);
@@ -73,10 +136,11 @@ export default function CreateEvent() {
                     type="text"
                     className={styles.input}
                     placeholder="Ex.: Festival de Música 2026"
-                    value={nome}
-                    onChange={(e) => setNome(e.target.value)}
+                    value={form.nome}
+                    onChange={(e) => updateField("nome", e.target.value)}
                     required
                 />
+                {fieldErrors.nome && <p className={styles.errorText}>{fieldErrors.nome}</p>}
               </div>
 
               <div className={styles.formGroup}>
@@ -86,10 +150,11 @@ export default function CreateEvent() {
                 <textarea
                     className={styles.textarea}
                     placeholder="Descreva o evento, atrações, programação..."
-                    value={descricao}
-                    onChange={(e) => setDescricao(e.target.value)}
+                    value={form.descricao}
+                    onChange={(e) => updateField("descricao", e.target.value)}
                     required
                 />
+                {fieldErrors.descricao && <p className={styles.errorText}>{fieldErrors.descricao}</p>}
               </div>
             </div>
 
@@ -105,11 +170,12 @@ export default function CreateEvent() {
                     <input
                         type="date"
                         className={styles.input}
-                        value={dataInicio}
-                        onChange={(e) => setDataInicio(e.target.value)}
+                        value={form.dataInicio}
+                        onChange={(e) => updateField("dataInicio", e.target.value)}
                         required
                     />
                   </div>
+                  {fieldErrors.dataInicio && <p className={styles.errorText}>{fieldErrors.dataInicio}</p>}
                 </div>
                 <div className={styles.col}>
                   <label className={styles.label}>
@@ -119,11 +185,12 @@ export default function CreateEvent() {
                     <input
                         type="date"
                         className={styles.input}
-                        value={dataFim}
-                        onChange={(e) => setDataFim(e.target.value)}
+                        value={form.dataFim}
+                        onChange={(e) => updateField("dataFim", e.target.value)}
                         required
                     />
                   </div>
+                  {fieldErrors.dataFim && <p className={styles.errorText}>{fieldErrors.dataFim}</p>}
                 </div>
               </div>
 
@@ -132,13 +199,14 @@ export default function CreateEvent() {
                   Local <span className={styles.required}>*</span>
                 </label>
                 <input
-                    type="text"
-                    className={styles.input}
-                    placeholder="Ex.: Parque Ibirapuera, São Paulo - SP"
-                    value={local}
-                    onChange={(e) => setLocal(e.target.value)}
-                    required
+                  type="text"
+                  className={styles.input}
+                  placeholder="Ex.: Parque Ibirapuera, São Paulo - SP"
+                  value={form.local}
+                  onChange={(e) => updateField("local", e.target.value)}
+                  required
                 />
+                {fieldErrors.local && <p className={styles.errorText}>{fieldErrors.local}</p>}
               </div>
             </div>
 
@@ -154,10 +222,15 @@ export default function CreateEvent() {
                       type="number"
                       className={styles.input}
                       placeholder="Ex.: 500"
-                      value={capacidadeTotal || ""}
-                      onChange={(e) => setCapacidadeTotal(Number(e.target.value))}
+                      value={form.capacidadeTotal}
+                      onChange={(e) => updateField("capacidadeTotal", e.target.value)}
+                      min="1"
+                      step="1"
                       required
                   />
+                  {fieldErrors.capacidadeTotal && (
+                    <p className={styles.errorText}>{fieldErrors.capacidadeTotal}</p>
+                  )}
                 </div>
                 <div className={styles.col}>
                   <label className={styles.label}>
@@ -165,8 +238,8 @@ export default function CreateEvent() {
                   </label>
                   <select
                       className={styles.select}
-                      value={status}
-                      onChange={(e) => setStatus(e.target.value as typeof status)}
+                      value={form.status}
+                      onChange={(e) => updateField("status", e.target.value as EventoStatus)}
                       required
                   >
                     <option value="ATIVO">Ativo</option>
@@ -184,11 +257,12 @@ export default function CreateEvent() {
                   type="button"
                   className={styles.btnCancel}
                   onClick={() => router.push("/dashboard")}
+                  disabled={loading}
               >
                 Cancelar
               </button>
               <button type="submit" className={styles.btnSave} disabled={loading}>
-                Salvar Evento
+                {loading ? "Salvando..." : "Salvar Evento"}
               </button>
             </div>
           </form>

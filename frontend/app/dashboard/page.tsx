@@ -10,13 +10,13 @@ import styles from "./page.module.css";
 type StatusClass = "active" | "canceled" | "finished";
 type FiltroStatus = "TODOS" | "ATIVO" | "CANCELADO" | "FINALIZADO";
 
-const statusClassMap: Record<EventoStatus["status"], StatusClass> = {
+const statusClassMap: Record<EventoStatus, StatusClass> = {
   ATIVO: "active",
   CANCELADO: "canceled",
   FINALIZADO: "finished",
 };
 
-const statusLabelMap: Record<EventoStatus["status"], string> = {
+const statusLabelMap: Record<EventoStatus, string> = {
   ATIVO: "Ativo",
   CANCELADO: "Cancelado",
   FINALIZADO: "Finalizado",

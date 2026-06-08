@@ -110,6 +110,12 @@
   box-shadow: 0 0 0 3px rgba(26, 92, 255, 0.1);
 }
 
+.errorText {
+  color: var(--danger-text);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
 .inputIcon {
   position: relative;
 }
@@ -165,6 +171,16 @@
 
 .btnSave:hover {
   background-color: var(--primary-hover);
+}
+
+.btnCancel:disabled,
+.btnSave:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.btnSave:disabled:hover {
+  background-color: var(--primary-blue);
 }
 
 @media (max-width: 640px) {
