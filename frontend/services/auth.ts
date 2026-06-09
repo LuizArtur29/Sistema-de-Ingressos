@@ -11,8 +11,6 @@ export async function register(payload: RegisterRequest): Promise<RegisterRespon
     return data;
 }
 
-import { UsuarioPerfil } from "./types";
-
 export async function getMyProfile(): Promise<UsuarioAutenticado> {
     const { data } = await api.get<UsuarioAutenticado>("/api/usuarios/me");
     return data;

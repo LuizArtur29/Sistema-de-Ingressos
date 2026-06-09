@@ -6,6 +6,7 @@ import com.vendaingressos.dto.usuario.UsuarioPerfilResponse;
 import com.vendaingressos.dto.usuario.UsuarioAdminResponse;
 import com.vendaingressos.dto.UsuarioUpdateRequest;
 import com.vendaingressos.exception.ResourceNotFoundException;
+import com.vendaingressos.repository.AdministradorRepository;
 import com.vendaingressos.model.Usuario;
 import com.vendaingressos.service.UsuarioService;
 import jakarta.validation.Valid;
@@ -23,10 +24,12 @@ import java.util.stream.Collectors;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final AdministradorRepository administradorRepository;
 
     @Autowired
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(UsuarioService usuarioService, AdministradorRepository administradorRepository) {
         this.usuarioService = usuarioService;
+        this.administradorRepository = administradorRepository;
     }
 
     // Endpoint para cadastrar um novo usuário (POST /api/usuarios)
@@ -75,9 +78,11 @@ public class UsuarioController {
     @GetMapping("/me")
     public ResponseEntity<UsuarioPerfilResponse> meuPerfil(Authentication authentication) {
         String email = authentication.getName();
-        Usuario usuario = usuarioService.buscarUsuarioPorEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário autenticado não encontrado."));
-        return ResponseEntity.ok(new UsuarioPerfilResponse(usuario));
+        return usuarioService.buscarUsuarioPorEmail(email)
+                .map(usuario -> ResponseEntity.ok(new UsuarioPerfilResponse(usuario)))
+                .orElseGet(() -> administradorRepository.findByEmail(email)
+                        .map(admin -> ResponseEntity.ok(new UsuarioPerfilResponse(admin)))
+                        .orElseThrow(() -> new ResourceNotFoundException("Usuário autenticado não encontrado.")));
     }
 
     @PutMapping("/me")

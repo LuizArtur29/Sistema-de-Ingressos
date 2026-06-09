@@ -4,7 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { isAxiosError } from "axios";
+import AdminGuard from "@/components/AdminGuard";
 import { useToast } from "@/components/ToastProvider";
+import { getForbiddenMessage, isForbiddenError } from "@/lib/apiErrors";
 import { criarEvento } from "@/services/eventos";
 import { ApiProblemDetail, EventoCreateRequest, EventoStatus } from "@/services/types";
 import { EventoFieldErrors, validateEventoForm } from "@/lib/validation/evento";
@@ -72,6 +74,13 @@ export default function CreateEvent() {
       showToast("Evento criado com sucesso.", "success");
       router.push("/dashboard");
     } catch (err: unknown) {
+      if (isForbiddenError(err)) {
+        const message = getForbiddenMessage();
+        setError(message);
+        showToast(message, "error");
+        return;
+      }
+
       const data = isAxiosError<ApiProblemDetail>(err) ? err.response?.data : undefined;
 
       if (data?.errors?.length) {
@@ -98,6 +107,7 @@ export default function CreateEvent() {
   };
 
   return (
+    <AdminGuard>
       <div className={styles.container}>
         <div className={styles.breadcrumbs}>
           <Link href="/dashboard">Eventos</Link> &gt; <span>Criar Evento</span>
@@ -254,5 +264,6 @@ export default function CreateEvent() {
           </form>
         </div>
       </div>
+    </AdminGuard>
   );
 }

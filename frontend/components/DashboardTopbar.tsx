@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import styles from "@/app/dashboard/layout.module.css";
-import { getMyProfile } from "@/services/auth";
-import { UsuarioPerfil } from "@/services/types";
+import { useAuthUser } from "@/hooks/useAuthUser";
 
 function getInitials(name: string): string {
     const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -16,46 +15,17 @@ function getInitials(name: string): string {
 
 export default function DashboardTopbar() {
     const router = useRouter();
-    const [perfil, setPerfil] = useState<UsuarioPerfil | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { user, loading, error, isAdmin } = useAuthUser();
 
     const initials = useMemo(() => {
-        if (!perfil?.nome) return "";
-        return getInitials(perfil.nome);
-    }, [perfil]);
+        if (!user?.nome) return "";
+        return getInitials(user.nome);
+    }, [user]);
 
     const handleLogout = () => {
         sessionStorage.removeItem("token");
         router.push("/");
     };
-
-    useEffect(() => {
-        let active = true;
-
-        const loadProfile = async () => {
-            try {
-                setLoading(true);
-                const data = await getMyProfile();
-                if (active) {
-                    setPerfil(data);
-                    setError(null);
-                }
-            } catch {
-                if (active) {
-                    setError("Não foi possível carregar o perfil.");
-                }
-            } finally {
-                if (active) setLoading(false);
-            }
-        };
-
-        loadProfile();
-
-        return () => {
-            active = false;
-        };
-    }, []);
 
     return (
         <header className={styles.topbar}>
@@ -72,7 +42,10 @@ export default function DashboardTopbar() {
                 ) : (
                     <>
                         <div className={styles.avatar}>{initials}</div>
-                        <span className={styles.userName}>{perfil?.nome}</span>
+                        <span className={styles.userName}>
+                            {user?.nome}
+                            {isAdmin ? " (Admin)" : ""}
+                        </span>
                     </>
                 )}
                 <button onClick={handleLogout} className={styles.logoutButton}>
