@@ -7,13 +7,14 @@ import { isAxiosError } from "axios";
 import { useToast } from "@/components/ToastProvider";
 import { criarEvento } from "@/services/eventos";
 import { ApiProblemDetail, EventoCreateRequest, EventoStatus } from "@/services/types";
+import { EventoFieldErrors, validateEventoForm } from "@/lib/validation/evento";
 import styles from "./page.module.css";
 
 type FormState = Omit<EventoCreateRequest, "capacidadeTotal"> & {
   capacidadeTotal: string;
 };
 
-type FieldErrors = Partial<Record<keyof FormState, string>>;
+type FieldErrors = EventoFieldErrors<FormState>;
 
 const initialForm: FormState = {
   nome: "",
@@ -41,23 +42,7 @@ export default function CreateEvent() {
   };
 
   const validate = (): boolean => {
-    const errors: FieldErrors = {};
-    const capacidade = Number(form.capacidadeTotal);
-
-    if (!form.nome.trim()) errors.nome = "Informe o nome do evento.";
-    if (!form.descricao.trim()) errors.descricao = "Informe a descrição do evento.";
-    if (!form.dataInicio) errors.dataInicio = "Informe a data de início.";
-    if (!form.dataFim) errors.dataFim = "Informe a data de término.";
-    if (form.dataInicio && form.dataFim && form.dataFim < form.dataInicio) {
-      errors.dataFim = "A data de término não pode ser anterior à data de início.";
-    }
-    if (!form.local.trim()) errors.local = "Informe o local do evento.";
-    if (!form.capacidadeTotal.trim()) {
-      errors.capacidadeTotal = "Informe a capacidade total.";
-    } else if (!Number.isInteger(capacidade) || capacidade <= 0) {
-      errors.capacidadeTotal = "A capacidade total deve ser maior que zero.";
-    }
-
+    const errors = validateEventoForm(form);
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -124,7 +109,7 @@ export default function CreateEvent() {
         </div>
 
         <div className={styles.formCard}>
-          <form onSubmit={handleSave}>
+          <form onSubmit={handleSave} noValidate>
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>Informações Básicas</h2>
 
@@ -246,6 +231,7 @@ export default function CreateEvent() {
                     <option value="CANCELADO">Cancelado</option>
                     <option value="FINALIZADO">Finalizado</option>
                   </select>
+                  {fieldErrors.status && <p className={styles.errorText}>{fieldErrors.status}</p>}
                 </div>
               </div>
             </div>
