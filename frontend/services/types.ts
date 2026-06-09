@@ -18,6 +18,8 @@ export type ApiProblemDetail = {
     errors?: FieldErrorItem[];
 };
 
+export type UserRole = "USUARIO" | "ADMINISTRADOR";
+
 // ============ EVENTO ============
 
 export type EventoStatus = "ATIVO" | "CANCELADO" | "FINALIZADO";
@@ -77,11 +79,12 @@ export type RegisterResponse = {
 export type UsuarioAutenticado = {
     idUsuario: number;
     nome: string;
-    cpf: string;
-    dataNascimento: string;
+    cpf?: string;
+    dataNascimento?: string;
     email: string;
-    endereco: string;
-    telefone: string;
+    endereco?: string;
+    telefone?: string;
+    role: UserRole;
 };
 
 // Se quiser manter o nome usado atualmente na tela:

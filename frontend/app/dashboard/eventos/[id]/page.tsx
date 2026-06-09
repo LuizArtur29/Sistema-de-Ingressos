@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { isAxiosError } from "axios";
 import { useToast } from "@/components/ToastProvider";
+import { getForbiddenMessage, isForbiddenError } from "@/lib/apiErrors";
+import { usePermissions } from "@/hooks/useAuthUser";
 import { atualizarEvento, buscarEventoPorId, excluirEvento } from "@/services/eventos";
 import {
   listarSessoesPorEvento,
@@ -161,6 +163,7 @@ export default function EventDetails() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const { showToast } = useToast();
+  const { isAdmin } = usePermissions();
 
   const eventId = Number(params.id);
   const [form, setForm] = useState<FormState>(initialFormState);
@@ -273,6 +276,13 @@ export default function EventDetails() {
     e.preventDefault();
     if (saving) return;
 
+    if (!isAdmin) {
+      const message = getForbiddenMessage();
+      setError(message);
+      showToast(message, "error");
+      return;
+    }
+
     setError(null);
 
     if (!validateEvento()) {
@@ -295,6 +305,13 @@ export default function EventDetails() {
       showToast("Evento atualizado com sucesso.", "success");
       router.push("/dashboard");
     } catch (err: unknown) {
+      if (isForbiddenError(err)) {
+        const message = getForbiddenMessage();
+        setError(message);
+        showToast(message, "error");
+        return;
+      }
+
       const data = isAxiosError<ApiProblemDetail>(err) ? err.response?.data : undefined;
       const { fieldErrors: apiErrors, fallbackMessage } = mapApiFieldErrors(data, EVENTO_FIELD_NAMES);
 
@@ -307,6 +324,13 @@ export default function EventDetails() {
   };
 
   const handleDelete = async () => {
+    if (!isAdmin) {
+      const message = getForbiddenMessage();
+      setError(message);
+      showToast(message, "error");
+      return;
+    }
+
     const confirmed = window.confirm(
         "Tem certeza que deseja excluir este evento? Essa ação não pode ser desfeita."
     );
@@ -320,9 +344,10 @@ export default function EventDetails() {
       await excluirEvento(eventId);
       showToast("Evento excluído com sucesso.", "success");
       router.push("/dashboard");
-    } catch {
-      setError("Não foi possível excluir o evento.");
-      showToast("Falha ao excluir evento.", "error");
+    } catch (err: unknown) {
+      const message = isForbiddenError(err) ? getForbiddenMessage() : "Não foi possível excluir o evento.";
+      setError(message);
+      showToast(isForbiddenError(err) ? message : "Falha ao excluir evento.", "error");
     } finally {
       setDeleting(false);
     }
@@ -330,6 +355,13 @@ export default function EventDetails() {
 
   const handleSalvarSessao = async (e: FormEvent) => {
     e.preventDefault();
+    if (!isAdmin) {
+      const message = getForbiddenMessage();
+      setSessaoFormError(message);
+      showToast(message, "error");
+      return;
+    }
+
     setSessaoFormError(null);
 
     const errors = validateSessaoForm(sessaoNome, sessaoDataHora, sessaoStatus, sessaoCapacidade);
@@ -371,6 +403,13 @@ export default function EventDetails() {
       setSessaoFieldErrors({});
       setSessaoFormError(null);
     } catch (err: unknown) {
+      if (isForbiddenError(err)) {
+        const message = getForbiddenMessage();
+        setSessaoFormError(message);
+        showToast(message, "error");
+        return;
+      }
+
       const data = isAxiosError<ApiProblemDetail>(err) ? err.response?.data : undefined;
       const { fieldErrors: apiErrors, fallbackMessage } = mapApiFieldErrors(data, SESSAO_FIELD_NAMES);
 
@@ -381,6 +420,11 @@ export default function EventDetails() {
   };
 
   const handleRemoverSessao = async (idSessao: number) => {
+    if (!isAdmin) {
+      showToast(getForbiddenMessage(), "error");
+      return;
+    }
+
     const confirmed = window.confirm("Deseja remover esta sessão?");
     if (!confirmed) return;
 
@@ -391,14 +435,21 @@ export default function EventDetails() {
       const data = await listarSessoesPorEvento(eventId);
       setSessoes(data);
       setSessaoSelecionada(data.length ? data[0].idSessao : null);
-    } catch {
-      showToast("Erro ao remover sessão.", "error");
+    } catch (err: unknown) {
+      showToast(isForbiddenError(err) ? getForbiddenMessage() : "Erro ao remover sessão.", "error");
     }
   };
 
   const handleCriarTipo = async (e: FormEvent) => {
     e.preventDefault();
     if (!sessaoSelecionada) return;
+    if (!isAdmin) {
+      const message = getForbiddenMessage();
+      setTipoFormError(message);
+      showToast(message, "error");
+      return;
+    }
+
     setTipoFormError(null);
 
     const errors = validateTipoIngressoForm(tipoNomeSetor, tipoPreco, tipoQuantidadeTotal, tipoLote);
@@ -431,6 +482,13 @@ export default function EventDetails() {
       setTipoFieldErrors({});
       setTipoFormError(null);
     } catch (err: unknown) {
+      if (isForbiddenError(err)) {
+        const message = getForbiddenMessage();
+        setTipoFormError(message);
+        showToast(message, "error");
+        return;
+      }
+
       const data = isAxiosError<ApiProblemDetail>(err) ? err.response?.data : undefined;
       const { fieldErrors: apiErrors, fallbackMessage } = mapApiFieldErrors(data, TIPO_FIELD_NAMES);
 
@@ -474,14 +532,16 @@ export default function EventDetails() {
             <h1 className={styles.title}>Detalhes do Evento</h1>
             <p className={styles.subtitle}>Visualize, edite ou exclua este evento.</p>
           </div>
-          <button
-              type="button"
-              className={styles.btnDelete}
-              onClick={handleDelete}
-              disabled={deleting || saving}
-          >
-            {deleting ? "Excluindo..." : "Excluir Evento"}
-          </button>
+          {isAdmin && (
+            <button
+                type="button"
+                className={styles.btnDelete}
+                onClick={handleDelete}
+                disabled={deleting || saving}
+            >
+              {deleting ? "Excluindo..." : "Excluir Evento"}
+            </button>
+          )}
         </div>
 
         <div className={styles.formCard}>
@@ -504,6 +564,7 @@ export default function EventDetails() {
                     placeholder="Ex.: Festival de Música 2026"
                     value={form.nome}
                     onChange={(e) => updateField("nome", e.target.value)}
+                    disabled={!isAdmin}
                     required
                 />
                 {fieldErrors.nome && <p className={styles.errorText}>{fieldErrors.nome}</p>}
@@ -519,6 +580,7 @@ export default function EventDetails() {
                     placeholder="Descreva o evento, atrações, programação..."
                     value={form.descricao}
                     onChange={(e) => updateField("descricao", e.target.value)}
+                    disabled={!isAdmin}
                     required
                 />
                 {fieldErrors.descricao && <p className={styles.errorText}>{fieldErrors.descricao}</p>}
@@ -539,6 +601,7 @@ export default function EventDetails() {
                       className={styles.input}
                       value={form.dataInicio}
                       onChange={(e) => updateField("dataInicio", e.target.value)}
+                      disabled={!isAdmin}
                       required
                   />
                   {fieldErrors.dataInicio && <p className={styles.errorText}>{fieldErrors.dataInicio}</p>}
@@ -553,6 +616,7 @@ export default function EventDetails() {
                       className={styles.input}
                       value={form.dataFim}
                       onChange={(e) => updateField("dataFim", e.target.value)}
+                      disabled={!isAdmin}
                       required
                   />
                   {fieldErrors.dataFim && <p className={styles.errorText}>{fieldErrors.dataFim}</p>}
@@ -570,6 +634,7 @@ export default function EventDetails() {
                     placeholder="Ex.: Parque Ibirapuera, São Paulo - SP"
                     value={form.local}
                     onChange={(e) => updateField("local", e.target.value)}
+                    disabled={!isAdmin}
                     required
                 />
                 {fieldErrors.local && <p className={styles.errorText}>{fieldErrors.local}</p>}
@@ -593,6 +658,7 @@ export default function EventDetails() {
                       placeholder="Ex.: 500"
                       value={form.capacidadeTotal}
                       onChange={(e) => updateField("capacidadeTotal", e.target.value)}
+                      disabled={!isAdmin}
                       required
                   />
                   {fieldErrors.capacidadeTotal && (
@@ -608,6 +674,7 @@ export default function EventDetails() {
                       className={styles.select}
                       value={form.status}
                       onChange={(e) => updateField("status", e.target.value as EventoStatus)}
+                      disabled={!isAdmin}
                       required
                   >
                     <option value="ATIVO">Ativo</option>
@@ -630,9 +697,11 @@ export default function EventDetails() {
               >
                 Cancelar
               </button>
-              <button type="submit" className={styles.btnSave} disabled={saving || deleting}>
-                {saving ? "Salvando..." : "Salvar Alterações"}
-              </button>
+              {isAdmin && (
+                <button type="submit" className={styles.btnSave} disabled={saving || deleting}>
+                  {saving ? "Salvando..." : "Salvar Alterações"}
+                </button>
+              )}
             </div>
           </form>
         </div>
@@ -657,35 +726,38 @@ export default function EventDetails() {
                         <div>Status: {sessao.statusSessao}</div>
                         <div>Capacidade: {sessao.capacidade ?? "Padrão do evento"}</div>
                       </div>
-                      <div className={styles.actionsInline}>
-                        <button
-                            type="button"
-                            className={styles.btnCancel}
-                            onClick={() => {
-                              setSessaoEditando(sessao);
-                              setSessaoNome(sessao.nomeSessao);
-                              setSessaoDataHora(toDateTimeLocal(sessao.dataHoraSessao));
-                              setSessaoStatus(sessao.statusSessao as SessaoStatus);
-                              setSessaoCapacidade(sessao.capacidade === null ? "" : String(sessao.capacidade));
-                              setSessaoFieldErrors({});
-                              setSessaoFormError(null);
-                            }}
-                        >
-                          Editar
-                        </button>
-                        <button
-                            type="button"
-                            className={styles.btnDelete}
-                            onClick={() => handleRemoverSessao(sessao.idSessao)}
-                        >
-                          Remover
-                        </button>
-                      </div>
+                      {isAdmin && (
+                        <div className={styles.actionsInline}>
+                          <button
+                              type="button"
+                              className={styles.btnCancel}
+                              onClick={() => {
+                                setSessaoEditando(sessao);
+                                setSessaoNome(sessao.nomeSessao);
+                                setSessaoDataHora(toDateTimeLocal(sessao.dataHoraSessao));
+                                setSessaoStatus(sessao.statusSessao as SessaoStatus);
+                                setSessaoCapacidade(sessao.capacidade === null ? "" : String(sessao.capacidade));
+                                setSessaoFieldErrors({});
+                                setSessaoFormError(null);
+                              }}
+                          >
+                            Editar
+                          </button>
+                          <button
+                              type="button"
+                              className={styles.btnDelete}
+                              onClick={() => handleRemoverSessao(sessao.idSessao)}
+                          >
+                            Remover
+                          </button>
+                        </div>
+                      )}
                     </div>
                 ))}
               </div>
           )}
 
+          {isAdmin && (
           <form onSubmit={handleSalvarSessao} className={styles.formCard} noValidate>
             <h3>{sessaoEditando ? "Editar Sessão" : "Nova Sessão"}</h3>
 
@@ -771,6 +843,7 @@ export default function EventDetails() {
               {sessaoEditando ? "Atualizar Sessão" : "Criar Sessão"}
             </button>
           </form>
+          )}
         </div>
 
         <div className={styles.section}>
@@ -817,7 +890,7 @@ export default function EventDetails() {
               </div>
           )}
 
-          {sessaoSelecionada && (
+          {isAdmin && sessaoSelecionada && (
               <form onSubmit={handleCriarTipo} className={styles.formCard} noValidate>
                 <h3>Novo Tipo de Ingresso</h3>
 

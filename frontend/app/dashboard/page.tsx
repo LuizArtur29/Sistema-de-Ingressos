@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/ToastProvider";
+import { usePermissions } from "@/hooks/useAuthUser";
 import { listarEventos } from "@/services/eventos";
 import { EventoResponse, EventoStatus } from "@/services/types";
 import styles from "./page.module.css";
@@ -40,6 +41,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filtroStatus, setFiltroStatus] = useState<FiltroStatus>("TODOS");
+  const { isAdmin } = usePermissions();
 
   useEffect(() => {
     const load = async () => {
@@ -95,9 +97,11 @@ export default function Dashboard() {
               <option value="CANCELADO">Estado: Cancelados</option>
               <option value="FINALIZADO">Estado: Finalizados</option>
             </select>
-            <Link href="/dashboard/create" className={styles.button}>
-              + Criar Evento
-            </Link>
+            {isAdmin && (
+              <Link href="/dashboard/create" className={styles.button}>
+                + Criar Evento
+              </Link>
+            )}
           </div>
         </div>
 
@@ -150,11 +154,15 @@ export default function Dashboard() {
               <div className={styles.emptyCard}>
                 <h3 className={styles.emptyTitle}>Nenhum evento encontrado</h3>
                 <p className={styles.emptyText}>
-                  Você ainda não criou eventos. Clique em “Criar Evento” para começar.
+                  {isAdmin
+                    ? "Você ainda não criou eventos. Clique em “Criar Evento” para começar."
+                    : "Nenhum evento está disponível no momento."}
                 </p>
-                <Link href="/dashboard/create" className={styles.button}>
-                  + Criar Evento
-                </Link>
+                {isAdmin && (
+                  <Link href="/dashboard/create" className={styles.button}>
+                    + Criar Evento
+                  </Link>
+                )}
               </div>
           ) : (
               eventosFiltrados.map((event) => (
