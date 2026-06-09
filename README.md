@@ -106,7 +106,7 @@ Em outro terminal:
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
@@ -148,8 +148,9 @@ Frontend:
 
 ```bash
 cd frontend
-npm run lint
-npm run build
+npm ci
+npm run verify # Executa lint e build para validação
+npm run dev
 ```
 
 Docker:
