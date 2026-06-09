@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { isAxiosError } from "axios";
 import { useToast } from "@/components/ToastProvider";
 import { atualizarEvento, buscarEventoPorId, excluirEvento } from "@/services/eventos";
 import {
@@ -13,6 +14,7 @@ import {
 } from "@/services/sessoes";
 import { listarTiposPorSessao, criarTipoIngresso } from "@/services/tiposIngressos";
 import {
+  ApiProblemDetail,
   EventoResponse,
   EventoCreateRequest,
   SessaoEventoResponse,
@@ -21,9 +23,17 @@ import {
   TipoIngressoCreateRequest,
   EventoStatus,
 } from "@/services/types";
+import { EventoFieldErrors, validateEventoForm } from "@/lib/validation/evento";
 import styles from "./page.module.css";
 
-type FormState = EventoCreateRequest;
+type FormState = Omit<EventoCreateRequest, "capacidadeTotal"> & {
+  capacidadeTotal: string;
+};
+
+type FieldErrors = EventoFieldErrors<FormState>;
+type SessaoStatus = "ATIVO" | "ESGOTADO" | "CANCELADO";
+type SessaoFieldErrors = Partial<Record<"nomeSessao" | "dataHoraSessao" | "statusSessao" | "capacidade", string>>;
+type TipoFieldErrors = Partial<Record<"nomeSetor" | "preco" | "quantidadeTotal" | "lote", string>>;
 
 const initialFormState: FormState = {
   nome: "",
@@ -31,9 +41,14 @@ const initialFormState: FormState = {
   dataInicio: "",
   dataFim: "",
   local: "",
-  capacidadeTotal: 0,
+  capacidadeTotal: "",
   status: "ATIVO" as EventoStatus,
 };
+
+const EVENTO_FIELD_NAMES = ["nome", "descricao", "dataInicio", "dataFim", "local", "capacidadeTotal", "status"] as const;
+const SESSAO_FIELD_NAMES = ["nomeSessao", "dataHoraSessao", "statusSessao", "capacidade"] as const;
+const TIPO_FIELD_NAMES = ["nomeSetor", "preco", "quantidadeTotal", "lote"] as const;
+const SESSAO_STATUS_VALIDOS: SessaoStatus[] = ["ATIVO", "ESGOTADO", "CANCELADO"];
 
 const statusLabelMap: Record<EventoStatus, string> = {
   ATIVO: "Ativo",
@@ -53,7 +68,7 @@ function toFormState(evento: EventoResponse): FormState {
     dataInicio: normalizeDate(evento.dataInicio),
     dataFim: normalizeDate(evento.dataFim),
     local: evento.local,
-    capacidadeTotal: evento.capacidadeTotal,
+    capacidadeTotal: String(evento.capacidadeTotal),
     status: evento.status as EventoStatus,
   };
 }
@@ -69,6 +84,79 @@ function toDateTimeLocal(value: string) {
   return value.slice(0, 16);
 }
 
+function mapApiFieldErrors<T extends string>(
+  data: ApiProblemDetail | undefined,
+  fieldNames: readonly T[]
+): { fieldErrors: Partial<Record<T, string>>; fallbackMessage: string | null } {
+  const fieldErrors: Partial<Record<T, string>> = {};
+  const unmappedErrors: string[] = [];
+
+  data?.errors?.forEach((item) => {
+    if (fieldNames.includes(item.field as T)) {
+      fieldErrors[item.field as T] = item.message;
+      return;
+    }
+    unmappedErrors.push(item.message);
+  });
+
+  return {
+    fieldErrors,
+    fallbackMessage: unmappedErrors[0] ?? data?.detail ?? null,
+  };
+}
+
+function isPositiveIntegerText(value: string) {
+  const normalized = value.trim();
+  const parsed = Number(normalized);
+
+  return normalized !== "" && Number.isInteger(parsed) && parsed > 0;
+}
+
+function isNonNegativeNumberText(value: string) {
+  const normalized = value.trim();
+  const parsed = Number(normalized);
+
+  return normalized !== "" && Number.isFinite(parsed) && parsed >= 0;
+}
+
+function validateSessaoForm(
+  nomeSessao: string,
+  dataHoraSessao: string,
+  statusSessao: string,
+  capacidade: string
+): SessaoFieldErrors {
+  const errors: SessaoFieldErrors = {};
+
+  if (!nomeSessao.trim()) errors.nomeSessao = "Informe o nome da sessão.";
+  if (!dataHoraSessao) errors.dataHoraSessao = "Informe a data e hora da sessão.";
+  if (!SESSAO_STATUS_VALIDOS.includes(statusSessao as SessaoStatus)) {
+    errors.statusSessao = "Selecione um status válido para a sessão.";
+  }
+  if (capacidade.trim() && !isPositiveIntegerText(capacidade)) {
+    errors.capacidade = "A capacidade da sessão deve ser maior que zero.";
+  }
+
+  return errors;
+}
+
+function validateTipoIngressoForm(
+  nomeSetor: string,
+  preco: string,
+  quantidadeTotal: string,
+  lote: string
+): TipoFieldErrors {
+  const errors: TipoFieldErrors = {};
+
+  if (!nomeSetor.trim()) errors.nomeSetor = "Informe o setor.";
+  if (!isNonNegativeNumberText(preco)) errors.preco = "O preço deve ser maior ou igual a zero.";
+  if (!isPositiveIntegerText(quantidadeTotal)) {
+    errors.quantidadeTotal = "A quantidade deve ser maior que zero.";
+  }
+  if (!isPositiveIntegerText(lote)) errors.lote = "O lote deve ser maior que zero.";
+
+  return errors;
+}
+
 export default function EventDetails() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
@@ -80,6 +168,7 @@ export default function EventDetails() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   const [sessoes, setSessoes] = useState<SessaoEventoResponse[]>([]);
   const [loadingSessoes, setLoadingSessoes] = useState(false);
@@ -92,14 +181,18 @@ export default function EventDetails() {
 
   const [sessaoNome, setSessaoNome] = useState("");
   const [sessaoDataHora, setSessaoDataHora] = useState("");
-  const [sessaoStatus, setSessaoStatus] = useState<EventoStatus>("ATIVO");
-  const [sessaoCapacidade, setSessaoCapacidade] = useState<number | "">("");
+  const [sessaoStatus, setSessaoStatus] = useState<SessaoStatus>("ATIVO");
+  const [sessaoCapacidade, setSessaoCapacidade] = useState("");
   const [sessaoEditando, setSessaoEditando] = useState<SessaoEventoResponse | null>(null);
+  const [sessaoFieldErrors, setSessaoFieldErrors] = useState<SessaoFieldErrors>({});
+  const [sessaoFormError, setSessaoFormError] = useState<string | null>(null);
 
   const [tipoNomeSetor, setTipoNomeSetor] = useState("");
-  const [tipoPreco, setTipoPreco] = useState<number | "">("");
-  const [tipoQuantidadeTotal, setTipoQuantidadeTotal] = useState<number | "">("");
-  const [tipoLote, setTipoLote] = useState<number | "">("");
+  const [tipoPreco, setTipoPreco] = useState("");
+  const [tipoQuantidadeTotal, setTipoQuantidadeTotal] = useState("");
+  const [tipoLote, setTipoLote] = useState("");
+  const [tipoFieldErrors, setTipoFieldErrors] = useState<TipoFieldErrors>({});
+  const [tipoFormError, setTipoFormError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!Number.isFinite(eventId)) {
@@ -166,19 +259,47 @@ export default function EventDetails() {
 
   const updateField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
     setForm((current) => ({ ...current, [field]: value }));
+    setFieldErrors((current) => ({ ...current, [field]: undefined }));
+    setError(null);
+  };
+
+  const validateEvento = () => {
+    const errors = validateEventoForm(form);
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSave = async (e: FormEvent) => {
     e.preventDefault();
+    if (saving) return;
+
     setError(null);
+
+    if (!validateEvento()) {
+      showToast("Corrija os campos destacados.", "error");
+      return;
+    }
+
     setSaving(true);
 
     try {
-      await atualizarEvento(eventId, form);
+      const payload: EventoCreateRequest = {
+        ...form,
+        nome: form.nome.trim(),
+        descricao: form.descricao.trim(),
+        local: form.local.trim(),
+        capacidadeTotal: Number(form.capacidadeTotal),
+      };
+
+      await atualizarEvento(eventId, payload);
       showToast("Evento atualizado com sucesso.", "success");
       router.push("/dashboard");
-    } catch {
-      setError("Não foi possível atualizar o evento.");
+    } catch (err: unknown) {
+      const data = isAxiosError<ApiProblemDetail>(err) ? err.response?.data : undefined;
+      const { fieldErrors: apiErrors, fallbackMessage } = mapApiFieldErrors(data, EVENTO_FIELD_NAMES);
+
+      setFieldErrors(apiErrors);
+      setError(fallbackMessage || "Não foi possível atualizar o evento.");
       showToast("Falha ao atualizar evento.", "error");
     } finally {
       setSaving(false);
@@ -209,12 +330,21 @@ export default function EventDetails() {
 
   const handleSalvarSessao = async (e: FormEvent) => {
     e.preventDefault();
+    setSessaoFormError(null);
+
+    const errors = validateSessaoForm(sessaoNome, sessaoDataHora, sessaoStatus, sessaoCapacidade);
+    setSessaoFieldErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      showToast("Corrija os campos destacados.", "error");
+      return;
+    }
 
     const payload: SessaoEventoRequest = {
-      nomeSessao: sessaoNome,
+      nomeSessao: sessaoNome.trim(),
       dataHoraSessao: toLocalDateTime(sessaoDataHora),
       statusSessao: sessaoStatus,
-      capacidade: sessaoCapacidade === "" ? null : Number(sessaoCapacidade),
+      capacidade: sessaoCapacidade.trim() === "" ? null : Number(sessaoCapacidade),
       eventoPai: { id: eventId },
     };
 
@@ -238,7 +368,14 @@ export default function EventDetails() {
       setSessaoStatus("ATIVO");
       setSessaoCapacidade("");
       setSessaoEditando(null);
-    } catch {
+      setSessaoFieldErrors({});
+      setSessaoFormError(null);
+    } catch (err: unknown) {
+      const data = isAxiosError<ApiProblemDetail>(err) ? err.response?.data : undefined;
+      const { fieldErrors: apiErrors, fallbackMessage } = mapApiFieldErrors(data, SESSAO_FIELD_NAMES);
+
+      setSessaoFieldErrors(apiErrors);
+      setSessaoFormError(fallbackMessage || "Não foi possível salvar a sessão.");
       showToast("Erro ao salvar sessão.", "error");
     }
   };
@@ -262,9 +399,18 @@ export default function EventDetails() {
   const handleCriarTipo = async (e: FormEvent) => {
     e.preventDefault();
     if (!sessaoSelecionada) return;
+    setTipoFormError(null);
+
+    const errors = validateTipoIngressoForm(tipoNomeSetor, tipoPreco, tipoQuantidadeTotal, tipoLote);
+    setTipoFieldErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      showToast("Corrija os campos destacados.", "error");
+      return;
+    }
 
     const payload: TipoIngressoCreateRequest = {
-      nomeSetor: tipoNomeSetor,
+      nomeSetor: tipoNomeSetor.trim(),
       preco: Number(tipoPreco),
       quantidadeTotal: Number(tipoQuantidadeTotal),
       lote: Number(tipoLote),
@@ -282,7 +428,14 @@ export default function EventDetails() {
       setTipoPreco("");
       setTipoQuantidadeTotal("");
       setTipoLote("");
-    } catch {
+      setTipoFieldErrors({});
+      setTipoFormError(null);
+    } catch (err: unknown) {
+      const data = isAxiosError<ApiProblemDetail>(err) ? err.response?.data : undefined;
+      const { fieldErrors: apiErrors, fallbackMessage } = mapApiFieldErrors(data, TIPO_FIELD_NAMES);
+
+      setTipoFieldErrors(apiErrors);
+      setTipoFormError(fallbackMessage || "Não foi possível criar o tipo de ingresso.");
       showToast("Erro ao criar tipo de ingresso.", "error");
     }
   };
@@ -332,7 +485,7 @@ export default function EventDetails() {
         </div>
 
         <div className={styles.formCard}>
-          <form onSubmit={handleSave}>
+          <form onSubmit={handleSave} noValidate>
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>Informações Básicas</h2>
 
@@ -348,6 +501,7 @@ export default function EventDetails() {
                     onChange={(e) => updateField("nome", e.target.value)}
                     required
                 />
+                {fieldErrors.nome && <p className={styles.errorText}>{fieldErrors.nome}</p>}
               </div>
 
               <div className={styles.formGroup}>
@@ -361,6 +515,7 @@ export default function EventDetails() {
                     onChange={(e) => updateField("descricao", e.target.value)}
                     required
                 />
+                {fieldErrors.descricao && <p className={styles.errorText}>{fieldErrors.descricao}</p>}
               </div>
             </div>
 
@@ -379,6 +534,7 @@ export default function EventDetails() {
                       onChange={(e) => updateField("dataInicio", e.target.value)}
                       required
                   />
+                  {fieldErrors.dataInicio && <p className={styles.errorText}>{fieldErrors.dataInicio}</p>}
                 </div>
                 <div className={styles.col}>
                   <label className={styles.label}>
@@ -391,6 +547,7 @@ export default function EventDetails() {
                       onChange={(e) => updateField("dataFim", e.target.value)}
                       required
                   />
+                  {fieldErrors.dataFim && <p className={styles.errorText}>{fieldErrors.dataFim}</p>}
                 </div>
               </div>
 
@@ -406,6 +563,7 @@ export default function EventDetails() {
                     onChange={(e) => updateField("local", e.target.value)}
                     required
                 />
+                {fieldErrors.local && <p className={styles.errorText}>{fieldErrors.local}</p>}
               </div>
             </div>
 
@@ -420,12 +578,16 @@ export default function EventDetails() {
                   <input
                       type="number"
                       min="1"
+                      step="1"
                       className={styles.input}
                       placeholder="Ex.: 500"
-                      value={form.capacidadeTotal || ""}
-                      onChange={(e) => updateField("capacidadeTotal", Number(e.target.value))}
+                      value={form.capacidadeTotal}
+                      onChange={(e) => updateField("capacidadeTotal", e.target.value)}
                       required
                   />
+                  {fieldErrors.capacidadeTotal && (
+                    <p className={styles.errorText}>{fieldErrors.capacidadeTotal}</p>
+                  )}
                 </div>
                 <div className={styles.col}>
                   <label className={styles.label}>
@@ -441,6 +603,7 @@ export default function EventDetails() {
                     <option value="CANCELADO">Cancelado</option>
                     <option value="FINALIZADO">Finalizado</option>
                   </select>
+                  {fieldErrors.status && <p className={styles.errorText}>{fieldErrors.status}</p>}
                 </div>
               </div>
             </div>
@@ -491,8 +654,10 @@ export default function EventDetails() {
                               setSessaoEditando(sessao);
                               setSessaoNome(sessao.nomeSessao);
                               setSessaoDataHora(toDateTimeLocal(sessao.dataHoraSessao));
-                              setSessaoStatus(sessao.statusSessao as EventoStatus);
-                              setSessaoCapacidade(sessao.capacidade ?? "");
+                              setSessaoStatus(sessao.statusSessao as SessaoStatus);
+                              setSessaoCapacidade(sessao.capacidade === null ? "" : String(sessao.capacidade));
+                              setSessaoFieldErrors({});
+                              setSessaoFormError(null);
                             }}
                         >
                           Editar
@@ -510,7 +675,7 @@ export default function EventDetails() {
               </div>
           )}
 
-          <form onSubmit={handleSalvarSessao} className={styles.formCard}>
+          <form onSubmit={handleSalvarSessao} className={styles.formCard} noValidate>
             <h3>{sessaoEditando ? "Editar Sessão" : "Nova Sessão"}</h3>
 
             <input
@@ -518,35 +683,66 @@ export default function EventDetails() {
                 className={styles.input}
                 placeholder="Nome da sessão"
                 value={sessaoNome}
-                onChange={(e) => setSessaoNome(e.target.value)}
+                onChange={(e) => {
+                  setSessaoNome(e.target.value);
+                  setSessaoFieldErrors((current) => ({ ...current, nomeSessao: undefined }));
+                  setSessaoFormError(null);
+                }}
                 required
             />
+            {sessaoFieldErrors.nomeSessao && (
+                <p className={styles.errorText}>{sessaoFieldErrors.nomeSessao}</p>
+            )}
 
             <input
                 type="datetime-local"
                 className={styles.input}
                 value={sessaoDataHora}
-                onChange={(e) => setSessaoDataHora(e.target.value)}
+                onChange={(e) => {
+                  setSessaoDataHora(e.target.value);
+                  setSessaoFieldErrors((current) => ({ ...current, dataHoraSessao: undefined }));
+                  setSessaoFormError(null);
+                }}
                 required
             />
+            {sessaoFieldErrors.dataHoraSessao && (
+                <p className={styles.errorText}>{sessaoFieldErrors.dataHoraSessao}</p>
+            )}
 
             <select
                 className={styles.select}
                 value={sessaoStatus}
-                onChange={(e) => setSessaoStatus(e.target.value as EventoStatus)}
+                onChange={(e) => {
+                  setSessaoStatus(e.target.value as SessaoStatus);
+                  setSessaoFieldErrors((current) => ({ ...current, statusSessao: undefined }));
+                  setSessaoFormError(null);
+                }}
             >
               <option value="ATIVO">Ativo</option>
               <option value="ESGOTADO">Esgotado</option>
               <option value="CANCELADO">Cancelado</option>
             </select>
+            {sessaoFieldErrors.statusSessao && (
+                <p className={styles.errorText}>{sessaoFieldErrors.statusSessao}</p>
+            )}
 
             <input
                 type="number"
                 className={styles.input}
                 placeholder="Capacidade (opcional)"
+                min="1"
+                step="1"
                 value={sessaoCapacidade}
-                onChange={(e) => setSessaoCapacidade(e.target.value === "" ? "" : Number(e.target.value))}
+                onChange={(e) => {
+                  setSessaoCapacidade(e.target.value);
+                  setSessaoFieldErrors((current) => ({ ...current, capacidade: undefined }));
+                  setSessaoFormError(null);
+                }}
             />
+            {sessaoFieldErrors.capacidade && (
+                <p className={styles.errorText}>{sessaoFieldErrors.capacidade}</p>
+            )}
+            {sessaoFormError && <p className={styles.errorText}>{sessaoFormError}</p>}
 
             <button type="submit" className={styles.btnSave}>
               {sessaoEditando ? "Atualizar Sessão" : "Criar Sessão"}
@@ -595,7 +791,7 @@ export default function EventDetails() {
           )}
 
           {sessaoSelecionada && (
-              <form onSubmit={handleCriarTipo} className={styles.formCard}>
+              <form onSubmit={handleCriarTipo} className={styles.formCard} noValidate>
                 <h3>Novo Tipo de Ingresso</h3>
 
                 <input
@@ -603,38 +799,71 @@ export default function EventDetails() {
                     className={styles.input}
                     placeholder="Setor"
                     value={tipoNomeSetor}
-                    onChange={(e) => setTipoNomeSetor(e.target.value)}
+                    onChange={(e) => {
+                      setTipoNomeSetor(e.target.value);
+                      setTipoFieldErrors((current) => ({ ...current, nomeSetor: undefined }));
+                      setTipoFormError(null);
+                    }}
                     required
                 />
+                {tipoFieldErrors.nomeSetor && (
+                    <p className={styles.errorText}>{tipoFieldErrors.nomeSetor}</p>
+                )}
 
                 <input
                     type="number"
                     className={styles.input}
                     placeholder="Preço"
+                    min="0"
+                    step="0.01"
                     value={tipoPreco}
-                    onChange={(e) => setTipoPreco(e.target.value === "" ? "" : Number(e.target.value))}
+                    onChange={(e) => {
+                      setTipoPreco(e.target.value);
+                      setTipoFieldErrors((current) => ({ ...current, preco: undefined }));
+                      setTipoFormError(null);
+                    }}
                     required
                 />
+                {tipoFieldErrors.preco && (
+                    <p className={styles.errorText}>{tipoFieldErrors.preco}</p>
+                )}
 
                 <input
                     type="number"
                     className={styles.input}
                     placeholder="Quantidade total"
+                    min="1"
+                    step="1"
                     value={tipoQuantidadeTotal}
-                    onChange={(e) =>
-                        setTipoQuantidadeTotal(e.target.value === "" ? "" : Number(e.target.value))
-                    }
+                    onChange={(e) => {
+                      setTipoQuantidadeTotal(e.target.value);
+                      setTipoFieldErrors((current) => ({ ...current, quantidadeTotal: undefined }));
+                      setTipoFormError(null);
+                    }}
                     required
                 />
+                {tipoFieldErrors.quantidadeTotal && (
+                    <p className={styles.errorText}>{tipoFieldErrors.quantidadeTotal}</p>
+                )}
 
                 <input
                     type="number"
                     className={styles.input}
                     placeholder="Lote"
+                    min="1"
+                    step="1"
                     value={tipoLote}
-                    onChange={(e) => setTipoLote(e.target.value === "" ? "" : Number(e.target.value))}
+                    onChange={(e) => {
+                      setTipoLote(e.target.value);
+                      setTipoFieldErrors((current) => ({ ...current, lote: undefined }));
+                      setTipoFormError(null);
+                    }}
                     required
                 />
+                {tipoFieldErrors.lote && (
+                    <p className={styles.errorText}>{tipoFieldErrors.lote}</p>
+                )}
+                {tipoFormError && <p className={styles.errorText}>{tipoFormError}</p>}
 
                 <button type="submit" className={styles.btnSave}>
                   Criar Tipo
