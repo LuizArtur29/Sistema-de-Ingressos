@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { login } from "@/services/auth";
+import { storeToken } from "@/lib/authToken";
 import styles from "./page.module.css";
 import { useToast } from "@/components/ToastProvider";
 
@@ -17,8 +18,22 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const handler = () => {
+    const params = new URLSearchParams(window.location.search);
+    const sessionStatus = params.get("session");
+
+    if (sessionStatus === "expired") {
       setError("Sua sessão expirou. Faça login novamente.");
+      router.replace("/");
+    } else if (sessionStatus === "missing") {
+      setError("Faça login para acessar o dashboard.");
+      router.replace("/");
+    }
+  }, [router]);
+
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const reason = event instanceof CustomEvent ? event.detail?.reason : "expired";
+      setError(reason === "missing" ? "Faça login para continuar." : "Sua sessão expirou. Faça login novamente.");
     };
     window.addEventListener("session-expired", handler);
     return () => window.removeEventListener("session-expired", handler);
@@ -31,7 +46,7 @@ export default function Login() {
 
     try {
       const res = await login({ email, senha });
-      sessionStorage.setItem("token", res.jwt);
+      storeToken(res.jwt);
       showToast("Login realizado com sucesso.", "success");
       router.push("/dashboard");
     } catch {

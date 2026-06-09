@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import styles from "@/app/dashboard/layout.module.css";
 import { useAuthUser } from "@/hooks/useAuthUser";
+import { clearToken } from "@/lib/authToken";
 
 function getInitials(name: string): string {
     const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -23,7 +24,7 @@ export default function DashboardTopbar() {
     }, [user]);
 
     const handleLogout = () => {
-        sessionStorage.removeItem("token");
+        clearToken();
         router.push("/");
     };
 
