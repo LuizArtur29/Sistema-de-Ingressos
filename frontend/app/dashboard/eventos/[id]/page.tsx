@@ -332,15 +332,16 @@ export default function EventDetails() {
         </div>
 
         <div className={styles.formCard}>
-          <form onSubmit={handleSave}>
+          <form onSubmit={handleSave} aria-describedby={error ? "event-form-error" : undefined}>
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>Informações Básicas</h2>
 
               <div className={styles.formGroup}>
-                <label className={styles.label}>
+                <label className={styles.label} htmlFor="event-name">
                   Nome do evento <span className={styles.required}>*</span>
                 </label>
                 <input
+                    id="event-name"
                     type="text"
                     className={styles.input}
                     placeholder="Ex.: Festival de Música 2026"
@@ -351,10 +352,11 @@ export default function EventDetails() {
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.label}>
+                <label className={styles.label} htmlFor="event-description">
                   Descrição <span className={styles.required}>*</span>
                 </label>
                 <textarea
+                    id="event-description"
                     className={styles.textarea}
                     placeholder="Descreva o evento, atrações, programação..."
                     value={form.descricao}
@@ -369,10 +371,11 @@ export default function EventDetails() {
 
               <div className={styles.row}>
                 <div className={styles.col}>
-                  <label className={styles.label}>
+                  <label className={styles.label} htmlFor="event-start-date">
                     Data de início <span className={styles.required}>*</span>
                   </label>
                   <input
+                      id="event-start-date"
                       type="date"
                       className={styles.input}
                       value={form.dataInicio}
@@ -381,10 +384,11 @@ export default function EventDetails() {
                   />
                 </div>
                 <div className={styles.col}>
-                  <label className={styles.label}>
+                  <label className={styles.label} htmlFor="event-end-date">
                     Data de término <span className={styles.required}>*</span>
                   </label>
                   <input
+                      id="event-end-date"
                       type="date"
                       className={styles.input}
                       value={form.dataFim}
@@ -395,10 +399,11 @@ export default function EventDetails() {
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.label}>
+                <label className={styles.label} htmlFor="event-location">
                   Local <span className={styles.required}>*</span>
                 </label>
                 <input
+                    id="event-location"
                     type="text"
                     className={styles.input}
                     placeholder="Ex.: Parque Ibirapuera, São Paulo - SP"
@@ -414,10 +419,11 @@ export default function EventDetails() {
 
               <div className={styles.row}>
                 <div className={styles.col}>
-                  <label className={styles.label}>
+                  <label className={styles.label} htmlFor="event-capacity">
                     Capacidade total <span className={styles.required}>*</span>
                   </label>
                   <input
+                      id="event-capacity"
                       type="number"
                       min="1"
                       className={styles.input}
@@ -428,10 +434,11 @@ export default function EventDetails() {
                   />
                 </div>
                 <div className={styles.col}>
-                  <label className={styles.label}>
+                  <label className={styles.label} htmlFor="event-status">
                     Status <span className={styles.required}>*</span>
                   </label>
                   <select
+                      id="event-status"
                       className={styles.select}
                       value={form.status}
                       onChange={(e) => updateField("status", e.target.value as EventoStatus)}
@@ -445,7 +452,7 @@ export default function EventDetails() {
               </div>
             </div>
 
-            {error && <p className={styles.errorText}>{error}</p>}
+            {error && <p id="event-form-error" className={styles.errorText}>{error}</p>}
 
             <div className={styles.actions}>
               <button
@@ -513,7 +520,11 @@ export default function EventDetails() {
           <form onSubmit={handleSalvarSessao} className={styles.formCard}>
             <h3>{sessaoEditando ? "Editar Sessão" : "Nova Sessão"}</h3>
 
+            <label className={styles.label} htmlFor="session-name">
+              Nome da sessão <span className={styles.required}>*</span>
+            </label>
             <input
+                id="session-name"
                 type="text"
                 className={styles.input}
                 placeholder="Nome da sessão"
@@ -522,7 +533,11 @@ export default function EventDetails() {
                 required
             />
 
+            <label className={styles.label} htmlFor="session-date-time">
+              Data e hora <span className={styles.required}>*</span>
+            </label>
             <input
+                id="session-date-time"
                 type="datetime-local"
                 className={styles.input}
                 value={sessaoDataHora}
@@ -530,7 +545,9 @@ export default function EventDetails() {
                 required
             />
 
+            <label className={styles.label} htmlFor="session-status">Status da sessão</label>
             <select
+                id="session-status"
                 className={styles.select}
                 value={sessaoStatus}
                 onChange={(e) => setSessaoStatus(e.target.value as EventoStatus)}
@@ -540,7 +557,9 @@ export default function EventDetails() {
               <option value="CANCELADO">Cancelado</option>
             </select>
 
+            <label className={styles.label} htmlFor="session-capacity">Capacidade da sessão</label>
             <input
+                id="session-capacity"
                 type="number"
                 className={styles.input}
                 placeholder="Capacidade (opcional)"
@@ -558,7 +577,10 @@ export default function EventDetails() {
           <h2 className={styles.sectionTitle}>Tipos de Ingresso</h2>
 
           {sessoes.length > 0 && (
+              <>
+              <label className={styles.label} htmlFor="ticket-session-select">Sessão</label>
               <select
+                  id="ticket-session-select"
                   className={styles.select}
                   value={sessaoSelecionada ?? ""}
                   onChange={(e) => setSessaoSelecionada(Number(e.target.value))}
@@ -569,6 +591,7 @@ export default function EventDetails() {
                     </option>
                 ))}
               </select>
+              </>
           )}
 
           {loadingTipos && <p className={styles.feedback}>Carregando tipos de ingresso...</p>}
@@ -598,7 +621,11 @@ export default function EventDetails() {
               <form onSubmit={handleCriarTipo} className={styles.formCard}>
                 <h3>Novo Tipo de Ingresso</h3>
 
+                <label className={styles.label} htmlFor="ticket-sector">
+                  Setor <span className={styles.required}>*</span>
+                </label>
                 <input
+                    id="ticket-sector"
                     type="text"
                     className={styles.input}
                     placeholder="Setor"
@@ -607,7 +634,11 @@ export default function EventDetails() {
                     required
                 />
 
+                <label className={styles.label} htmlFor="ticket-price">
+                  Preço <span className={styles.required}>*</span>
+                </label>
                 <input
+                    id="ticket-price"
                     type="number"
                     className={styles.input}
                     placeholder="Preço"
@@ -616,7 +647,11 @@ export default function EventDetails() {
                     required
                 />
 
+                <label className={styles.label} htmlFor="ticket-quantity">
+                  Quantidade total <span className={styles.required}>*</span>
+                </label>
                 <input
+                    id="ticket-quantity"
                     type="number"
                     className={styles.input}
                     placeholder="Quantidade total"
@@ -627,7 +662,11 @@ export default function EventDetails() {
                     required
                 />
 
+                <label className={styles.label} htmlFor="ticket-lot">
+                  Lote <span className={styles.required}>*</span>
+                </label>
                 <input
+                    id="ticket-lot"
                     type="number"
                     className={styles.input}
                     placeholder="Lote"

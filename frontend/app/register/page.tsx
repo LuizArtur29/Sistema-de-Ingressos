@@ -114,6 +114,8 @@ export default function Register() {
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
+                        aria-hidden="true"
+                        focusable="false"
                     >
                         <path d="M4 7V5c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2v2" />
                         <path d="M20 17v2c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2v-2" />
@@ -132,107 +134,148 @@ export default function Register() {
                 <h2 className={styles.cardTitle}>Cadastro de usuário</h2>
                 <p className={styles.cardSubtitle}>Preencha seus dados para criar a conta.</p>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} noValidate>
                     <div className={styles.formGroup}>
-                        <label className={styles.label}>Nome</label>
+                        <label className={styles.label} htmlFor="register-nome">Nome</label>
                         <div className={styles.inputWrapper}>
                             <input
+                                id="register-nome"
                                 type="text"
                                 className={styles.input}
                                 placeholder="Seu nome completo"
                                 value={form.nome}
                                 onChange={(e) => updateField("nome", e.target.value)}
+                                aria-invalid={Boolean(fieldErrors.nome)}
+                                aria-describedby={fieldErrors.nome ? "register-nome-error" : undefined}
                             />
                         </div>
-                        {fieldErrors.nome && <p className={styles.errorText}>{fieldErrors.nome}</p>}
+                        {fieldErrors.nome && (
+                            <p id="register-nome-error" className={styles.errorText}>{fieldErrors.nome}</p>
+                        )}
                     </div>
 
                     <div className={styles.formGroup}>
-                        <label className={styles.label}>CPF</label>
+                        <label className={styles.label} htmlFor="register-cpf">CPF</label>
                         <div className={styles.inputWrapper}>
                             <input
+                                id="register-cpf"
                                 type="text"
                                 className={styles.input}
                                 placeholder="Somente números"
                                 value={form.CPF}
                                 onChange={(e) => updateField("CPF", e.target.value)}
+                                aria-invalid={Boolean(fieldErrors.CPF)}
+                                aria-describedby={fieldErrors.CPF ? "register-cpf-error" : undefined}
                             />
                         </div>
-                        {fieldErrors.CPF && <p className={styles.errorText}>{fieldErrors.CPF}</p>}
-                    </div>
-
-                    <div className={styles.formGroup}>
-                        <label className={styles.label}>Data de nascimento</label>
-                        <div className={styles.inputWrapper}>
-                            <input
-                                type="date"
-                                className={styles.input}
-                                value={form.dataNascimento}
-                                onChange={(e) => updateField("dataNascimento", e.target.value)}
-                            />
-                        </div>
-                        {fieldErrors.dataNascimento && (
-                            <p className={styles.errorText}>{fieldErrors.dataNascimento}</p>
+                        {fieldErrors.CPF && (
+                            <p id="register-cpf-error" className={styles.errorText}>{fieldErrors.CPF}</p>
                         )}
                     </div>
 
                     <div className={styles.formGroup}>
-                        <label className={styles.label}>Email</label>
+                        <label className={styles.label} htmlFor="register-data-nascimento">Data de nascimento</label>
                         <div className={styles.inputWrapper}>
                             <input
+                                id="register-data-nascimento"
+                                type="date"
+                                className={styles.input}
+                                value={form.dataNascimento}
+                                onChange={(e) => updateField("dataNascimento", e.target.value)}
+                                aria-invalid={Boolean(fieldErrors.dataNascimento)}
+                                aria-describedby={
+                                    fieldErrors.dataNascimento ? "register-data-nascimento-error" : undefined
+                                }
+                            />
+                        </div>
+                        {fieldErrors.dataNascimento && (
+                            <p id="register-data-nascimento-error" className={styles.errorText}>
+                                {fieldErrors.dataNascimento}
+                            </p>
+                        )}
+                    </div>
+
+                    <div className={styles.formGroup}>
+                        <label className={styles.label} htmlFor="register-email">Email</label>
+                        <div className={styles.inputWrapper}>
+                            <input
+                                id="register-email"
                                 type="email"
                                 className={styles.input}
                                 placeholder="seu@email.com"
                                 value={form.email}
                                 onChange={(e) => updateField("email", e.target.value)}
+                                aria-invalid={Boolean(fieldErrors.email)}
+                                aria-describedby={fieldErrors.email ? "register-email-error" : undefined}
                             />
                         </div>
-                        {fieldErrors.email && <p className={styles.errorText}>{fieldErrors.email}</p>}
+                        {fieldErrors.email && (
+                            <p id="register-email-error" className={styles.errorText}>{fieldErrors.email}</p>
+                        )}
                     </div>
 
                     <div className={styles.formGroup}>
-                        <label className={styles.label}>Senha</label>
+                        <label className={styles.label} htmlFor="register-senha">Senha</label>
                         <div className={styles.inputWrapper}>
                             <input
+                                id="register-senha"
                                 type="password"
                                 className={styles.input}
                                 placeholder="••••••••"
                                 value={form.senha}
                                 onChange={(e) => updateField("senha", e.target.value)}
+                                aria-invalid={Boolean(fieldErrors.senha)}
+                                aria-describedby={fieldErrors.senha ? "register-senha-error" : undefined}
                             />
                         </div>
-                        {fieldErrors.senha && <p className={styles.errorText}>{fieldErrors.senha}</p>}
+                        {fieldErrors.senha && (
+                            <p id="register-senha-error" className={styles.errorText}>{fieldErrors.senha}</p>
+                        )}
                     </div>
 
                     <div className={styles.formGroup}>
-                        <label className={styles.label}>Endereço</label>
+                        <label className={styles.label} htmlFor="register-endereco">Endereço</label>
                         <div className={styles.inputWrapper}>
                             <input
+                                id="register-endereco"
                                 type="text"
                                 className={styles.input}
                                 placeholder="Rua, número, bairro"
                                 value={form.endereco}
                                 onChange={(e) => updateField("endereco", e.target.value)}
+                                aria-invalid={Boolean(fieldErrors.endereco)}
+                                aria-describedby={fieldErrors.endereco ? "register-endereco-error" : undefined}
                             />
                         </div>
-                        {fieldErrors.endereco && <p className={styles.errorText}>{fieldErrors.endereco}</p>}
+                        {fieldErrors.endereco && (
+                            <p id="register-endereco-error" className={styles.errorText}>
+                                {fieldErrors.endereco}
+                            </p>
+                        )}
                     </div>
 
                     <div className={styles.formGroup}>
-                        <label className={styles.label}>Telefone</label>
+                        <label className={styles.label} htmlFor="register-telefone">Telefone</label>
                         <div className={styles.inputWrapper}>
                             <input
+                                id="register-telefone"
                                 type="text"
                                 className={styles.input}
                                 placeholder="(11) 98888-7777"
                                 value={form.telefone}
                                 onChange={(e) => updateField("telefone", e.target.value)}
+                                aria-invalid={Boolean(fieldErrors.telefone)}
+                                aria-describedby={fieldErrors.telefone ? "register-telefone-error" : undefined}
                             />
                         </div>
-                        {fieldErrors.telefone && <p className={styles.errorText}>{fieldErrors.telefone}</p>}
+                        {fieldErrors.telefone && (
+                            <p id="register-telefone-error" className={styles.errorText}>
+                                {fieldErrors.telefone}
+                            </p>
+                        )}
                     </div>
 
-                    {error && <p className={styles.errorText}>{error}</p>}
+                    {error && <p id="register-form-error" className={styles.errorText}>{error}</p>}
 
                     <button type="submit" className={styles.button} disabled={loading}>
                         {loading ? "Cadastrando..." : "Cadastrar"}
