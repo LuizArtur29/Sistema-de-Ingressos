@@ -34,9 +34,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         <ToastContext.Provider value={value}>
             {children}
 
-            <div className={styles.toastContainer}>
+            <div className={styles.toastContainer} aria-label="Notificações">
                 {toasts.map((t) => (
-                    <div key={t.id} className={`${styles.toast} ${styles[t.type]}`}>
+                    <div
+                        key={t.id}
+                        className={`${styles.toast} ${styles[t.type]}`}
+                        role={t.type === "error" ? "alert" : "status"}
+                        aria-live={t.type === "error" ? "assertive" : "polite"}
+                        aria-atomic="true"
+                    >
                         {t.message}
                     </div>
                 ))}
