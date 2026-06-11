@@ -19,12 +19,13 @@ type SessionsManagerProps = {
     formError: string | null;
   };
   onEditSession: (sessao: SessaoEventoResponse) => void;
-  onRemoveSession: (idSessao: number) => void;
+  onRemoveSession: (sessao: SessaoEventoResponse) => void;
   onSubmitSession: (event: FormEvent) => void;
   onSessionNameChange: (value: string) => void;
   onSessionDateTimeChange: (value: string) => void;
   onSessionStatusChange: (value: SessionStatus) => void;
   onSessionCapacityChange: (value: string) => void;
+  deletingSessionId: number | null;
 };
 
 export default function SessionsManager({
@@ -40,6 +41,7 @@ export default function SessionsManager({
   onSessionDateTimeChange,
   onSessionStatusChange,
   onSessionCapacityChange,
+  deletingSessionId,
 }: SessionsManagerProps) {
   return (
     <div className={styles.section}>
@@ -67,8 +69,13 @@ export default function SessionsManager({
                   <button type="button" className={styles.btnCancel} onClick={() => onEditSession(sessao)}>
                     Editar
                   </button>
-                  <button type="button" className={styles.btnDelete} onClick={() => onRemoveSession(sessao.idSessao)}>
-                    Remover
+                  <button
+                    type="button"
+                    className={styles.btnDelete}
+                    onClick={() => onRemoveSession(sessao)}
+                    disabled={deletingSessionId !== null}
+                  >
+                    {deletingSessionId === sessao.idSessao ? "Removendo..." : "Remover"}
                   </button>
                 </div>
               )}
