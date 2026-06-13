@@ -1,0 +1,219 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.2;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(26, 92, 255, 0.18);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.primary {
+  background-color: var(--primary-blue);
+  color: white;
+}
+
+.primary:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+}
+
+.secondary {
+  background-color: white;
+  border-color: var(--border-color);
+  color: var(--text-main);
+}
+
+.secondary:hover:not(:disabled) {
+  background-color: var(--neutral-bg);
+}
+
+.danger {
+  background-color: white;
+  border-color: var(--danger-text);
+  color: var(--danger-text);
+}
+
+.danger:hover:not(:disabled) {
+  background-color: var(--danger-bg);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.card {
+  width: 100%;
+  padding: 2.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--card-bg);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+}
+
+.cardHeader {
+  margin-bottom: 2rem;
+}
+
+.cardTitle {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.cardSubtitle {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.field {
+  margin-bottom: 1.5rem;
+}
+
+.label {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+.required {
+  color: var(--danger-text);
+}
+
+.controlWrap {
+  position: relative;
+}
+
+.control {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  outline: none;
+  color: var(--text-main);
+  background-color: white;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.control::placeholder {
+  color: #9ca3af;
+}
+
+.control:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(26, 92, 255, 0.1);
+}
+
+.control:disabled {
+  cursor: not-allowed;
+  background-color: var(--neutral-bg);
+  color: var(--text-muted);
+  opacity: 0.9;
+}
+
+.control[aria-invalid="true"] {
+  border-color: var(--danger-text);
+}
+
+.control[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.withTrailing {
+  padding-right: 2.75rem;
+}
+
+.trailing {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  display: inline-flex;
+  color: #9ca3af;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.helpText,
+.errorText {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.helpText {
+  color: var(--text-muted);
+}
+
+.errorText {
+  color: var(--danger-text);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.badgeSuccess {
+  background-color: var(--success-bg);
+  color: var(--success-text);
+}
+
+.badgeDanger {
+  background-color: var(--danger-bg);
+  color: var(--danger-text);
+}
+
+.badgeNeutral {
+  background-color: var(--neutral-bg);
+  color: var(--neutral-text);
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 3rem;
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 1.5rem;
+  }
+
+  .formActions {
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+  }
+
+  .formActions .button {
+    width: 100%;
+  }
+}

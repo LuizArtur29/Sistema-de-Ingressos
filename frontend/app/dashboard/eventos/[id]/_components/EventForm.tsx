@@ -1,4 +1,5 @@
 import { FormEvent } from "react";
+import { Button, Card, FormActions, SelectField, TextareaField, TextField } from "@/components/ui";
 import { EventoStatus } from "@/services/types";
 import { EventFieldErrors, EventFormState } from "../_utils/eventDetailsTypes";
 import styles from "../page.module.css";
@@ -27,43 +28,33 @@ export default function EventForm({
   onFieldChange,
 }: EventFormProps) {
   return (
-    <div className={styles.formCard}>
+    <Card>
       <form onSubmit={onSubmit} noValidate aria-describedby={error ? "event-form-error" : undefined}>
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>Informações Básicas</h2>
 
-          <div className={styles.formGroup}>
-            <label className={styles.label} htmlFor="event-name">
-              Nome do evento <span className={styles.required}>*</span>
-            </label>
-            <input
-              id="event-name"
-              type="text"
-              className={styles.input}
-              placeholder="Ex.: Festival de Música 2026"
-              value={form.nome}
-              onChange={(e) => onFieldChange("nome", e.target.value)}
-              disabled={!isAdmin}
-              required
-            />
-            {fieldErrors.nome && <p className={styles.errorText}>{fieldErrors.nome}</p>}
-          </div>
+          <TextField
+            id="event-name"
+            label="Nome do evento"
+            type="text"
+            placeholder="Ex.: Festival de Música 2026"
+            value={form.nome}
+            onChange={(e) => onFieldChange("nome", e.target.value)}
+            disabled={!isAdmin}
+            required
+            error={fieldErrors.nome}
+          />
 
-          <div className={styles.formGroup}>
-            <label className={styles.label} htmlFor="event-description">
-              Descrição <span className={styles.required}>*</span>
-            </label>
-            <textarea
-              id="event-description"
-              className={styles.textarea}
-              placeholder="Descreva o evento, atrações, programação..."
-              value={form.descricao}
-              onChange={(e) => onFieldChange("descricao", e.target.value)}
-              disabled={!isAdmin}
-              required
-            />
-            {fieldErrors.descricao && <p className={styles.errorText}>{fieldErrors.descricao}</p>}
-          </div>
+          <TextareaField
+            id="event-description"
+            label="Descrição"
+            placeholder="Descreva o evento, atrações, programação..."
+            value={form.descricao}
+            onChange={(e) => onFieldChange("descricao", e.target.value)}
+            disabled={!isAdmin}
+            required
+            error={fieldErrors.descricao}
+          />
         </div>
 
         <div className={styles.section}>
@@ -71,53 +62,42 @@ export default function EventForm({
 
           <div className={styles.row}>
             <div className={styles.col}>
-              <label className={styles.label} htmlFor="event-start-date">
-                Data de início <span className={styles.required}>*</span>
-              </label>
-              <input
+              <TextField
                 id="event-start-date"
+                label="Data de início"
                 type="date"
-                className={styles.input}
                 value={form.dataInicio}
                 onChange={(e) => onFieldChange("dataInicio", e.target.value)}
                 disabled={!isAdmin}
                 required
+                error={fieldErrors.dataInicio}
               />
-              {fieldErrors.dataInicio && <p className={styles.errorText}>{fieldErrors.dataInicio}</p>}
             </div>
             <div className={styles.col}>
-              <label className={styles.label} htmlFor="event-end-date">
-                Data de término <span className={styles.required}>*</span>
-              </label>
-              <input
+              <TextField
                 id="event-end-date"
+                label="Data de término"
                 type="date"
-                className={styles.input}
                 value={form.dataFim}
                 onChange={(e) => onFieldChange("dataFim", e.target.value)}
                 disabled={!isAdmin}
                 required
+                error={fieldErrors.dataFim}
               />
-              {fieldErrors.dataFim && <p className={styles.errorText}>{fieldErrors.dataFim}</p>}
             </div>
           </div>
 
-          <div className={styles.formGroup}>
-            <label className={styles.label} htmlFor="event-location">
-              Local <span className={styles.required}>*</span>
-            </label>
-            <input
-              id="event-location"
-              type="text"
-              className={styles.input}
-              placeholder="Ex.: Parque Ibirapuera, São Paulo - SP"
-              value={form.local}
-              onChange={(e) => onFieldChange("local", e.target.value)}
-              disabled={!isAdmin}
-              required
-            />
-            {fieldErrors.local && <p className={styles.errorText}>{fieldErrors.local}</p>}
-          </div>
+          <TextField
+            id="event-location"
+            label="Local"
+            type="text"
+            placeholder="Ex.: Parque Ibirapuera, São Paulo - SP"
+            value={form.local}
+            onChange={(e) => onFieldChange("local", e.target.value)}
+            disabled={!isAdmin}
+            required
+            error={fieldErrors.local}
+          />
         </div>
 
         <div className={styles.section}>
@@ -125,59 +105,51 @@ export default function EventForm({
 
           <div className={styles.row}>
             <div className={styles.col}>
-              <label className={styles.label} htmlFor="event-capacity">
-                Capacidade total <span className={styles.required}>*</span>
-              </label>
-              <input
+              <TextField
                 id="event-capacity"
+                label="Capacidade total"
                 type="number"
                 min="1"
                 step="1"
-                className={styles.input}
                 placeholder="Ex.: 500"
                 value={form.capacidadeTotal}
                 onChange={(e) => onFieldChange("capacidadeTotal", e.target.value)}
                 disabled={!isAdmin}
                 required
+                error={fieldErrors.capacidadeTotal}
               />
-              {fieldErrors.capacidadeTotal && (
-                <p className={styles.errorText}>{fieldErrors.capacidadeTotal}</p>
-              )}
             </div>
             <div className={styles.col}>
-              <label className={styles.label} htmlFor="event-status">
-                Status <span className={styles.required}>*</span>
-              </label>
-              <select
+              <SelectField
                 id="event-status"
-                className={styles.select}
+                label="Status"
                 value={form.status}
                 onChange={(e) => onFieldChange("status", e.target.value as EventoStatus)}
                 disabled={!isAdmin}
                 required
+                error={fieldErrors.status}
               >
                 <option value="ATIVO">Ativo</option>
                 <option value="CANCELADO">Cancelado</option>
                 <option value="FINALIZADO">Finalizado</option>
-              </select>
-              {fieldErrors.status && <p className={styles.errorText}>{fieldErrors.status}</p>}
+              </SelectField>
             </div>
           </div>
         </div>
 
         {error && <p id="event-form-error" className={styles.errorText}>{error}</p>}
 
-        <div className={styles.actions}>
-          <button type="button" className={styles.btnCancel} onClick={onCancel} disabled={saving || deleting}>
+        <FormActions>
+          <Button type="button" variant="secondary" onClick={onCancel} disabled={saving || deleting}>
             Cancelar
-          </button>
+          </Button>
           {isAdmin && (
-            <button type="submit" className={styles.btnSave} disabled={saving || deleting}>
+            <Button type="submit" disabled={saving || deleting}>
               {saving ? "Salvando..." : "Salvar Alterações"}
-            </button>
+            </Button>
           )}
-        </div>
+        </FormActions>
       </form>
-    </div>
+    </Card>
   );
 }

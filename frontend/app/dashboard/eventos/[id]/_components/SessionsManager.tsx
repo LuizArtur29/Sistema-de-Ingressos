@@ -1,4 +1,5 @@
 import { FormEvent } from "react";
+import { Button, Card, SelectField, TextField } from "@/components/ui";
 import { SessaoEventoResponse } from "@/services/types";
 import { toDateTimeLocal } from "../_utils/dateHelpers";
 import { SESSION_STATUS_OPTIONS, SessionFieldErrors, SessionStatus } from "../_utils/eventDetailsTypes";
@@ -66,17 +67,17 @@ export default function SessionsManager({
               </div>
               {isAdmin && (
                 <div className={styles.actionsInline}>
-                  <button type="button" className={styles.btnCancel} onClick={() => onEditSession(sessao)}>
+                  <Button type="button" variant="secondary" onClick={() => onEditSession(sessao)}>
                     Editar
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
-                    className={styles.btnDelete}
+                    variant="danger"
                     onClick={() => onRemoveSession(sessao)}
                     disabled={deletingSessionId !== null}
                   >
                     {deletingSessionId === sessao.idSessao ? "Removendo..." : "Remover"}
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -85,71 +86,63 @@ export default function SessionsManager({
       )}
 
       {isAdmin && (
-        <form onSubmit={onSubmitSession} className={styles.formCard} noValidate>
-          <h3>{form.editando ? "Editar Sessão" : "Nova Sessão"}</h3>
+        <Card className={styles.inlineFormCard}>
+          <form onSubmit={onSubmitSession} noValidate>
+            <h3>{form.editando ? "Editar Sessão" : "Nova Sessão"}</h3>
 
-          <label className={styles.label} htmlFor="session-name">
-            Nome da sessão <span className={styles.required}>*</span>
-          </label>
-          <input
-            id="session-name"
-            type="text"
-            className={styles.input}
-            placeholder="Nome da sessão"
-            value={form.nome}
-            onChange={(e) => onSessionNameChange(e.target.value)}
-            required
-          />
-          {form.fieldErrors.nomeSessao && <p className={styles.errorText}>{form.fieldErrors.nomeSessao}</p>}
+            <TextField
+              id="session-name"
+              label="Nome da sessão"
+              type="text"
+              placeholder="Nome da sessão"
+              value={form.nome}
+              onChange={(e) => onSessionNameChange(e.target.value)}
+              required
+              error={form.fieldErrors.nomeSessao}
+            />
 
-          <label className={styles.label} htmlFor="session-date-time">
-            Data e hora <span className={styles.required}>*</span>
-          </label>
-          <input
-            id="session-date-time"
-            type="datetime-local"
-            className={styles.input}
-            value={form.dataHora}
-            onChange={(e) => onSessionDateTimeChange(e.target.value)}
-            required
-          />
-          {form.fieldErrors.dataHoraSessao && (
-            <p className={styles.errorText}>{form.fieldErrors.dataHoraSessao}</p>
-          )}
+            <TextField
+              id="session-date-time"
+              label="Data e hora"
+              type="datetime-local"
+              value={form.dataHora}
+              onChange={(e) => onSessionDateTimeChange(e.target.value)}
+              required
+              error={form.fieldErrors.dataHoraSessao}
+            />
 
-          <label className={styles.label} htmlFor="session-status">Status da sessão</label>
-          <select
-            id="session-status"
-            className={styles.select}
-            value={form.status}
-            onChange={(e) => onSessionStatusChange(e.target.value as SessionStatus)}
-          >
-            {SESSION_STATUS_OPTIONS.map((status) => (
-              <option key={status} value={status}>
-                {status === "ATIVO" ? "Ativo" : status === "ESGOTADO" ? "Esgotado" : "Cancelado"}
-              </option>
-            ))}
-          </select>
-          {form.fieldErrors.statusSessao && <p className={styles.errorText}>{form.fieldErrors.statusSessao}</p>}
+            <SelectField
+              id="session-status"
+              label="Status da sessão"
+              value={form.status}
+              onChange={(e) => onSessionStatusChange(e.target.value as SessionStatus)}
+              error={form.fieldErrors.statusSessao}
+            >
+              {SESSION_STATUS_OPTIONS.map((status) => (
+                <option key={status} value={status}>
+                  {status === "ATIVO" ? "Ativo" : status === "ESGOTADO" ? "Esgotado" : "Cancelado"}
+                </option>
+              ))}
+            </SelectField>
 
-          <label className={styles.label} htmlFor="session-capacity">Capacidade da sessão</label>
-          <input
-            id="session-capacity"
-            type="number"
-            className={styles.input}
-            placeholder="Capacidade (opcional)"
-            min="1"
-            step="1"
-            value={form.capacidade}
-            onChange={(e) => onSessionCapacityChange(e.target.value)}
-          />
-          {form.fieldErrors.capacidade && <p className={styles.errorText}>{form.fieldErrors.capacidade}</p>}
-          {form.formError && <p className={styles.errorText}>{form.formError}</p>}
+            <TextField
+              id="session-capacity"
+              label="Capacidade da sessão"
+              type="number"
+              placeholder="Capacidade (opcional)"
+              min="1"
+              step="1"
+              value={form.capacidade}
+              onChange={(e) => onSessionCapacityChange(e.target.value)}
+              error={form.fieldErrors.capacidade}
+            />
+            {form.formError && <p className={styles.errorText}>{form.formError}</p>}
 
-          <button type="submit" className={styles.btnSave}>
-            {form.editando ? "Atualizar Sessão" : "Criar Sessão"}
-          </button>
-        </form>
+            <Button type="submit">
+              {form.editando ? "Atualizar Sessão" : "Criar Sessão"}
+            </Button>
+          </form>
+        </Card>
       )}
     </div>
   );

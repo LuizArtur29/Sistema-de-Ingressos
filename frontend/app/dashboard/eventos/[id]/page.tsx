@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { Badge, Button, Card } from "@/components/ui";
 import { usePermissions } from "@/hooks/useAuthUser";
 import EventForm from "./_components/EventForm";
 import SessionsManager from "./_components/SessionsManager";
@@ -15,6 +16,12 @@ const statusLabelMap: Record<EventoStatus, string> = {
   ATIVO: "Ativo",
   CANCELADO: "Cancelado",
   FINALIZADO: "Finalizado",
+};
+
+const statusVariantMap: Record<EventoStatus, "success" | "danger" | "neutral"> = {
+  ATIVO: "success",
+  CANCELADO: "danger",
+  FINALIZADO: "neutral",
 };
 
 export default function EventDetails() {
@@ -35,12 +42,12 @@ export default function EventDetails() {
         <div className={styles.breadcrumbs}>
           <Link href="/dashboard">Eventos</Link> &gt; <span>Detalhes</span>
         </div>
-        <div className={styles.errorCard}>
+        <Card className={styles.errorCard}>
           <p>{error}</p>
-          <button className={styles.btnCancel} onClick={controller.eventHandlers.goBack}>
+          <Button variant="secondary" onClick={controller.eventHandlers.goBack}>
             Voltar ao dashboard
-          </button>
-        </div>
+          </Button>
+        </Card>
       </div>
     );
   }
@@ -53,21 +60,21 @@ export default function EventDetails() {
 
       <div className={styles.header}>
         <div>
-          <span className={`${styles.badge} ${styles[form.status.toLowerCase()]}`}>
+          <Badge variant={statusVariantMap[form.status]}>
             {statusLabelMap[form.status]}
-          </span>
+          </Badge>
           <h1 className={styles.title}>Detalhes do Evento</h1>
           <p className={styles.subtitle}>Visualize, edite ou exclua este evento.</p>
         </div>
         {isAdmin && (
-          <button
+          <Button
             type="button"
-            className={styles.btnDelete}
+            variant="danger"
             onClick={controller.eventHandlers.handleDelete}
             disabled={controller.deleting || controller.saving}
           >
             {controller.deleting ? "Excluindo..." : "Excluir Evento"}
-          </button>
+          </Button>
         )}
       </div>
 

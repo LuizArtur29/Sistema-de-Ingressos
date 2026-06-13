@@ -42,44 +42,16 @@
   font-size: 1rem;
 }
 
-.badge {
-  display: inline-flex;
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.ativo {
-  background-color: var(--success-bg);
-  color: var(--success-text);
-}
-
-.cancelado {
-  background-color: var(--danger-bg);
-  color: var(--danger-text);
-}
-
-.finalizado {
-  background-color: var(--neutral-bg);
-  color: var(--neutral-text);
-}
-
-.formCard,
-.errorCard {
-  background: white;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  padding: 2.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-}
-
 .errorCard {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
   color: var(--danger-text);
+}
+
+.inlineFormCard {
+  margin-top: 1.5rem;
 }
 
 .section {
@@ -95,10 +67,6 @@
   border-bottom: 1px solid var(--border-color);
 }
 
-.formGroup {
-  margin-bottom: 1.5rem;
-}
-
 .row {
   display: flex;
   gap: 1.5rem;
@@ -107,48 +75,6 @@
 
 .col {
   flex: 1;
-}
-
-.label {
-  display: block;
-  font-size: 0.95rem;
-  color: var(--text-main);
-  margin-bottom: 0.5rem;
-}
-
-.required {
-  color: var(--danger-text);
-}
-
-.input,
-.textarea,
-.select {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 0.95rem;
-  outline: none;
-  transition: all 0.2s ease;
-  color: var(--text-main);
-  background-color: white;
-}
-
-.textarea {
-  resize: vertical;
-  min-height: 120px;
-}
-
-.input::placeholder,
-.textarea::placeholder {
-  color: #9ca3af;
-}
-
-.input:focus,
-.textarea:focus,
-.select:focus {
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 3px rgba(26, 92, 255, 0.1);
 }
 
 .feedback,
@@ -161,60 +87,6 @@
   color: var(--danger-text);
 }
 
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 3rem;
-}
-
-.btnCancel,
-.btnSave,
-.btnDelete {
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.95rem;
-  transition: background-color 0.2s, border-color 0.2s, opacity 0.2s;
-}
-
-.btnCancel {
-  background-color: white;
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-}
-
-.btnCancel:hover:not(:disabled) {
-  background-color: var(--neutral-bg);
-}
-
-.btnSave {
-  background-color: var(--primary-blue);
-  color: white;
-  border: none;
-}
-
-.btnSave:hover:not(:disabled) {
-  background-color: var(--primary-hover);
-}
-
-.btnDelete {
-  background-color: white;
-  border: 1px solid var(--danger-text);
-  color: var(--danger-text);
-}
-
-.btnDelete:hover:not(:disabled) {
-  background-color: var(--danger-bg);
-}
-
-.btnCancel:disabled,
-.btnSave:disabled,
-.btnDelete:disabled {
-  cursor: not-allowed;
-  opacity: 0.65;
-}
-
 @media (max-width: 768px) {
   .header,
   .row,
@@ -222,19 +94,18 @@
     flex-direction: column;
   }
 
-  .btnDelete,
-  .actions,
-  .actions button {
+  .header button,
+  .actionsInline,
+  .actionsInline button {
     width: 100%;
   }
 
-  .actions {
-    flex-direction: column-reverse;
+  .actionsInline {
+    flex-direction: column;
   }
 
-  .formCard,
   .errorCard {
-    padding: 1.5rem;
+    align-items: stretch;
   }
 }
 

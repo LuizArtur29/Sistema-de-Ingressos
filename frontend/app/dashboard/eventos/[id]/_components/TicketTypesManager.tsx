@@ -1,4 +1,5 @@
 import { FormEvent } from "react";
+import { Button, Card, SelectField, TextField } from "@/components/ui";
 import { SessaoEventoResponse, TipoIngressoResponse } from "@/services/types";
 import { TicketTypeFieldErrors } from "../_utils/eventDetailsTypes";
 import styles from "../page.module.css";
@@ -46,11 +47,9 @@ export default function TicketTypesManager({
       <h2 className={styles.sectionTitle}>Tipos de Ingresso</h2>
 
       {sessoes.length > 0 && (
-        <>
-          <label className={styles.label} htmlFor="ticket-session-select">Sessão</label>
-          <select
+        <SelectField
             id="ticket-session-select"
-            className={styles.select}
+            label="Sessão"
             value={sessaoSelecionada ?? ""}
             onChange={(e) => onSelectedSessionChange(Number(e.target.value))}
           >
@@ -59,8 +58,7 @@ export default function TicketTypesManager({
                 {sessao.nomeSessao}
               </option>
             ))}
-          </select>
-        </>
+        </SelectField>
       )}
 
       {loadingTipos && <p className={styles.feedback}>Carregando tipos de ingresso...</p>}
@@ -87,78 +85,66 @@ export default function TicketTypesManager({
       )}
 
       {isAdmin && sessaoSelecionada && (
-        <form onSubmit={onSubmitTicketType} className={styles.formCard} noValidate>
-          <h3>Novo Tipo de Ingresso</h3>
+        <Card className={styles.inlineFormCard}>
+          <form onSubmit={onSubmitTicketType} noValidate>
+            <h3>Novo Tipo de Ingresso</h3>
 
-          <label className={styles.label} htmlFor="ticket-sector">
-            Setor <span className={styles.required}>*</span>
-          </label>
-          <input
-            id="ticket-sector"
-            type="text"
-            className={styles.input}
-            placeholder="Setor"
-            value={form.nomeSetor}
-            onChange={(e) => onSectorChange(e.target.value)}
-            required
-          />
-          {form.fieldErrors.nomeSetor && <p className={styles.errorText}>{form.fieldErrors.nomeSetor}</p>}
+            <TextField
+              id="ticket-sector"
+              label="Setor"
+              type="text"
+              placeholder="Setor"
+              value={form.nomeSetor}
+              onChange={(e) => onSectorChange(e.target.value)}
+              required
+              error={form.fieldErrors.nomeSetor}
+            />
 
-          <label className={styles.label} htmlFor="ticket-price">
-            Preço <span className={styles.required}>*</span>
-          </label>
-          <input
-            id="ticket-price"
-            type="number"
-            className={styles.input}
-            placeholder="Preço"
-            min="0"
-            step="0.01"
-            value={form.preco}
-            onChange={(e) => onPriceChange(e.target.value)}
-            required
-          />
-          {form.fieldErrors.preco && <p className={styles.errorText}>{form.fieldErrors.preco}</p>}
+            <TextField
+              id="ticket-price"
+              label="Preço"
+              type="number"
+              placeholder="Preço"
+              min="0"
+              step="0.01"
+              value={form.preco}
+              onChange={(e) => onPriceChange(e.target.value)}
+              required
+              error={form.fieldErrors.preco}
+            />
 
-          <label className={styles.label} htmlFor="ticket-quantity">
-            Quantidade total <span className={styles.required}>*</span>
-          </label>
-          <input
-            id="ticket-quantity"
-            type="number"
-            className={styles.input}
-            placeholder="Quantidade total"
-            min="1"
-            step="1"
-            value={form.quantidadeTotal}
-            onChange={(e) => onQuantityChange(e.target.value)}
-            required
-          />
-          {form.fieldErrors.quantidadeTotal && (
-            <p className={styles.errorText}>{form.fieldErrors.quantidadeTotal}</p>
-          )}
+            <TextField
+              id="ticket-quantity"
+              label="Quantidade total"
+              type="number"
+              placeholder="Quantidade total"
+              min="1"
+              step="1"
+              value={form.quantidadeTotal}
+              onChange={(e) => onQuantityChange(e.target.value)}
+              required
+              error={form.fieldErrors.quantidadeTotal}
+            />
 
-          <label className={styles.label} htmlFor="ticket-lot">
-            Lote <span className={styles.required}>*</span>
-          </label>
-          <input
-            id="ticket-lot"
-            type="number"
-            className={styles.input}
-            placeholder="Lote"
-            min="1"
-            step="1"
-            value={form.lote}
-            onChange={(e) => onLotChange(e.target.value)}
-            required
-          />
-          {form.fieldErrors.lote && <p className={styles.errorText}>{form.fieldErrors.lote}</p>}
-          {form.formError && <p className={styles.errorText}>{form.formError}</p>}
+            <TextField
+              id="ticket-lot"
+              label="Lote"
+              type="number"
+              placeholder="Lote"
+              min="1"
+              step="1"
+              value={form.lote}
+              onChange={(e) => onLotChange(e.target.value)}
+              required
+              error={form.fieldErrors.lote}
+            />
+            {form.formError && <p className={styles.errorText}>{form.formError}</p>}
 
-          <button type="submit" className={styles.btnSave}>
-            Criar Tipo
-          </button>
-        </form>
+            <Button type="submit">
+              Criar Tipo
+            </Button>
+          </form>
+        </Card>
       )}
     </div>
   );
