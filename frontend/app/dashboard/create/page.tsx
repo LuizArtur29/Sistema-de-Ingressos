@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { isAxiosError } from "axios";
 import AdminGuard from "@/components/AdminGuard";
 import { useToast } from "@/components/ToastProvider";
+import { Button, Card, FormActions, SelectField, TextareaField, TextField } from "@/components/ui";
 import { getForbiddenMessage, isForbiddenError } from "@/lib/apiErrors";
 import { criarEvento } from "@/services/eventos";
 import { ApiProblemDetail, EventoCreateRequest, EventoStatus } from "@/services/types";
@@ -118,39 +119,31 @@ export default function CreateEvent() {
           <p className={styles.subtitle}>Preencha os campos abaixo para cadastrar um novo evento.</p>
         </div>
 
-        <div className={styles.formCard}>
+        <Card>
           <form onSubmit={handleSave} noValidate>
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>Informações Básicas</h2>
 
-              <div className={styles.formGroup}>
-                <label className={styles.label}>
-                  Nome do evento <span className={styles.required}>*</span>
-                </label>
-                <input
-                    type="text"
-                    className={styles.input}
-                    placeholder="Ex.: Festival de Música 2026"
-                    value={form.nome}
-                    onChange={(e) => updateField("nome", e.target.value)}
-                    required
-                />
-                {fieldErrors.nome && <p className={styles.errorText}>{fieldErrors.nome}</p>}
-              </div>
+              <TextField
+                id="create-event-name"
+                label="Nome do evento"
+                type="text"
+                placeholder="Ex.: Festival de Música 2026"
+                value={form.nome}
+                onChange={(e) => updateField("nome", e.target.value)}
+                required
+                error={fieldErrors.nome}
+              />
 
-              <div className={styles.formGroup}>
-                <label className={styles.label}>
-                  Descrição <span className={styles.required}>*</span>
-                </label>
-                <textarea
-                    className={styles.textarea}
-                    placeholder="Descreva o evento, atrações, programação..."
-                    value={form.descricao}
-                    onChange={(e) => updateField("descricao", e.target.value)}
-                    required
-                />
-                {fieldErrors.descricao && <p className={styles.errorText}>{fieldErrors.descricao}</p>}
-              </div>
+              <TextareaField
+                id="create-event-description"
+                label="Descrição"
+                placeholder="Descreva o evento, atrações, programação..."
+                value={form.descricao}
+                onChange={(e) => updateField("descricao", e.target.value)}
+                required
+                error={fieldErrors.descricao}
+              />
             </div>
 
             <div className={styles.section}>
@@ -158,51 +151,39 @@ export default function CreateEvent() {
 
               <div className={styles.row}>
                 <div className={styles.col}>
-                  <label className={styles.label}>
-                    Data de início <span className={styles.required}>*</span>
-                  </label>
-                  <div className={styles.inputIcon}>
-                    <input
-                        type="date"
-                        className={styles.input}
-                        value={form.dataInicio}
-                        onChange={(e) => updateField("dataInicio", e.target.value)}
-                        required
-                    />
-                  </div>
-                  {fieldErrors.dataInicio && <p className={styles.errorText}>{fieldErrors.dataInicio}</p>}
+                  <TextField
+                    id="create-event-start-date"
+                    label="Data de início"
+                    type="date"
+                    value={form.dataInicio}
+                    onChange={(e) => updateField("dataInicio", e.target.value)}
+                    required
+                    error={fieldErrors.dataInicio}
+                  />
                 </div>
                 <div className={styles.col}>
-                  <label className={styles.label}>
-                    Data de término <span className={styles.required}>*</span>
-                  </label>
-                  <div className={styles.inputIcon}>
-                    <input
-                        type="date"
-                        className={styles.input}
-                        value={form.dataFim}
-                        onChange={(e) => updateField("dataFim", e.target.value)}
-                        required
-                    />
-                  </div>
-                  {fieldErrors.dataFim && <p className={styles.errorText}>{fieldErrors.dataFim}</p>}
+                  <TextField
+                    id="create-event-end-date"
+                    label="Data de término"
+                    type="date"
+                    value={form.dataFim}
+                    onChange={(e) => updateField("dataFim", e.target.value)}
+                    required
+                    error={fieldErrors.dataFim}
+                  />
                 </div>
               </div>
 
-              <div className={styles.formGroup}>
-                <label className={styles.label}>
-                  Local <span className={styles.required}>*</span>
-                </label>
-                <input
-                  type="text"
-                  className={styles.input}
-                  placeholder="Ex.: Parque Ibirapuera, São Paulo - SP"
-                  value={form.local}
-                  onChange={(e) => updateField("local", e.target.value)}
-                  required
-                />
-                {fieldErrors.local && <p className={styles.errorText}>{fieldErrors.local}</p>}
-              </div>
+              <TextField
+                id="create-event-location"
+                label="Local"
+                type="text"
+                placeholder="Ex.: Parque Ibirapuera, São Paulo - SP"
+                value={form.local}
+                onChange={(e) => updateField("local", e.target.value)}
+                required
+                error={fieldErrors.local}
+              />
             </div>
 
             <div className={styles.section}>
@@ -210,59 +191,53 @@ export default function CreateEvent() {
 
               <div className={styles.row}>
                 <div className={styles.col}>
-                  <label className={styles.label}>
-                    Capacidade total <span className={styles.required}>*</span>
-                  </label>
-                  <input
-                      type="number"
-                      className={styles.input}
-                      placeholder="Ex.: 500"
-                      value={form.capacidadeTotal}
-                      onChange={(e) => updateField("capacidadeTotal", e.target.value)}
-                      min="1"
-                      step="1"
-                      required
+                  <TextField
+                    id="create-event-capacity"
+                    label="Capacidade total"
+                    type="number"
+                    placeholder="Ex.: 500"
+                    value={form.capacidadeTotal}
+                    onChange={(e) => updateField("capacidadeTotal", e.target.value)}
+                    min="1"
+                    step="1"
+                    required
+                    error={fieldErrors.capacidadeTotal}
                   />
-                  {fieldErrors.capacidadeTotal && (
-                    <p className={styles.errorText}>{fieldErrors.capacidadeTotal}</p>
-                  )}
                 </div>
                 <div className={styles.col}>
-                  <label className={styles.label}>
-                    Status <span className={styles.required}>*</span>
-                  </label>
-                  <select
-                      className={styles.select}
-                      value={form.status}
-                      onChange={(e) => updateField("status", e.target.value as EventoStatus)}
-                      required
+                  <SelectField
+                    id="create-event-status"
+                    label="Status"
+                    value={form.status}
+                    onChange={(e) => updateField("status", e.target.value as EventoStatus)}
+                    required
+                    error={fieldErrors.status}
                   >
                     <option value="ATIVO">Ativo</option>
                     <option value="CANCELADO">Cancelado</option>
                     <option value="FINALIZADO">Finalizado</option>
-                  </select>
-                  {fieldErrors.status && <p className={styles.errorText}>{fieldErrors.status}</p>}
+                  </SelectField>
                 </div>
               </div>
             </div>
 
             {error && <p className={styles.errorText}>{error}</p>}
 
-            <div className={styles.actions}>
-              <button
-                  type="button"
-                  className={styles.btnCancel}
-                  onClick={() => router.push("/dashboard")}
-                  disabled={loading}
+            <FormActions>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => router.push("/dashboard")}
+                disabled={loading}
               >
                 Cancelar
-              </button>
-              <button type="submit" className={styles.btnSave} disabled={loading}>
+              </Button>
+              <Button type="submit" disabled={loading}>
                 {loading ? "Salvando..." : "Salvar Evento"}
-              </button>
-            </div>
+              </Button>
+            </FormActions>
           </form>
-        </div>
+        </Card>
       </div>
     </AdminGuard>
   );

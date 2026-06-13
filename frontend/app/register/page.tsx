@@ -7,6 +7,7 @@ import { isAxiosError } from "axios";
 import { register } from "@/services/auth";
 import { ApiProblemDetail, RegisterRequest } from "@/services/types";
 import { useToast } from "@/components/ToastProvider";
+import { Button, Card, TextField } from "@/components/ui";
 import styles from "./page.module.css";
 
 type FieldErrors = Partial<Record<keyof RegisterRequest, string>>;
@@ -130,162 +131,86 @@ export default function Register() {
                 <p className={styles.subtitle}>Crie sua conta para continuar</p>
             </div>
 
-            <div className={styles.card}>
-                <h2 className={styles.cardTitle}>Cadastro de usuário</h2>
-                <p className={styles.cardSubtitle}>Preencha seus dados para criar a conta.</p>
-
+            <Card
+                title="Cadastro de usuário"
+                subtitle="Preencha seus dados para criar a conta."
+                className={styles.authCard}
+            >
                 <form onSubmit={handleSubmit} noValidate>
-                    <div className={styles.formGroup}>
-                        <label className={styles.label} htmlFor="register-nome">Nome</label>
-                        <div className={styles.inputWrapper}>
-                            <input
-                                id="register-nome"
-                                type="text"
-                                className={styles.input}
-                                placeholder="Seu nome completo"
-                                value={form.nome}
-                                onChange={(e) => updateField("nome", e.target.value)}
-                                aria-invalid={Boolean(fieldErrors.nome)}
-                                aria-describedby={fieldErrors.nome ? "register-nome-error" : undefined}
-                            />
-                        </div>
-                        {fieldErrors.nome && (
-                            <p id="register-nome-error" className={styles.errorText}>{fieldErrors.nome}</p>
-                        )}
-                    </div>
+                    <TextField
+                        id="register-nome"
+                        label="Nome"
+                        type="text"
+                        placeholder="Seu nome completo"
+                        value={form.nome}
+                        onChange={(e) => updateField("nome", e.target.value)}
+                        error={fieldErrors.nome}
+                    />
+                    <TextField
+                        id="register-cpf"
+                        label="CPF"
+                        type="text"
+                        placeholder="Somente números"
+                        value={form.CPF}
+                        onChange={(e) => updateField("CPF", e.target.value)}
+                        error={fieldErrors.CPF}
+                    />
+                    <TextField
+                        id="register-data-nascimento"
+                        label="Data de nascimento"
+                        type="date"
+                        value={form.dataNascimento}
+                        onChange={(e) => updateField("dataNascimento", e.target.value)}
+                        error={fieldErrors.dataNascimento}
+                    />
+                    <TextField
+                        id="register-email"
+                        label="Email"
+                        type="email"
+                        placeholder="seu@email.com"
+                        value={form.email}
+                        onChange={(e) => updateField("email", e.target.value)}
+                        error={fieldErrors.email}
+                    />
+                    <TextField
+                        id="register-senha"
+                        label="Senha"
+                        type="password"
+                        placeholder="••••••••"
+                        value={form.senha}
+                        onChange={(e) => updateField("senha", e.target.value)}
+                        error={fieldErrors.senha}
+                    />
+                    <TextField
+                        id="register-endereco"
+                        label="Endereço"
+                        type="text"
+                        placeholder="Rua, número, bairro"
+                        value={form.endereco}
+                        onChange={(e) => updateField("endereco", e.target.value)}
+                        error={fieldErrors.endereco}
+                    />
+                    <TextField
+                        id="register-telefone"
+                        label="Telefone"
+                        type="text"
+                        placeholder="(11) 98888-7777"
+                        value={form.telefone}
+                        onChange={(e) => updateField("telefone", e.target.value)}
+                        error={fieldErrors.telefone}
+                    />
 
-                    <div className={styles.formGroup}>
-                        <label className={styles.label} htmlFor="register-cpf">CPF</label>
-                        <div className={styles.inputWrapper}>
-                            <input
-                                id="register-cpf"
-                                type="text"
-                                className={styles.input}
-                                placeholder="Somente números"
-                                value={form.CPF}
-                                onChange={(e) => updateField("CPF", e.target.value)}
-                                aria-invalid={Boolean(fieldErrors.CPF)}
-                                aria-describedby={fieldErrors.CPF ? "register-cpf-error" : undefined}
-                            />
-                        </div>
-                        {fieldErrors.CPF && (
-                            <p id="register-cpf-error" className={styles.errorText}>{fieldErrors.CPF}</p>
-                        )}
-                    </div>
+                    {error && <p id="register-form-error" className={styles.formError}>{error}</p>}
 
-                    <div className={styles.formGroup}>
-                        <label className={styles.label} htmlFor="register-data-nascimento">Data de nascimento</label>
-                        <div className={styles.inputWrapper}>
-                            <input
-                                id="register-data-nascimento"
-                                type="date"
-                                className={styles.input}
-                                value={form.dataNascimento}
-                                onChange={(e) => updateField("dataNascimento", e.target.value)}
-                                aria-invalid={Boolean(fieldErrors.dataNascimento)}
-                                aria-describedby={
-                                    fieldErrors.dataNascimento ? "register-data-nascimento-error" : undefined
-                                }
-                            />
-                        </div>
-                        {fieldErrors.dataNascimento && (
-                            <p id="register-data-nascimento-error" className={styles.errorText}>
-                                {fieldErrors.dataNascimento}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className={styles.formGroup}>
-                        <label className={styles.label} htmlFor="register-email">Email</label>
-                        <div className={styles.inputWrapper}>
-                            <input
-                                id="register-email"
-                                type="email"
-                                className={styles.input}
-                                placeholder="seu@email.com"
-                                value={form.email}
-                                onChange={(e) => updateField("email", e.target.value)}
-                                aria-invalid={Boolean(fieldErrors.email)}
-                                aria-describedby={fieldErrors.email ? "register-email-error" : undefined}
-                            />
-                        </div>
-                        {fieldErrors.email && (
-                            <p id="register-email-error" className={styles.errorText}>{fieldErrors.email}</p>
-                        )}
-                    </div>
-
-                    <div className={styles.formGroup}>
-                        <label className={styles.label} htmlFor="register-senha">Senha</label>
-                        <div className={styles.inputWrapper}>
-                            <input
-                                id="register-senha"
-                                type="password"
-                                className={styles.input}
-                                placeholder="••••••••"
-                                value={form.senha}
-                                onChange={(e) => updateField("senha", e.target.value)}
-                                aria-invalid={Boolean(fieldErrors.senha)}
-                                aria-describedby={fieldErrors.senha ? "register-senha-error" : undefined}
-                            />
-                        </div>
-                        {fieldErrors.senha && (
-                            <p id="register-senha-error" className={styles.errorText}>{fieldErrors.senha}</p>
-                        )}
-                    </div>
-
-                    <div className={styles.formGroup}>
-                        <label className={styles.label} htmlFor="register-endereco">Endereço</label>
-                        <div className={styles.inputWrapper}>
-                            <input
-                                id="register-endereco"
-                                type="text"
-                                className={styles.input}
-                                placeholder="Rua, número, bairro"
-                                value={form.endereco}
-                                onChange={(e) => updateField("endereco", e.target.value)}
-                                aria-invalid={Boolean(fieldErrors.endereco)}
-                                aria-describedby={fieldErrors.endereco ? "register-endereco-error" : undefined}
-                            />
-                        </div>
-                        {fieldErrors.endereco && (
-                            <p id="register-endereco-error" className={styles.errorText}>
-                                {fieldErrors.endereco}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className={styles.formGroup}>
-                        <label className={styles.label} htmlFor="register-telefone">Telefone</label>
-                        <div className={styles.inputWrapper}>
-                            <input
-                                id="register-telefone"
-                                type="text"
-                                className={styles.input}
-                                placeholder="(11) 98888-7777"
-                                value={form.telefone}
-                                onChange={(e) => updateField("telefone", e.target.value)}
-                                aria-invalid={Boolean(fieldErrors.telefone)}
-                                aria-describedby={fieldErrors.telefone ? "register-telefone-error" : undefined}
-                            />
-                        </div>
-                        {fieldErrors.telefone && (
-                            <p id="register-telefone-error" className={styles.errorText}>
-                                {fieldErrors.telefone}
-                            </p>
-                        )}
-                    </div>
-
-                    {error && <p id="register-form-error" className={styles.errorText}>{error}</p>}
-
-                    <button type="submit" className={styles.button} disabled={loading}>
+                    <Button type="submit" fullWidth disabled={loading} className={styles.submitButton}>
                         {loading ? "Cadastrando..." : "Cadastrar"}
-                    </button>
+                    </Button>
 
                     <div className={styles.bottomLink}>
                         Já tem conta? <Link href="/">Entrar</Link>
                     </div>
                 </form>
-            </div>
+            </Card>
         </div>
     );
 }
