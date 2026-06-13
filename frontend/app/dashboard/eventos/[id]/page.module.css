@@ -1,45 +1,199 @@
 .container {
-  max-width: 800px;
+  display: grid;
+  gap: 1rem;
 }
 
-.breadcrumbs {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  margin-bottom: 1.5rem;
+.backLink {
+  width: fit-content;
+  color: var(--muted);
+  font-weight: 760;
 }
 
-.breadcrumbs a {
-  color: var(--text-muted);
-  text-decoration: none;
+.backLink:hover {
+  color: var(--brand);
 }
 
-.breadcrumbs a:hover {
-  text-decoration: underline;
+.detailGrid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 1.25rem;
+  align-items: start;
 }
 
-.breadcrumbs span {
-  color: var(--text-main);
-  font-weight: 500;
+.mainColumn {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
 }
 
-.header {
+.hero {
+  min-height: 280px;
+  border-radius: var(--radius);
+  color: white;
+  padding: 1.6rem;
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #111827, #635bff 45%, #a855f7);
+  box-shadow: var(--shadow-soft);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  right: -80px;
+  top: -80px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.hero > * {
+  position: relative;
+}
+
+.hero h1 {
+  margin: 0.75rem 0 0.5rem;
+  font-size: clamp(2.4rem, 6vw, 3.8rem);
+  line-height: 0.98;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}
+
+.hero p {
+  max-width: 720px;
+  color: #e2e8f0;
+  line-height: 1.58;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem;
+}
+
+.purchasePanel,
+.inlineFormCard,
+.listCard {
+  border: 1px solid rgba(228, 231, 236, 0.85);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow-soft);
+}
+
+.purchasePanel {
+  position: sticky;
+  top: 92px;
+  padding: 1.35rem;
+}
+
+.purchasePanel h2 {
+  color: var(--text);
+  font-size: 1.45rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.4rem;
+}
+
+.purchasePanel p,
+.aboutText,
+.feedback {
+  color: var(--muted);
+  line-height: 1.58;
+}
+
+.optionList {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.option {
+  width: 100%;
+  display: flex;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 2rem;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 0.88rem;
+  background: white;
+  color: var(--text);
+  text-align: left;
+  transition: 0.16s ease;
 }
 
-.title {
-  font-size: 1.75rem;
-  font-weight: 600;
-  margin: 0.75rem 0 0.5rem;
-  color: var(--text-main);
+.option:hover,
+.optionSelected {
+  border-color: rgba(99, 91, 255, 0.42);
+  box-shadow: 0 0 0 4px rgba(99, 91, 255, 0.08);
 }
 
-.subtitle {
-  color: var(--text-muted);
-  font-size: 1rem;
+.option strong {
+  display: block;
+  font-weight: 850;
+}
+
+.option small {
+  display: block;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+.divider {
+  height: 1px;
+  background: var(--line);
+  margin: 1rem 0;
+}
+
+.summaryRow,
+.summaryTotal {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  color: var(--muted);
+  margin: 0.85rem 0;
+}
+
+.summaryRow strong,
+.summaryTotal strong {
+  color: var(--text);
+}
+
+.summaryTotal {
+  color: var(--text);
+  font-size: 1.18rem;
+  font-weight: 900;
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+
+.qty {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.qty button {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: white;
+  font-weight: 900;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--text);
+  font-weight: 760;
+  margin: 1rem 0;
 }
 
 .errorCard {
@@ -47,94 +201,100 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  color: var(--danger-text);
-}
-
-.inlineFormCard {
-  margin-top: 1.5rem;
+  color: var(--red);
 }
 
 .section {
-  margin-bottom: 2.5rem;
+  margin-top: 1rem;
 }
 
 .sectionTitle {
+  color: var(--text);
   font-size: 1.1rem;
-  font-weight: 500;
-  color: var(--text-muted);
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
 }
 
 .row {
-  display: flex;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
 .col {
-  flex: 1;
-}
-
-.feedback,
-.errorText {
-  font-size: 0.95rem;
-  color: var(--text-muted);
+  min-width: 0;
 }
 
 .errorText {
-  color: var(--danger-text);
-}
-
-@media (max-width: 768px) {
-  .header,
-  .row,
-  .errorCard {
-    flex-direction: column;
-  }
-
-  .header button,
-  .actionsInline,
-  .actionsInline button {
-    width: 100%;
-  }
-
-  .actionsInline {
-    flex-direction: column;
-  }
-
-  .errorCard {
-    align-items: stretch;
-  }
+  color: var(--red);
+  font-size: 0.92rem;
 }
 
 .listCard {
-  margin-top: 1.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  background: white;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  padding: 0.8rem;
+  display: grid;
+  gap: 0.75rem;
 }
 
 .listItem {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 1rem;
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: white;
 }
 
-.listItem:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+.listItem strong {
+  color: var(--text);
+}
+
+.listItem div {
+  color: var(--muted);
+  line-height: 1.5;
 }
 
 .actionsInline {
   display: flex;
-  gap: 0.75rem;
   align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.inlineFormCard {
+  padding: 1.2rem;
+  margin-top: 1rem;
+}
+
+.inlineFormCard h3 {
+  color: var(--text);
+  font-size: 1.12rem;
+  font-weight: 900;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 1050px) {
+  .detailGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .purchasePanel {
+    position: static;
+  }
+}
+
+@media (max-width: 720px) {
+  .stats,
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .listItem,
+  .errorCard {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }

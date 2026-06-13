@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { isAxiosError } from "axios";
 import AdminGuard from "@/components/AdminGuard";
 import { useToast } from "@/components/ToastProvider";
-import { Button, Card, FormActions, SelectField, TextareaField, TextField } from "@/components/ui";
+import { Button, Card, FormActions, PageHeader, SelectField, TextareaField, TextField } from "@/components/ui";
 import { getForbiddenMessage, isForbiddenError } from "@/lib/apiErrors";
 import { criarEvento } from "@/services/eventos";
 import { ApiProblemDetail, EventoCreateRequest, EventoStatus } from "@/services/types";
@@ -114,10 +114,11 @@ export default function CreateEvent() {
           <Link href="/dashboard">Eventos</Link> &gt; <span>Criar Evento</span>
         </div>
 
-        <div className={styles.header}>
-          <h1 className={styles.title}>Criar Novo Evento</h1>
-          <p className={styles.subtitle}>Preencha os campos abaixo para cadastrar um novo evento.</p>
-        </div>
+        <PageHeader
+          eyebrow="Gerenciamento"
+          title="Criar novo evento"
+          subtitle="Cadastre as informações principais e depois configure sessões e tipos de ingresso."
+        />
 
         <Card>
           <form onSubmit={handleSave} noValidate>
