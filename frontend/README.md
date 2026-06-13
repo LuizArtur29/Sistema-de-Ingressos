@@ -37,3 +37,19 @@ O frontend utiliza a API local por padrão em `http://localhost:8080`. Se você 
 ```bash
 NEXT_PUBLIC_API_URL=http://localhost:8080 npm run dev
 ```
+
+## Comportamento do Dashboard de Eventos
+
+O painel principal (Dashboard) separa os eventos em duas abas principais para evitar confusão entre a listagem global de eventos da plataforma e as ações particulares do usuário autenticado:
+
+1. **Eventos Disponíveis**:
+   - Mostra a listagem de eventos com status `ATIVO` na plataforma, ou seja, todos aqueles disponíveis para que novos ingressos sejam comprados.
+   - O título e subtítulo são adaptados para uma linguagem neutra e informativa sobre a compra de ingressos.
+   
+2. **Meus Eventos**:
+   - Exibe informações sob demanda a depender do perfil do usuário logado:
+     - **Clientes comuns (Usuários)**: Exibe os eventos para os quais o usuário comprou pelo menos um ingresso. Se a lista estiver vazia, exibe uma sugestão com um botão de atalho para explorar e adquirir ingressos na aba "Eventos Disponíveis".
+     - **Administradores**: Exibe a lista de eventos criados pelo próprio administrador logado, facilitando a edição e gerenciamento desses festivais. Se vazia, exibe um botão para criar o primeiro evento.
+   - Fornece um menu de filtros para refinar a pesquisa por estado do evento (`TODOS`, `ATIVO`, `CANCELADO`, `FINALIZADO`).
+
+As métricas mostradas nos cartões estatísticos superiores atualizam-se dinamicamente para refletir o escopo da aba selecionada no momento.

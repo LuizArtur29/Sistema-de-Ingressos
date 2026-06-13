@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,9 +27,18 @@ public class EventoController {
     }
 
     @PostMapping
-    public ResponseEntity<EventoResponse> criarEvento(@Valid @RequestBody Evento evento) {
-        Evento novoEvento = eventoService.salvarEvento(evento);
+    public ResponseEntity<EventoResponse> criarEvento(@Valid @RequestBody Evento evento, Authentication authentication) {
+        Evento novoEvento = eventoService.salvarEvento(evento, authentication.getName());
         return new ResponseEntity<>(new EventoResponse(novoEvento), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/meus")
+    public ResponseEntity<List<EventoResponse>> listarMeusEventos(Authentication authentication) {
+        List<Evento> eventos = eventoService.buscarMeusEventos(authentication.getName());
+        List<EventoResponse> eventosDTO = eventos.stream()
+                .map(EventoResponse::new)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(eventosDTO, HttpStatus.OK);
     }
 
     @GetMapping

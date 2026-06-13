@@ -6,6 +6,11 @@ export async function listarEventos(): Promise<EventoResponse[]> {
     return data;
 }
 
+export async function listarMeusEventos(): Promise<EventoResponse[]> {
+    const { data } = await api.get<EventoResponse[]>("/api/eventos/meus");
+    return data;
+}
+
 export async function buscarEventoPorId(id: number): Promise<EventoResponse> {
     const { data } = await api.get<EventoResponse>(`/api/eventos/${id}`);
     return data;

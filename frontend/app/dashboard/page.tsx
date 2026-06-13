@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useToast } from "@/components/ToastProvider";
 import { usePermissions } from "@/hooks/useAuthUser";
-import { listarEventos } from "@/services/eventos";
+import { listarEventos, listarMeusEventos } from "@/services/eventos";
 import { EventoResponse, EventoStatus } from "@/services/types";
 import styles from "./page.module.css";
 
@@ -36,7 +36,9 @@ function formatDateRange(start?: string, end?: string) {
 }
 
 export default function Dashboard() {
-  const [eventos, setEventos] = useState<EventoResponse[]>([]);
+  const [eventosDisponiveis, setEventosDisponiveis] = useState<EventoResponse[]>([]);
+  const [meusEventos, setMeusEventos] = useState<EventoResponse[]>([]);
+  const [tab, setTab] = useState<"disponiveis" | "meus">("disponiveis");
   const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,8 +48,12 @@ export default function Dashboard() {
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await listarEventos();
-        setEventos(data);
+        const [disponiveisData, meusData] = await Promise.all([
+          listarEventos(),
+          listarMeusEventos(),
+        ]);
+        setEventosDisponiveis(disponiveisData);
+        setMeusEventos(meusData);
       } catch {
         setError("Não foi possível carregar os eventos.");
         showToast("Erro ao carregar eventos.", "error");
@@ -59,17 +65,36 @@ export default function Dashboard() {
   }, [showToast]);
 
   const stats = useMemo(() => {
-    const total = eventos.length;
-    const ativos = eventos.filter((e) => e.status === "ATIVO").length;
-    const cancelados = eventos.filter((e) => e.status === "CANCELADO").length;
-    const finalizados = eventos.filter((e) => e.status === "FINALIZADO").length;
+    const list = tab === "disponiveis" ? eventosDisponiveis : meusEventos;
+    const total = list.length;
+    const ativos = list.filter((e) => e.status === "ATIVO").length;
+    const cancelados = list.filter((e) => e.status === "CANCELADO").length;
+    const finalizados = list.filter((e) => e.status === "FINALIZADO").length;
     return { total, ativos, cancelados, finalizados };
-  }, [eventos]);
+  }, [tab, eventosDisponiveis, meusEventos]);
 
   const eventosFiltrados = useMemo(() => {
-    if (filtroStatus === "TODOS") return eventos;
-    return eventos.filter((e) => e.status === filtroStatus);
-  }, [eventos, filtroStatus]);
+    const list = tab === "disponiveis" ? eventosDisponiveis : meusEventos;
+    if (tab === "disponiveis") {
+      // Exibe apenas eventos ATIVO (que podem ser comprados)
+      return list.filter((e) => e.status === "ATIVO");
+    }
+    if (filtroStatus === "TODOS") return list;
+    return list.filter((e) => e.status === filtroStatus);
+  }, [tab, eventosDisponiveis, meusEventos, filtroStatus]);
+
+  const title = tab === "disponiveis" ? "Eventos Disponíveis" : "Meus Eventos";
+  const subtitle = tab === "disponiveis"
+    ? "Explore e adquira ingressos para os eventos ativos na plataforma."
+    : isAdmin
+      ? "Gerencie os eventos que você criou e publicou."
+      : "Acompanhe os eventos para os quais você possui ingressos.";
+
+  const emptyText = tab === "disponiveis"
+    ? "Nenhum evento disponível no momento."
+    : isAdmin
+      ? "Você ainda não criou eventos. Clique em “Criar Evento” para começar."
+      : "Você ainda não comprou ingressos para nenhum evento. Explore os eventos disponíveis para comprar.";
 
   if (loading) {
     return <p className={styles.resultsCount}>Carregando eventos...</p>;
@@ -83,26 +108,43 @@ export default function Dashboard() {
       <div>
         <div className={styles.header}>
           <div>
-            <h1 className={styles.title}>Meus Eventos</h1>
-            <p className={styles.subtitle}>Gerencie e acompanhe todos os seus eventos.</p>
+            <h1 className={styles.title}>{title}</h1>
+            <p className={styles.subtitle}>{subtitle}</p>
           </div>
           <div className={styles.actions}>
-            <select
-                className={styles.select}
-                value={filtroStatus}
-                onChange={(e) => setFiltroStatus(e.target.value as FiltroStatus)}
-            >
-              <option value="TODOS">Estado: Todos</option>
-              <option value="ATIVO">Estado: Ativos</option>
-              <option value="CANCELADO">Estado: Cancelados</option>
-              <option value="FINALIZADO">Estado: Finalizados</option>
-            </select>
+            {tab === "meus" && (
+              <select
+                  className={styles.select}
+                  value={filtroStatus}
+                  onChange={(e) => setFiltroStatus(e.target.value as FiltroStatus)}
+              >
+                <option value="TODOS">Estado: Todos</option>
+                <option value="ATIVO">Estado: Ativos</option>
+                <option value="CANCELADO">Estado: Cancelados</option>
+                <option value="FINALIZADO">Estado: Finalizados</option>
+              </select>
+            )}
             {isAdmin && (
               <Link href="/dashboard/create" className={styles.button}>
                 + Criar Evento
               </Link>
             )}
           </div>
+        </div>
+
+        <div className={styles.tabContainer}>
+          <button
+              onClick={() => setTab("disponiveis")}
+              className={`${styles.tabButton} ${tab === "disponiveis" ? styles.activeTab : ""}`}
+          >
+            Eventos Disponíveis
+          </button>
+          <button
+              onClick={() => setTab("meus")}
+              className={`${styles.tabButton} ${tab === "meus" ? styles.activeTab : ""}`}
+          >
+            {isAdmin ? "Meus Eventos (Gerenciar)" : "Meus Eventos"}
+          </button>
         </div>
 
         <div className={styles.statsGrid}>
@@ -153,15 +195,17 @@ export default function Dashboard() {
           {eventosFiltrados.length === 0 ? (
               <div className={styles.emptyCard}>
                 <h3 className={styles.emptyTitle}>Nenhum evento encontrado</h3>
-                <p className={styles.emptyText}>
-                  {isAdmin
-                    ? "Você ainda não criou eventos. Clique em “Criar Evento” para começar."
-                    : "Nenhum evento está disponível no momento."}
-                </p>
-                {isAdmin && (
-                  <Link href="/dashboard/create" className={styles.button}>
-                    + Criar Evento
-                  </Link>
+                <p className={styles.emptyText}>{emptyText}</p>
+                {tab === "meus" && (
+                  isAdmin ? (
+                    <Link href="/dashboard/create" className={styles.button}>
+                      + Criar Evento
+                    </Link>
+                  ) : (
+                    <button onClick={() => setTab("disponiveis")} className={styles.button}>
+                      Ver Eventos Disponíveis
+                    </button>
+                  )
                 )}
               </div>
           ) : (
