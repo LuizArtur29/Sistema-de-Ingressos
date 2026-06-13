@@ -131,7 +131,16 @@ export type CompraResponse = {
     usuarioId: number;
     nomeUsuario: string;
     ingressoId?: number;
+    ingressoIds?: number[];
     nomeEvento?: string;
+};
+
+export type CompraRequest = {
+    usuarioID: number;
+    ingressoID: number;
+    quantidadeIngressos: number;
+    metodoPagamento: "PIX" | "CARTAO_CREDITO" | "BOLETO";
+    isMeiaEntrada: boolean;
 };
 
 // ============ INGRESSO ============
@@ -145,4 +154,18 @@ export type IngressoResponse = {
     sessaoEventoId?: number;
     idTipoIngresso?: number;
     nomeTipoIngresso?: string;
+};
+
+export type TransferenciaRequest = {
+    ingressoId: number;
+    compradorId: number;
+    valorRevenda: number;
+};
+
+export type TransferenciaResponse = {
+    idTransferencia: number;
+    ingressoId: number;
+    vendedorId: number;
+    compradorId: number;
+    valorRevenda: number;
 };

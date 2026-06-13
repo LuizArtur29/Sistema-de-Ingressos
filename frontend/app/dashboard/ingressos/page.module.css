@@ -1,0 +1,57 @@
+.page {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.wallet {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(8px);
+}
+
+.modal {
+  width: min(520px, 100%);
+  border-radius: var(--radius);
+  background: white;
+  padding: 1.4rem;
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.28);
+}
+
+.modal h2 {
+  color: var(--text);
+  font-size: 1.55rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  margin-bottom: 0.4rem;
+}
+
+.modal p,
+.feedback {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+@media (max-width: 900px) {
+  .wallet {
+    grid-template-columns: 1fr;
+  }
+}
