@@ -32,6 +32,17 @@ import { useEventDetails } from "./useEventDetails";
 import { useEventSessions } from "./useEventSessions";
 import { useTicketTypes } from "./useTicketTypes";
 
+type DeleteTarget =
+  | {
+      type: "event";
+      name: string;
+    }
+  | {
+      type: "session";
+      id: number;
+      name: string;
+    };
+
 export function useEventDetailsController(eventId: number, isAdmin: boolean) {
   const router = useRouter();
   const { showToast } = useToast();
@@ -49,6 +60,8 @@ export function useEventDetailsController(eventId: number, isAdmin: boolean) {
   const { form, setForm, setError } = eventDetails;
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deletingSessionId, setDeletingSessionId] = useState<number | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
   const [fieldErrors, setFieldErrors] = useState<EventFieldErrors>({});
 
   const [sessaoNome, setSessaoNome] = useState("");
@@ -129,7 +142,7 @@ export function useEventDetailsController(eventId: number, isAdmin: boolean) {
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!isAdmin) {
       const message = getForbiddenMessage();
       setError(message);
@@ -137,25 +150,59 @@ export function useEventDetailsController(eventId: number, isAdmin: boolean) {
       return;
     }
 
-    const confirmed = window.confirm(
-      "Tem certeza que deseja excluir este evento? Essa ação não pode ser desfeita."
-    );
+    setDeleteTarget({ type: "event", name: form.nome || "Evento sem nome" });
+  };
 
-    if (!confirmed) return;
+  const closeDeleteDialog = () => {
+    if (deleting || deletingSessionId !== null) return;
+    setDeleteTarget(null);
+  };
 
-    setError(null);
-    setDeleting(true);
+  const confirmDelete = async () => {
+    if (!deleteTarget || deleting || deletingSessionId !== null) return;
+
+    if (!isAdmin) {
+      const message = getForbiddenMessage();
+      setError(message);
+      showToast(message, "error");
+      return;
+    }
+
+    if (deleteTarget.type === "event") {
+      setError(null);
+      setDeleting(true);
+
+      try {
+        await excluirEvento(eventId);
+        showToast("Evento excluído com sucesso.", "success");
+        setDeleteTarget(null);
+        router.push("/dashboard");
+      } catch (err: unknown) {
+        const message = isForbiddenError(err) ? getForbiddenMessage() : "Não foi possível excluir o evento.";
+        setError(message);
+        showToast(isForbiddenError(err) ? message : "Falha ao excluir evento.", "error");
+      } finally {
+        setDeleting(false);
+      }
+
+      return;
+    }
+
+    setDeletingSessionId(deleteTarget.id);
+    let deletedSession = false;
 
     try {
-      await excluirEvento(eventId);
-      showToast("Evento excluído com sucesso.", "success");
-      router.push("/dashboard");
+      await excluirSessao(deleteTarget.id);
+      showToast("Sessão removida.", "success");
+      await sessions.reloadSessoes();
+      deletedSession = true;
     } catch (err: unknown) {
-      const message = isForbiddenError(err) ? getForbiddenMessage() : "Não foi possível excluir o evento.";
-      setError(message);
-      showToast(isForbiddenError(err) ? message : "Falha ao excluir evento.", "error");
+      showToast(isForbiddenError(err) ? getForbiddenMessage() : "Erro ao remover sessão.", "error");
     } finally {
-      setDeleting(false);
+      setDeletingSessionId(null);
+      if (deletedSession) {
+        setDeleteTarget(null);
+      }
     }
   };
 
@@ -236,22 +283,17 @@ export function useEventDetailsController(eventId: number, isAdmin: boolean) {
     }
   };
 
-  const handleRemoverSessao = async (idSessao: number) => {
+  const handleRemoverSessao = (sessao: SessaoEventoResponse) => {
     if (!isAdmin) {
       showToast(getForbiddenMessage(), "error");
       return;
     }
 
-    const confirmed = window.confirm("Deseja remover esta sessão?");
-    if (!confirmed) return;
-
-    try {
-      await excluirSessao(idSessao);
-      showToast("Sessão removida.", "success");
-      await sessions.reloadSessoes();
-    } catch (err: unknown) {
-      showToast(isForbiddenError(err) ? getForbiddenMessage() : "Erro ao remover sessão.", "error");
-    }
+    setDeleteTarget({
+      type: "session",
+      id: sessao.idSessao,
+      name: sessao.nomeSessao || `Sessão ${sessao.idSessao}`,
+    });
   };
 
   const handleCriarTipo = async (event: FormEvent) => {
@@ -316,7 +358,15 @@ export function useEventDetailsController(eventId: number, isAdmin: boolean) {
     ticketTypes,
     saving,
     deleting,
+    deletingSessionId,
     fieldErrors,
+    deleteDialog: {
+      target: deleteTarget,
+      isOpen: deleteTarget !== null,
+      isLoading: deleting || deletingSessionId !== null,
+      close: closeDeleteDialog,
+      confirm: confirmDelete,
+    },
     eventHandlers: {
       updateField,
       handleSave,

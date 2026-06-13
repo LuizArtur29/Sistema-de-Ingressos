@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import { usePermissions } from "@/hooks/useAuthUser";
 import EventForm from "./_components/EventForm";
 import SessionsManager from "./_components/SessionsManager";
@@ -95,6 +96,7 @@ export default function EventDetails() {
         onSessionDateTimeChange={controller.sessionHandlers.setDataHora}
         onSessionStatusChange={controller.sessionHandlers.setStatus}
         onSessionCapacityChange={controller.sessionHandlers.setCapacidade}
+        deletingSessionId={controller.deletingSessionId}
       />
 
       <TicketTypesManager
@@ -111,6 +113,26 @@ export default function EventDetails() {
         onPriceChange={controller.ticketTypeHandlers.setPreco}
         onQuantityChange={controller.ticketTypeHandlers.setQuantidadeTotal}
         onLotChange={controller.ticketTypeHandlers.setLote}
+      />
+
+      <ConfirmDialog
+        open={controller.deleteDialog.isOpen}
+        title={
+          controller.deleteDialog.target?.type === "session"
+            ? "Remover sessão?"
+            : "Excluir evento?"
+        }
+        description={
+          controller.deleteDialog.target?.type === "session"
+            ? "Esta sessão será removida do evento. Essa ação não pode ser desfeita."
+            : "Este evento será excluído permanentemente. Essa ação não pode ser desfeita."
+        }
+        resourceName={controller.deleteDialog.target?.name ?? ""}
+        confirmLabel={controller.deleteDialog.target?.type === "session" ? "Remover sessão" : "Excluir evento"}
+        loadingLabel={controller.deleteDialog.target?.type === "session" ? "Removendo..." : "Excluindo..."}
+        isLoading={controller.deleteDialog.isLoading}
+        onCancel={controller.deleteDialog.close}
+        onConfirm={controller.deleteDialog.confirm}
       />
     </div>
   );
