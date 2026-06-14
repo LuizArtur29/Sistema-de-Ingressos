@@ -16,6 +16,8 @@ import java.util.Optional;
 public interface IngressoRepository extends JpaRepository<Ingresso, Long> {
     Long countBySessaoEventoIdSessao(Long sessaoEventoId);
 
+    long countByTipoIngressoIdTipoIngresso(Long idTipoIngresso);
+
     List<Ingresso> findByTipoIngressoIdTipoIngresso(Long idTipoIngresso);
 
     long countBySessaoEventoIdSessaoAndVendidoTrue(Long sessaoEventoId);

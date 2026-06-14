@@ -8,7 +8,7 @@ import { Badge, Button, Card, EmptyState, MetricCard, PageHeader, SelectField, S
 import { useAuthUser, usePermissions } from "@/hooks/useAuthUser";
 import { realizarCompra } from "@/services/compras";
 import { listarIngressosPorSessao } from "@/services/ingressos";
-import { EventoStatus, IngressoResponse } from "@/services/types";
+import { CompraRequest, EventoStatus, IngressoResponse } from "@/services/types";
 import EventForm from "./_components/EventForm";
 import SessionsManager from "./_components/SessionsManager";
 import TicketTypesManager from "./_components/TicketTypesManager";
@@ -54,17 +54,20 @@ export default function EventDetails() {
   const [metodoPagamento, setMetodoPagamento] = useState<"PIX" | "CARTAO_CREDITO" | "BOLETO">("PIX");
   const [meiaEntrada, setMeiaEntrada] = useState(false);
   const [buying, setBuying] = useState(false);
+  const [purchaseError, setPurchaseError] = useState<string | null>(null);
 
   useEffect(() => {
     const sessaoSelecionada = sessions.sessaoSelecionada;
     if (!sessaoSelecionada) {
       setIngressos([]);
+      setPurchaseError(null);
       return;
     }
 
     let active = true;
     const load = async () => {
       setLoadingIngressos(true);
+      setPurchaseError(null);
       try {
         const data = await listarIngressosPorSessao(sessaoSelecionada);
         if (active) setIngressos(data);
@@ -78,7 +81,7 @@ export default function EventDetails() {
     return () => {
       active = false;
     };
-  }, [sessions.sessaoSelecionada, showToast]);
+  }, [sessions.sessaoSelecionada, showToast, ticketTypes.tiposIngresso.length]);
 
   useEffect(() => {
     if (ticketTypes.tiposIngresso.length === 0) {
@@ -97,36 +100,71 @@ export default function EventDetails() {
     [selectedTypeId, ticketTypes.tiposIngresso]
   );
 
-  const ingressoBase = useMemo(
+  const ingressosDisponiveisDoTipo = useMemo(
     () =>
-      ingressos.find(
+      ingressos.filter(
         (ingresso) =>
           ingresso.disponivelParaCompra &&
           ingresso.ingressoDisponivel &&
           !ingresso.vendido &&
           ingresso.idTipoIngresso === selectedTypeId
-      ) ?? null,
+      ),
     [ingressos, selectedTypeId]
   );
 
-  const maxQuantidade = Math.max(1, selectedType?.quantidadeDisponivel ?? 1);
+  const ingressoBase = ingressosDisponiveisDoTipo[0] ?? null;
+  const quantidadeDisponivelReal = ingressosDisponiveisDoTipo.length;
+  const quantidadeDisponivelDoLote = selectedType?.quantidadeDisponivel ?? 0;
+  const maxQuantidade = Math.max(1, Math.min(quantidadeDisponivelDoLote, quantidadeDisponivelReal || quantidadeDisponivelDoLote));
   const subtotal = (selectedType?.preco ?? 0) * quantidade * (meiaEntrada ? 0.5 : 1);
   const taxa = subtotal > 0 ? subtotal * 0.05 : 0;
+  const canBuy =
+    Boolean(user) &&
+    Boolean(ingressoBase) &&
+    quantidadeDisponivelReal >= quantidade &&
+    form.status === "ATIVO" &&
+    !buying &&
+    !loadingIngressos &&
+    !ticketTypes.loadingTipos;
+
+  useEffect(() => {
+    setQuantidade((current) => Math.min(Math.max(1, current), maxQuantidade));
+  }, [maxQuantidade]);
 
   const handleBuy = async () => {
-    if (!user || !ingressoBase) return;
+    if (!user) {
+      setPurchaseError("Faça login novamente para concluir a compra.");
+      return;
+    }
+
+    if (!selectedType) {
+      setPurchaseError("Selecione um tipo de ingresso para continuar.");
+      return;
+    }
+
+    if (!ingressoBase || quantidadeDisponivelReal < quantidade) {
+      setPurchaseError("Não existem ingressos disponíveis para o lote selecionado.");
+      showToast("Não existem ingressos disponíveis para este lote.", "error");
+      return;
+    }
+
     setBuying(true);
+    setPurchaseError(null);
+
+    const payload: CompraRequest = {
+      usuarioID: user.idUsuario,
+      ingressoID: ingressoBase.idIngresso,
+      quantidadeIngressos: quantidade,
+      metodoPagamento,
+      isMeiaEntrada: meiaEntrada,
+    };
+
     try {
-      await realizarCompra({
-        usuarioID: user.idUsuario,
-        ingressoID: ingressoBase.idIngresso,
-        quantidadeIngressos: quantidade,
-        metodoPagamento,
-        isMeiaEntrada: meiaEntrada,
-      });
+      await realizarCompra(payload);
       showToast("Compra realizada com sucesso.", "success");
       router.push("/dashboard/ingressos");
     } catch {
+      setPurchaseError("Não foi possível concluir a compra. Verifique a disponibilidade e tente novamente.");
       showToast("Não foi possível concluir a compra.", "error");
     } finally {
       setBuying(false);
@@ -322,7 +360,13 @@ export default function EventDetails() {
                 <div className={styles.summaryRow}><span>Taxa</span><strong>{formatMoney(taxa)}</strong></div>
                 <div className={styles.summaryTotal}><span>Total</span><strong>{formatMoney(subtotal + taxa)}</strong></div>
 
-                <Button type="button" fullWidth disabled={!ingressoBase || buying || form.status !== "ATIVO"} onClick={handleBuy}>
+                {purchaseError && <p className={styles.purchaseError}>{purchaseError}</p>}
+
+                {!purchaseError && selectedType && !loadingIngressos && quantidadeDisponivelDoLote === 0 && (
+                  <p className={styles.purchaseError}>Não existem ingressos disponíveis para o lote selecionado.</p>
+                )}
+
+                <Button type="button" fullWidth disabled={!canBuy} onClick={handleBuy}>
                   {buying ? "Comprando..." : "Comprar agora"}
                 </Button>
               </>
