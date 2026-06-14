@@ -64,9 +64,9 @@ O sistema utiliza JWT para proteger rotas sensiveis.
 | Metodo | Endpoint | Acesso | Descricao |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/sessoes-evento` | Admin | Cadastra uma sessao de evento. |
-| `GET` | `/api/sessoes-evento` | Admin | Lista todas as sessoes de evento. |
-| `GET` | `/api/sessoes-evento/{id}` | Admin | Busca sessao de evento por ID. |
-| `GET` | `/api/sessoes-evento/evento/{eventoId}` | Admin | Lista sessoes vinculadas a um evento. |
+| `GET` | `/api/sessoes-evento` | Usuario/Admin | Lista todas as sessoes de evento. |
+| `GET` | `/api/sessoes-evento/{id}` | Usuario/Admin | Busca sessao de evento por ID. |
+| `GET` | `/api/sessoes-evento/evento/{eventoId}` | Usuario/Admin | Lista sessoes vinculadas a um evento. |
 | `PUT` | `/api/sessoes-evento/{id}` | Admin | Atualiza uma sessao de evento. |
 | `DELETE` | `/api/sessoes-evento/{id}` | Admin | Remove uma sessao de evento. |
 
@@ -75,14 +75,14 @@ O sistema utiliza JWT para proteger rotas sensiveis.
 | Metodo | Endpoint | Acesso | Descricao |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/tipos-ingresso` | Admin | Cadastra um tipo de ingresso para uma sessao. |
-| `GET` | `/api/tipos-ingresso/sessao/{sessaoId}` | Admin | Lista tipos de ingresso de uma sessao. |
+| `GET` | `/api/tipos-ingresso/sessao/{sessaoId}` | Usuario/Admin | Lista tipos de ingresso de uma sessao. |
 
 ### Ingressos
 
 | Metodo | Endpoint | Acesso | Descricao |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/ingressos/sessoes/{sessaoEventoId}/tipos/{tipoIngressoId}` | Admin | Cria ingresso para uma sessao e tipo de ingresso. |
-| `GET` | `/api/ingressos/sessoes/{sessaoEventoId}` | Admin | Lista ingressos de uma sessao. |
+| `GET` | `/api/ingressos/sessoes/{sessaoEventoId}` | Usuario/Admin | Lista ingressos de uma sessao. |
 | `GET` | `/api/ingressos/{ingressoId}` | Admin | Busca ingresso por ID. |
 | `GET` | `/api/ingressos/{ingressoId}/disponibilidade` | Admin | Verifica se o ingresso esta disponivel. |
 | `PUT` | `/api/ingressos/{ingressoId}/entrada` | Admin | Registra entrada de um ingresso. |
