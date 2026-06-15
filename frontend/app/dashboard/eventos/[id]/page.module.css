@@ -105,6 +105,14 @@
   line-height: 1.58;
 }
 
+.purchaseError {
+  margin: 0.75rem 0;
+  color: var(--red);
+  font-size: 0.9rem;
+  font-weight: 760;
+  line-height: 1.45;
+}
+
 .optionList {
   display: grid;
   gap: 0.7rem;
