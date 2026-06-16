@@ -49,7 +49,9 @@ export default function MyTicketsPage() {
   };
 
   const handleTransfer = async () => {
-    const ingressoId = transferCompra?.ingressoId ?? transferCompra?.ingressoIds?.[0];
+    if (!transferCompra) return;
+
+    const ingressoId = transferCompra.ingressoId ?? transferCompra.ingressoIds?.[0];
     if (!ingressoId || !compradorId.trim()) return;
 
     setSubmitting(true);
@@ -59,7 +61,8 @@ export default function MyTicketsPage() {
         compradorId: Number(compradorId),
         valorRevenda: Number(valorRevenda || 0),
       });
-      showToast("Transferência registrada.", "success");
+      showToast("Transferência realizada com sucesso.", "success");
+      setCompras((prev) => prev.filter((c) => c.idCompra !== transferCompra.idCompra));
       closeTransfer();
     } catch {
       showToast("Não foi possível transferir o ingresso.", "error");
@@ -133,10 +136,10 @@ export default function MyTicketsPage() {
         <div className={styles.modalBackdrop} role="dialog" aria-modal="true">
           <div className={styles.modal}>
             <h2>Transferir ingresso</h2>
-            <p>Informe o ID do usuário comprador definido pelo backend e o valor de revenda, se houver.</p>
+            <p>Informe o ID do usuário destinatário e o valor de revenda.</p>
             <TextField
               id="transfer-buyer"
-              label="ID do comprador"
+              label="ID do Usuário Destinatário"
               type="number"
               min="1"
               value={compradorId}
@@ -144,7 +147,7 @@ export default function MyTicketsPage() {
             />
             <TextField
               id="transfer-value"
-              label="Valor de revenda"
+              label="Valor de Revenda"
               type="number"
               min="0"
               step="0.01"

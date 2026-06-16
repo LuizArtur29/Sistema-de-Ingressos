@@ -87,7 +87,6 @@ export type UsuarioAutenticado = {
     role: UserRole;
 };
 
-// Se quiser manter o nome usado atualmente na tela:
 export type UsuarioPerfil = UsuarioAutenticado;
 
 // ============ SESSÃO ============
